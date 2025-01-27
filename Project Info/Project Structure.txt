@@ -1,0 +1,129 @@
+1. Root Directory
+โฟลเดอร์หลักที่ชื่อ D_CEOsofts-main/ มีไฟล์และโฟลเดอร์สำคัญต่อการจัดการโปรเจค เช่น:
+
+.gitattributes และ .gitignore: กำหนดไฟล์หรือโฟลเดอร์ที่ไม่ต้องการติดตามในระบบ Git
+README.md: ไฟล์คำอธิบายโปรเจค
+composer.json และ composer.lock: ไฟล์สำหรับจัดการ dependencies ด้วย Composer
+artisan: คำสั่ง CLI สำหรับ Laravel เช่น รันเซิร์ฟเวอร์ สร้าง migration, seeder, controller ฯลฯ
+
+2. โฟลเดอร์ app/
+เก็บโค้ดของแอปพลิเคชันที่เป็นหัวใจหลัก:
+
+Http/Controllers/:
+ไฟล์ Controller.php: Controller หลักที่ไฟล์อื่น ๆ ขยายความสามารถ
+ตัวอย่าง Controller: CustomerController.php, DashboardController.php สำหรับการจัดการข้อมูลลูกค้าและแดชบอร์ด
+Auth/: มี Controller สำหรับระบบล็อกอิน เช่น LoginController.php, RegisterController.php
+Http/Requests/: เก็บ Request Class สำหรับจัดการ validation เช่น StoreCustomerRequest.php
+Models/: เก็บ Model ที่เชื่อมกับฐานข้อมูล เช่น Customer.php, Product.php
+Providers/: จัดการบริการระบบ เช่น RouteServiceProvider.php สำหรับกำหนด routing
+
+3. โฟลเดอร์ config/
+เก็บไฟล์คอนฟิก เช่น:
+
+app.php: กำหนดค่าเกี่ยวกับแอปพลิเคชัน เช่น ชื่อ, timezone, locale
+auth.php: จัดการระบบ Authentication
+database.php: การเชื่อมต่อฐานข้อมูล
+
+4. โฟลเดอร์ database/
+สำหรับจัดการฐานข้อมูล:
+
+migrations/: ไฟล์ Migration สำหรับสร้างโครงสร้างฐานข้อมูล เช่น:
+2025_01_21_140456_create_customers_table.php: สร้างตารางลูกค้า
+2025_01_21_140523_create_orders_table.php: สร้างตารางคำสั่งซื้อ
+seeders/: ไฟล์ Seeder เช่น ProductsTableSeeder.php สำหรับเติมข้อมูลในตาราง
+factories/: ใช้สร้างข้อมูลทดสอบในระหว่างการพัฒนา
+
+5. โฟลเดอร์ resources/
+เก็บทรัพยากรที่ใช้แสดงผล เช่น:
+
+css/ และ js/: เก็บไฟล์ CSS และ JavaScript
+views/: เก็บ Blade Templates:
+ตัวอย่างไฟล์: home.blade.php, dashboard.blade.php
+โฟลเดอร์ย่อย เช่น:
+auth/: จัดการหน้าล็อกอิน (login.blade.php), ลงทะเบียน (register.blade.php)
+customers/: จัดการหน้าลูกค้า (create.blade.php, edit.blade.php)
+
+6. โฟลเดอร์ routes/
+web.php: ไฟล์กำหนดเส้นทาง (routing) สำหรับเว็บ เช่น หน้า home, dashboard
+console.php: กำหนดคำสั่ง Artisan ที่กำหนดเอง
+
+7. โฟลเดอร์ storage/
+สำหรับเก็บไฟล์ที่ระบบสร้างขึ้น เช่น:
+
+app/: เก็บไฟล์ที่อัปโหลดหรือใช้ภายใน
+framework/: เก็บ cache, session, view ที่ถูก compile
+logs/: เก็บไฟล์ log ของระบบ
+8. โฟลเดอร์ tests/
+เก็บไฟล์สำหรับทดสอบ:
+
+Feature/: ทดสอบฟีเจอร์ เช่น การทำงานของ Controller
+Unit/: ทดสอบหน่วยย่อย เช่น Model หรือฟังก์ชัน
+
+9. โฟลเดอร์ public/
+เป็น root directory สำหรับเว็บเซิร์ฟเวอร์:
+
+index.php: จุดเริ่มต้นของ Laravel Application
+.htaccess: ใช้กำหนดกฎสำหรับ Apache Server
+ไฟล์ favicon และ robots.txt
+จุดเด่นและการจัดการในโปรเจคนี้
+การแยกไฟล์และโฟลเดอร์: ทำได้ดี มีการจัดระเบียบโครงสร้างตาม Laravel Standards
+Migration และ Seeder: ช่วยให้การตั้งค่าโครงสร้างฐานข้อมูลและการเติมข้อมูลทำได้ง่าย
+Blade Templates: ใช้ระบบ Template ของ Laravel ที่ชัดเจนและง่ายต่อการแก้ไข
+
+extracted_project/
+  D_CEOsofts-main/
+    .gitattributes
+    Project Info/
+      0.0 ProjectStatus.txt
+      9.0 คำสั่ง.txt
+      ERP_CRM_Detailed_Guide.txt
+      README.md
+      BIN/
+        0.0 ProjectStatusR1.txt
+        ...
+    ceosofts/
+      .editorconfig
+      .env.example
+      .gitattributes
+      .gitignore
+      README.md
+      artisan
+      composer.json
+      ...
+      app/
+        Http/
+          Controllers/
+            Controller.php
+            CustomerController.php
+            DashboardController.php
+            ...
+        Models/
+          Customer.php
+          Order.php
+          ...
+        Providers/
+          AppServiceProvider.php
+          RouteServiceProvider.php
+      ...
+      resources/
+        css/
+          app.css
+        js/
+          app.js
+        ...
+        views/
+          dashboard.blade.php
+          home.blade.php
+          ...
+      routes/
+        console.php
+        web.php
+      storage/
+        ...
+      tests/
+        TestCase.php
+        Feature/
+          ExampleTest.php
+        Unit/
+          ExampleTest.php
+
