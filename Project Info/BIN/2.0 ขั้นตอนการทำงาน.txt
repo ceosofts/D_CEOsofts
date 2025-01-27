@@ -1,0 +1,419 @@
+ขั้นตอนการทำงาน
+
+
+//////////////////////////////  ระบบพื้นฐาน  ////////////////////////////////   
+### **สรุปขั้นตอนการติดตั้งและตั้งค่าระบบ Laravel**
+
+---
+>>> เปิด Terminal
+>>> cd เข้าไปใน folder ที่จะทำงาน
+
+ตรวจสอบการติดตั้ง:
+    >>> php -v
+            PHP 8.3.16 (cli) (built: Jan 19 2025 13:45:13) (NTS)
+            Copyright (c) The PHP Group
+            Zend Engine v4.3.16, Copyright (c) Zend Technologies
+            with Zend OPcache v8.3.16, Copyright (c), by Zend Technologies
+
+    >>> composer --version 
+            Composer version 2.8.4 2024-12-11 11:57:47
+            PHP version 8.3.16 (/usr/bin/php8.3)
+            Run the "diagnose" command to get more detailed diagnostics output.
+
+    ตรวจสอบ Extensions ของ PHP
+    >>> php -m
+
+        ตรวจสอบว่ามี Extensions ต่อไปนี้หรือไม่:
+            BCMath >>>ok installed
+            Ctype >>>ok installed
+            Fileinfo >>>ok installed
+            JSON >>>ok installed
+            Mbstring >>>ok installed
+            OpenSSL >>>ok installed
+            PDO >>>ok installed
+            Tokenizer >>>ok installed
+            XML >>>ok installed
+
+        หากขาด ให้ติดตั้งผ่านคำสั่ง:
+
+        >>> sudo apt install php-<extension_name> -y  >>>ok installed
+
+
+#### **1. การติดตั้ง Linux และ PHP**
+**ขั้นตอน:**
+1. **ติดตั้ง WSL (Windows Subsystem for Linux):**
+   - รันคำสั่งใน PowerShell (Run as Administrator):
+     ```bash
+
+    >>> wsl --install >>>ok installed
+
+     ```
+   - รีสตาร์ทเครื่องและเปิด Ubuntu เพื่อตั้งค่า.
+
+2. **อัปเดตระบบและติดตั้ง PHP:**
+   ```bash
+
+    >>>wsl เพื่อเข้าไประบบ Linux
+
+    ตรวจสอบว่า SQLite Driver ติดตั้งใน PHP หรือยัง
+    ถ้าไม่มีผลลัพธ์ หรือไม่มี sqlite3 ในรายการ แปลว่า SQLite Driver ยังไม่ได้ติดตั้ง
+
+    >>> php -m | grep sqlite
+
+    ติดตั้ง SQLite Driver สำหรับ PHP
+
+    >>> sudo apt update
+    >>> sudo apt install php-sqlite3
+
+    >>> sudo apt update && sudo apt upgrade -y >>>ok installed
+    >>> sudo apt install php8.1 php8.1-cli php8.1-bcmath php8.1-mbstring php8.1-xml php8.1-curl php8.1-mysql php8.1-sqlite3 php8.1-zip -y >>>ok installed
+   
+   เมื่อติดตั้งเสร้จลองเช็คดูอีกที
+
+   >>> php -m | grep sqlite
+
+   ถ้าแสดงตามนี้คือโอเคร
+    pdo_sqlite
+    sqlite3
+
+    รีสตาร์ทเซิร์ฟเวอร์ PHP (ถ้าจำเป็น)
+
+    >>> sudo service apache2 restart
+    >>> sudo service php8.3-fpm restart
+
+    ใช้คำสั่งนี้เพื่อตรวจสอบเหตุผลที่ php8.3-fpm ไม่สามารถรีสตาร์ทได้:
+
+    >>> sudo service php8.3-fpm status
+
+    รันคำสั่งเพื่อตรวจสอบ log และค้นหาสาเหตุของปัญหา:
+
+    >>> sudo journalctl -u php8.3-fpm
+
+    หากยังไม่มีข้อมูล ลองเริ่มบริการ php8.3-fpm ด้วยคำสั่ง:
+    >>> sudo service php8.3-fpm start
+
+    ตรวจสอบ อีกครั้ง
+    >>> sudo service php8.3-fpm status
+
+    รันคำสั่งนี้เพื่อติดตั้ง net-tools:
+    >>> sudo apt update
+    >>> sudo apt install net-tools
+
+    วิธีตรวจสอบพอร์ตของ php-fpm
+    >>> sudo netstat -tulnp | grep php
+
+   ```
+
+3. **ติดตั้ง Composer:**
+   - ดาวน์โหลด Composer:
+     ```bash
+
+    >>>ok installed
+
+     curl -sS https://getcomposer.org/installer | php 
+     sudo mv composer.phar /usr/local/bin/composer
+     composer --version
+
+     ```
+
+---
+
+#### **2. การสร้างโปรเจกต์ Laravel**
+**ขั้นตอน:**
+1. **สร้างโปรเจกต์ใหม่:**
+   ```bash
+
+   >>> composer create-project laravel/laravel ceosofts >>>ok installed
+
+   >>> cd ceosofts
+
+   ```
+
+2. **ตั้งค่า APP_KEY:**
+คำสั่ง php artisan key เป็นคำสั่งใน Laravel Framework ที่ใช้จัดการกับ Application Key หรือ APP_KEY 
+ซึ่งเป็นคีย์สำคัญที่ Laravel ใช้สำหรับการเข้ารหัส (encryption) ข้อมูลต่าง ๆ เช่น session, cookies, 
+และข้อมูลที่ต้องการความปลอดภัยสูง
+   ```bash
+
+   >>> php artisan key:generate >>>ok installed
+
+   ```
+
+//////////////////////////////  ระบบพื้นฐาน  ////////////////////////////////   
+//////////////////////////////  การสร้างฐานข้อมูล  ////////////////////////////////
+3. การตั้งค่าฐานข้อมูล
+  3.1 แก้ไขไฟล์ .env
+    เปิดไฟล์ .env และกำหนดค่าฐานข้อมูล เช่น:
+    
+
+    หากใช้ SQLite:
+    env
+    Copy
+    Edit
+
+    DB_CONNECTION=sqlite
+    DB_DATABASE=[/mnt/c/Users/facad/Desktop/Developer/ERP-CRM_1/ceosofts/database/database.sqlite]
+    DB_FOREIGN_KEYS=true
+
+  3.2 สร้างฐานข้อมูล สำหรับ SQLite:
+
+    ที่ Terminal >>> wsl >>>
+    ใช้คำสั่ง touch เพื่อสร้างไฟล์ database.sqlite ในโฟลเดอร์ database:
+    
+    >>> touch database/database.sqlite
+
+    ตรวจสอบว่าฐานข้อมูลถูกสร้างหรือไม่
+
+    >>> ls database/
+
+    ให้สิทธิ์การอ่านและเขียนสำหรับไฟล์ฐานข้อมูล:
+
+    >>> chmod 777 database/database.sqlite
+
+    หลังจากกำหนดค่าทุกอย่างเรียบร้อยแล้ว ให้รันคำสั่งต่อไปนี้เพื่อสร้างตาราง:
+
+    >>> php artisan migrate
+
+
+    เมื่อเปิดฐานข้อมูลสำเร็จ คุณสามารถพิมพ์คำสั่งต่อไปนี้เพื่อตรวจสอบตารางในฐานข้อมูล:
+    
+    หลังจากเข้าสู่ SQLite (โดยใช้คำสั่ง 
+
+    >>> sqlite3 database/database.sqlite 
+
+    .tables
+
+        ceosoftslaptop@CeosoftsLapTop:/mnt/c/Users/facad/Desktop/Developer/ERP-CRM_1/ceosofts$ sqlite3 database/database.sqlite 
+        SQLite version 3.31.1 2020-01-27 19:55:54
+        Enter ".help" for usage hints.
+        sqlite> .tables
+        cache                  job_batches            password_reset_tokens
+        cache_locks            jobs                   sessions
+        failed_jobs            migrations             users
+        sqlite>
+
+    at teminal wsl 
+    เพิ่มข้อมูลตัวอย่าง (Seeder): หากคุณต้องการเพิ่มข้อมูลตัวอย่างในฐานข้อมูล:
+    >>> php artisan db:seed
+
+    ใช้งานฐานข้อมูลผ่าน Tinker: ใช้ Laravel Tinker เพื่อทดสอบการดึงข้อมูลจากตาราง: at Terminal
+
+    >>> php artisan tinker
+    >>> \App\Models\User::all();
+
+    ceosoftslaptop@CeosoftsLapTop:/mnt/c/Users/facad/Desktop/Developer/ERP-CRM_1/ceosofts$ php artisan tinker
+ \App\Models\User::all();
+
+Psy Shell v0.12.7 (PHP 8.3.16 — cli) by Justin Hileman
+
+> \App\Models\User::all();
+= Illuminate\Database\Eloquent\Collection {#5950
+    all: [
+      App\Models\User {#5541
+        id: 1,
+        name: "Test User",
+        email: "test@example.com",
+        email_verified_at: "2025-01-21 12:48:37",
+        #password: "$2y$12$IJjBlnqtnprZV2oeNBnwO.N0.ZDsCtL.uLil48frcmOtyFLDfSsFq",
+        #remember_token: "lnkgaakHLt",
+        created_at: "2025-01-21 12:48:38",
+        updated_at: "2025-01-21 12:48:38",
+      },
+    ],
+  }
+
+(END)
+
+         ทดลองระบบ register
+         email test1@example.com
+         password 12345678
+
+
+ตรวจสอบการตั้งค่าใน .env
+
+DB_CONNECTION=sqlite
+DB_DATABASE=/mnt/c/Users/facad/Desktop/Developer/ERP-CRM_1/ceosofts/database/database.sqlite
+
+คุณสามารถหาตำแหน่งไฟล์ที่ถูกต้องได้ด้วยคำสั่ง: Terminal >>> wsl 
+>>> realpath database/database.sqlite
+
+หลังจากแก้ไข .env แล้ว ให้รีเฟรชการตั้งค่าของ Laravel:
+>>> php artisan config:clear
+>>> php artisan cache:clear
+
+
+ตรวจสอบการเชื่อมต่อฐานข้อมูล at Terminal
+>>> php artisan tinker
+>>> DB::table('users')->get();
+
+สร้างข้อมูลตัวอย่าง (Seeder)
+>>> php artisan make:seeder UsersTableSeeder
+
+//////////////////////////////  การสร้างฐานข้อมูล  ////////////////////////////////
+//////////////////////////////  Authentication  ////////////////////////////////
+
+ตรวจสอบระบบการสมัครสมาชิกและการเข้าสู่ระบบ
+ติดตั้งแพ็กเกจ Breeze:
+
+>>> composer require laravel/breeze --dev
+
+ติดตั้งระบบ Authentication:
+
+>>> php artisan breeze:install
+
+ติดตั้ง dependencies ของ Frontend:
+
+>>> npm install && npm run dev
+
+รัน migrations เพื่อสร้างตารางสำหรับระบบ Authentication
+
+>>> php artisan migrate
+
+ติดตั้ง Laravel UI (ทางเลือก)  หากคุณต้องการใช้ระบบ Authentication แบบดั้งเดิม (เช่น Bootstrap):
+
+>>> composer require laravel/ui
+
+ติดตั้ง scaffolding สำหรับ Authentication:
+
+>>> php artisan ui bootstrap --auth 
+
+ติดตั้ง dependencies ของ Frontend
+
+>>> npm install && npm run dev
+
+รัน migrations
+
+>>> php artisan migrate
+
+เรียกใช้เซิร์ฟเวอร์
+
+>>> php artisan serve
+
+test ไปที่:
+หน้า เข้าสู่ระบบ: http://127.0.0.1:8000/login
+หน้า สมัครสมาชิก: http://127.0.0.1:8000/register
+
+
+เพิ่มการจัดการบทบาทและสิทธิ์ (Roles & Permissions)
+
+>>> composer require spatie/laravel-permission
+
+***note 
+1.ตอนนี้สามารถเข้า http://127.0.0.1:8000/ โดยยังเป็นของ Laravel อยู่
+2.สามารถเข้า http://127.0.0.1:8000/login >>> http://127.0.0.1:8000/home
+2.สามารถเข้า http://127.0.0.1:8000/register  >>> http://127.0.0.1:8000/home
+3.สามารถ logout ได้ 
+4.ยังไม่มีหน้า http://127.0.0.1:8000/dashboard
+5.ระบบ ลืม password ใช้ได้
+
+
+
+         ทดลองระบบ register
+         email test1@example.com
+         password 12345678
+
+////////////////////////////// Authentication  ////////////////////////////////
+
+4. การพัฒนาโปรเจกต์
+  4.1 สร้าง Controller และ Route
+
+    สร้าง Controller:
+    >>> php artisan make:controller MyController
+
+    เพิ่ม Route ใน routes/web.php:
+    >>> Route::get('/example', [MyController::class, 'index']);
+
+  4.2 สร้าง View
+    สร้างไฟล์ View:
+    >>> touch resources/views/example.blade.php
+
+    เพิ่มเนื้อหาใน View เช่น:html
+    <h1>Welcome to My Project</h1>
+
+3. **รันเซิร์ฟเวอร์ Laravel:**
+   >>> php artisan serve
+
+   - เปิดเบราว์เซอร์ที่: `http://127.0.0.1:8000`.
+
+
+#### **3. การตั้งค่าฐานข้อมูล**
+1. **แก้ไขไฟล์ `.env`:**
+   - ตั้งค่าการเชื่อมต่อฐานข้อมูล:
+    >>> 
+     DB_CONNECTION=mysql
+     DB_HOST=127.0.0.1
+     DB_PORT=3306
+     DB_DATABASE=laravel_db
+     DB_USERNAME=root
+     DB_PASSWORD=your_password
+    >>> 
+
+2. **สร้างฐานข้อมูล (MySQL):**
+    >>> 
+   sudo mysql -u root -p
+   CREATE DATABASE laravel_db;
+    >>> 
+
+3. **รัน Migration:**
+    >>> 
+   php artisan migrate
+    >>> 
+
+#### **4. การตรวจสอบระบบ**
+1. **เช็คสถานะ PHP และ Composer:**
+    >>> 
+   php -v
+   composer --version
+    >>> 
+
+2. **ตรวจสอบ Key และ Cache:**
+    >>> 
+   php artisan env
+   php artisan config:clear
+   php artisan cache:clear
+    >>> 
+
+3. **ตรวจสอบฐานข้อมูล:**
+   >>> php artisan migrate:status
+
+#### **5. การพัฒนาโปรเจกต์**
+1. **สร้าง Controller:**
+   >>> php artisan make:controller ExampleController
+
+
+2. **เพิ่ม Route ทดสอบใน `routes/web.php`:**
+
+   Route::get('/test', function () {
+       return 'Laravel is working!';
+   });
+
+3. **สร้าง View ทดสอบ:**
+   >>> touch resources/views/example.blade.php
+
+   เพิ่มเนื้อหาใน View:
+   ```html
+   <h1>Welcome to Laravel</h1>
+
+
+4. **ตรวจสอบในเบราว์เซอร์:**
+   - URL: `http://127.0.0.1:8000/test`.
+
+#### **6. การจัดการปัญหา**
+1. **ลบไฟล์และโฟลเดอร์ที่ติดขัด:**
+   >>> rm -rf vendor composer.lock
+   >>> composer install
+
+2. **ตรวจสอบสิทธิ์โฟลเดอร์:**
+   - ตรวจสอบและตั้งค่า **Full Control** บนโฟลเดอร์โปรเจกต์.
+
+3. **ปิดโปรแกรมที่ล็อคไฟล์:**
+   - ปิด Windows Search Indexer และ Antivirus ชั่วคราว.
+
+#### **7. การใช้งาน Laravel อย่างต่อเนื่อง**
+- หากต้องการสร้างโปรเจกต์ใหม่:
+  >>> composer create-project laravel/laravel new_project
+
+- ตั้งค่าโครงสร้างโปรเจกต์ตาม `.env` และใช้คำสั่ง:
+  >>> php artisan migrate
+  >>> php artisan serve
+

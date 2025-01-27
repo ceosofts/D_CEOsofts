@@ -1,0 +1,289 @@
+
+# คู่มือการพัฒนาระบบ ERP-CRM (ตั้งแต่ต้นจนปัจจุบัน)
+
+## บทนำ
+
+เอกสารนี้เป็นคู่มือที่ครอบคลุมการพัฒนาระบบ ERP-CRM ตั้งแต่เริ่มต้นโครงการจนถึงสถานะปัจจุบัน 
+โดยมีคำอธิบายอย่างละเอียดในทุกขั้นตอน เพื่อให้สามารถนำไปใช้งานได้ทันทีโดยไม่ต้องค้นคว้าเพิ่มเติม
+
+---
+
+## การตั้งค่าโครงการ
+
+### 1. การติดตั้ง Laravel
+
+ติดตั้ง Laravel Framework ผ่าน Composer:
+
+```bash
+composer create-project laravel/laravel ceosofts
+```
+
+### 2. ติดตั้ง Dependencies
+
+- ติดตั้ง `Bootstrap` และ `Sass`:
+
+```bash
+npm install bootstrap@latest sass
+npm run dev
+```
+
+- ติดตั้ง Laravel Breeze:
+
+```bash
+composer require laravel/breeze --dev
+php artisan breeze:install
+npm install && npm run dev
+php artisan migrate
+```
+
+- ติดตั้ง SQLite Driver บน WSL:
+
+```bash
+sudo apt install php-sqlite3
+```
+
+ตรวจสอบการติดตั้ง:
+
+```bash
+php -m | grep sqlite
+```
+
+---
+
+## การตั้งค่าฐานข้อมูล
+
+### 1. ใช้ SQLite เป็นฐานข้อมูล
+
+- สร้างไฟล์ฐานข้อมูล SQLite:
+
+```bash
+touch database/database.sqlite
+chmod 777 database/database.sqlite
+```
+
+- ตั้งค่าไฟล์ `.env`:
+
+```env
+DB_CONNECTION=sqlite
+DB_DATABASE=/mnt/c/Users/facad/Desktop/Developer/ERP-CRM_1/ceosofts/database/database.sqlite
+```
+
+- รันคำสั่ง Migration เพื่อสร้างตารางในฐานข้อมูล:
+
+```bash
+php artisan migrate
+```
+
+---
+
+## การพัฒนาระบบ
+
+### 1. การพัฒนาระบบจัดการลูกค้า (Customer Management)
+
+#### สร้าง Model และ Migration
+
+ใช้คำสั่ง:
+
+```bash
+php artisan make:model Customer -m
+```
+
+แก้ไขไฟล์ Migration ใน `database/migrations`:
+
+```php
+Schema::create('customers', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->string('email')->unique();
+    $table->string('phone')->nullable();
+    $table->string('address')->nullable();
+    $table->string('taxid')->nullable();
+    $table->timestamps();
+});
+```
+
+รันคำสั่ง Migration:
+
+```bash
+php artisan migrate
+```
+
+#### สร้าง Controller
+
+ใช้คำสั่ง:
+
+```bash
+php artisan make:controller CustomerController --resource
+```
+
+เพิ่มฟังก์ชันใน Controller:
+
+```php
+public function index() {
+    $customers = Customer::paginate(10);
+    return view('customers.index', compact('customers'));
+}
+
+public function create() {
+    return view('customers.create');
+}
+
+public function store(Request $request) {
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:customers',
+        'phone' => 'nullable|string|max:15',
+        'address' => 'nullable|string|max:500',
+        'taxid' => 'nullable|string|max:20',
+    ]);
+
+    Customer::create($validated);
+    return redirect()->route('customers.index')->with('success', 'Customer created successfully.');
+}
+```
+
+#### ตั้งค่า Routes
+
+เพิ่มในไฟล์ `routes/web.php`:
+
+```php
+use App\Http\Controllers\CustomerController;
+Route::resource('customers', CustomerController::class);
+```
+
+---
+
+### 2. การพัฒนาระบบจัดการสินค้า (Product Management)
+
+#### สร้าง Model และ Migration
+
+ใช้คำสั่ง:
+
+```bash
+php artisan make:model Product -m
+```
+
+แก้ไขไฟล์ Migration:
+
+```php
+Schema::create('products', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->text('description')->nullable();
+    $table->decimal('price', 10, 2);
+    $table->integer('stock');
+    $table->string('taxid')->nullable();
+    $table->timestamps();
+});
+```
+
+รันคำสั่ง Migration:
+
+```bash
+php artisan migrate
+```
+
+#### สร้าง Controller
+
+ใช้คำสั่ง:
+
+```bash
+php artisan make:controller ProductController --resource
+```
+
+เพิ่มฟังก์ชันใน Controller:
+
+```php
+public function index() {
+    $products = Product::all();
+    return view('products.index', compact('products'));
+}
+
+public function store(Request $request) {
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable',
+        'price' => 'required|numeric|min:0',
+        'stock' => 'required|integer|min:0',
+        'taxid' => 'nullable|string|max:20',
+    ]);
+
+    Product::create($validated);
+    return redirect()->route('products.index')->with('success', 'Product created successfully!');
+}
+```
+
+#### ตั้งค่า Routes
+
+เพิ่มในไฟล์ `routes/web.php`:
+
+```php
+use App\Http\Controllers\ProductController;
+Route::resource('products', ProductController::class);
+```
+
+#### สร้าง Views
+
+สร้างโฟลเดอร์ `resources/views/products` และไฟล์ `index.blade.php`:
+
+```blade
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <h1>Products</h1>
+    <a href="{{ route('products.create') }}" class="btn btn-primary">Add Product</a>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($products as $product)
+            <tr>
+                <td>{{ $product->id }}</td>
+                <td>{{ $product->name }}</td>
+                <td>{{ $product->price }}</td>
+                <td>{{ $product->stock }}</td>
+                <td>
+                    <a href="{{ route('products.edit', $product) }}" class="btn btn-warning">Edit</a>
+                    <form action="{{ route('products.destroy', $product) }}" method="POST" style="display:inline-block;">
+                        @csrf
+                        @method('DELETE')
+                        <button class="btn btn-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endsection
+```
+
+---
+
+## การทดสอบ
+
+1. รันเซิร์ฟเวอร์:
+
+```bash
+php artisan serve
+```
+
+2. เข้าชม URL:
+
+- ระบบจัดการลูกค้า: `http://127.0.0.1:8000/customers`
+- ระบบจัดการสินค้า: `http://127.0.0.1:8000/products`
+
+---
+
+## สรุป
+
+คุณสามารถใช้งานระบบ ERP-CRM ได้ตั้งแต่ฟังก์ชันพื้นฐานของการจัดการลูกค้าและสินค้า คู่มือนี้ครอบคลุมการตั้งค่าและการพัฒนาทั้งหมดอย่างละเอียดเพื่อความสะดวกในการพัฒนาและปรับปรุงในอนาคต

@@ -1,0 +1,15 @@
+@use "sass:color"; // นำเข้าโมดูลจัดการสี
+@use 'sass:math';
+
+// Colors
+$primary-color: #3490dc;
+$primary-dark: color.adjust($primary-color, $lightness: -10%); // ใช้ adjust() สำหรับปรับความสว่าง
+$primary-light: color.adjust($primary-color, $lightness: 20%);
+
+// Body
+$body-bg: #f8fafc;
+
+// Typography
+$font-family-sans-serif: 'Nunito', sans-serif;
+$font-size-base: 0.9rem;
+$line-height-base: 1.6;

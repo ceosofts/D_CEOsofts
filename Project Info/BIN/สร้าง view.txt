@@ -1,0 +1,214 @@
+จากการสนทนาวันนี้ เราได้ดำเนินการเพิ่มระบบสำหรับจัดการ Customer ใน Laravel ซึ่งประกอบไปด้วยการตั้งค่า Model, Controller, Views, และการจัดการเส้นทาง (Routes) พร้อมฟังก์ชันต่าง ๆ อย่างละเอียด สำหรับการสร้างและใช้งานระบบ Customer ดังนี้:
+
+สรุปขั้นตอนการพัฒนา Customer Management
+1. สร้าง Model และ Migration
+ใช้คำสั่ง:
+bash
+คัดลอก
+แก้ไข
+php artisan make:model Customer -m
+แก้ไขไฟล์ Migration ใน database/migrations:
+php
+คัดลอก
+แก้ไข
+public function up(): void
+{
+    Schema::create('customers', function (Blueprint $table) {
+        $table->id();
+        $table->string('name');
+        $table->string('email')->unique();
+        $table->string('phone')->nullable();
+        $table->text('address')->nullable();
+        $table->string('taxid')->nullable();
+        $table->timestamps();
+    });
+}
+รัน Migration:
+bash
+คัดลอก
+แก้ไข
+php artisan migrate
+2. สร้าง Controller
+ใช้คำสั่ง:
+bash
+คัดลอก
+แก้ไข
+php artisan make:controller CustomerController --resource
+เพิ่มฟังก์ชันการจัดการข้อมูลใน CustomerController (โค้ดใน Canvas ที่คุณให้มานั้นสมบูรณ์แล้ว)
+3. กำหนดเส้นทางใน Route
+แก้ไขไฟล์ routes/web.php:
+php
+คัดลอก
+แก้ไข
+use App\Http\Controllers\CustomerController;
+
+Route::resource('customers', CustomerController::class);
+4. สร้าง Views
+สร้างไฟล์ View ที่เกี่ยวข้องทั้งหมด:
+
+index.blade.php (แสดงรายการลูกค้า):
+
+blade
+คัดลอก
+แก้ไข
+@extends('layouts.app')
+
+@section('title', 'Customers')
+
+@section('content')
+<div class="container">
+    <h1>Customer List</h1>
+    <a href="{{ route('customers.create') }}" class="btn btn-primary mb-3">Add Customer</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($customers as $customer)
+                <tr>
+                    <td>{{ $customer->id }}</td>
+                    <td>{{ $customer->name }}</td>
+                    <td>{{ $customer->email }}</td>
+                    <td>{{ $customer->phone }}</td>
+                    <td>
+                        <a href="{{ route('customers.show', $customer->id) }}" class="btn btn-info">View</a>
+                        <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-warning">Edit</a>
+                        <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+    {{ $customers->links() }}
+</div>
+@endsection
+create.blade.php (เพิ่มลูกค้าใหม่):
+
+blade
+คัดลอก
+แก้ไข
+@extends('layouts.app')
+
+@section('title', 'Add Customer')
+
+@section('content')
+<div class="container">
+    <h1>Add Customer</h1>
+    <form action="{{ route('customers.store') }}" method="POST">
+        @csrf
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" name="name" id="name" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" id="email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="text" name="phone" id="phone" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <textarea name="address" id="address" class="form-control"></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="taxid" class="form-label">Tax ID</label>
+            <input type="text" name="taxid" id="taxid" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-success">Save</button>
+    </form>
+</div>
+@endsection
+show.blade.php (แสดงรายละเอียดลูกค้า):
+
+blade
+คัดลอก
+แก้ไข
+@extends('layouts.app')
+
+@section('title', 'Customer Details')
+
+@section('content')
+<div class="container">
+    <h1>Customer Details</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ $customer->name }}</h5>
+            <p><strong>Email:</strong> {{ $customer->email }}</p>
+            <p><strong>Phone:</strong> {{ $customer->phone }}</p>
+            <p><strong>Address:</strong> {{ $customer->address }}</p>
+            <p><strong>Tax ID:</strong> {{ $customer->taxid }}</p>
+            <p><strong>Created At:</strong> {{ $customer->created_at }}</p>
+            <p><strong>Updated At:</strong> {{ $customer->updated_at }}</p>
+            <a href="{{ route('customers.index') }}" class="btn btn-primary">Back to Customers</a>
+        </div>
+    </div>
+</div>
+@endsection
+edit.blade.php (แก้ไขลูกค้า):
+
+blade
+คัดลอก
+แก้ไข
+@extends('layouts.app')
+
+@section('title', 'Edit Customer')
+
+@section('content')
+<div class="container">
+    <h1>Edit Customer</h1>
+    <form action="{{ route('customers.update', $customer->id) }}" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" name="name" id="name" class="form-control" value="{{ $customer->name }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" id="email" class="form-control" value="{{ $customer->email }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="text" name="phone" id="phone" class="form-control" value="{{ $customer->phone }}">
+        </div>
+        <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <textarea name="address" id="address" class="form-control">{{ $customer->address }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="taxid" class="form-label">Tax ID</label>
+            <input type="text" name="taxid" id="taxid" class="form-control" value="{{ $customer->taxid }}">
+        </div>
+        <button type="submit" class="btn btn-success">Update</button>
+    </form>
+</div>
+@endsection
+5. ทดสอบ
+เปิด http://127.0.0.1:8000/customers
+ตรวจสอบการเพิ่ม แก้ไข ลบ และดูข้อมูลลูกค้า
+หากมีคำถามเพิ่มเติม แจ้งได้เลยครับ! 😊
+
+
+
+
+
+
+
+
+
+
+
+
+

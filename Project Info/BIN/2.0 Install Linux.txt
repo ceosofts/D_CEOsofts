@@ -1,0 +1,275 @@
+1. การติดตั้ง Linux
+การติดตั้ง Linux อาจแตกต่างกันขึ้นอยู่กับระบบปฏิบัติการที่คุณใช้และความต้องการของคุณ เช่นการติดตั้งบน Virtual Machine (VM), WSL (Windows Subsystem for Linux), หรือแบบ Standalone
+
+  1.1 การติดตั้ง WSL (Windows Subsystem for Linux)
+  เปิด PowerShell (Run as Administrator)
+  ติดตั้ง WSL:
+  bash
+  Copy
+  Edit
+
+  >>> wsl --install >>>ok
+
+  คำสั่งนี้จะติดตั้ง WSL พร้อม Ubuntu โดยอัตโนมัติ
+  รีสตาร์ทเครื่องและเปิด Ubuntu จาก Start Menu
+  ตั้งค่าครั้งแรก เช่น username และ password
+
+  1.2 การติดตั้ง Linux บน Virtual Machine (VM)
+  ดาวน์โหลดและติดตั้งโปรแกรม VM เช่น VirtualBox หรือ VMware
+  ดาวน์โหลดไฟล์ ISO ของ Linux (เช่น Ubuntu) จาก Ubuntu Downloads
+  สร้าง VM ใหม่ในโปรแกรม VirtualBox/VMware:
+  ตั้งค่าฮาร์ดแวร์ เช่น CPU, RAM, และพื้นที่เก็บข้อมูล
+  ใช้ไฟล์ ISO เพื่อบูตและติดตั้ง Linux ตามขั้นตอนที่แสดง
+
+2. การติดตั้ง PHP, Composer และ Extensions บน Linux
+  2.1 การอัปเดตระบบ
+  หลังจากติดตั้ง Linux เสร็จ:
+  
+  คำสั่งใน Terminal:
+  bash
+  Copy
+  Edit
+
+  >>> sudo apt update && sudo apt upgrade -y
+
+  2.2 การติดตั้ง PHP
+  เพิ่ม PHP Repository:
+  
+  bash
+  Copy
+  Edit
+
+  sudo apt install software-properties-common -y
+  sudo add-apt-repository ppa:ondrej/php -y
+  sudo apt update
+
+  ติดตั้ง PHP และ Extensions ที่ Laravel ต้องการ:
+  
+  bash
+  Copy
+  Edit
+
+  sudo apt install php8.1 php8.1-cli php8.1-common php8.1-bcmath php8.1-mbstring php8.1-xml php8.1-curl php8.1-mysql php8.1-sqlite3 php8.1-zip -y
+  
+  ตรวจสอบเวอร์ชัน PHP:
+  
+  bash
+  Copy
+  Edit
+
+  >>>php -v
+
+  2.3 การติดตั้ง Composer
+  ดาวน์โหลด Composer:
+  bash
+  Copy
+  Edit
+
+  curl -sS https://getcomposer.org/installer | php
+
+  ย้าย Composer ไปยัง /usr/local/bin เพื่อให้เรียกใช้ได้ทั่วระบบ:
+  bash
+  Copy
+  Edit
+
+  sudo mv composer.phar /usr/local/bin/composer
+
+  ตรวจสอบเวอร์ชัน Composer:
+  bash
+  Copy
+  Edit
+
+  composer --version
+
+  2.4 การติดตั้ง PHP Extensions เพิ่มเติม
+  หาก Laravel หรือโปรเจกต์ของคุณต้องการ Extensions เพิ่มเติม:
+  
+  ตัวอย่าง:
+  bash
+  Copy
+  Edit
+
+  sudo apt install php8.1-gd php8.1-imagick -y
+
+3. การติดตั้ง Laravel
+สร้างโฟลเดอร์โปรเจกต์:
+
+bash
+Copy
+Edit
+mkdir ~/projects
+cd ~/projects
+ใช้ Composer สร้างโปรเจกต์ Laravel:
+
+bash
+Copy
+Edit
+composer create-project laravel/laravel example-app
+cd example-app
+รันเซิร์ฟเวอร์:
+
+bash
+Copy
+Edit
+php artisan serve
+URL: http://127.0.0.1:8000
+4. การตรวจสอบ Extensions ที่ติดตั้ง
+ใช้คำสั่ง php -m เพื่อดู Extensions ที่ติดตั้ง:
+
+bash
+Copy
+Edit
+php -m
+ตรวจสอบความพร้อมของระบบ Laravel:
+
+bash
+Copy
+Edit
+php artisan --version
+5. การติดตั้ง MySQL (ถ้าต้องการฐานข้อมูล MySQL)
+ติดตั้ง MySQL Server:
+
+bash
+Copy
+Edit
+sudo apt install mysql-server -y
+ตั้งค่ารหัสผ่านสำหรับ root user:
+
+bash
+Copy
+Edit
+sudo mysql_secure_installation
+เข้าสู่ระบบ MySQL:
+
+bash
+Copy
+Edit
+sudo mysql -u root -p
+สร้างฐานข้อมูล:
+
+sql
+Copy
+Edit
+CREATE DATABASE laravel_db;
+ตั้งค่าในไฟล์ .env ของ Laravel:
+
+env
+Copy
+Edit
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=laravel_db
+DB_USERNAME=root
+DB_PASSWORD=your_password
+6. การตรวจสอบระบบ
+เปิดเบราว์เซอร์และไปที่: http://127.0.0.1:8000
+ตรวจสอบว่าหน้าเริ่มต้นของ Laravel แสดงผลสำเร็จ
+7. Extensions ที่แนะนำสำหรับโปรเจกต์ Laravel
+PDO_MYSQL: สำหรับ MySQL
+PDO_SQLITE: สำหรับ SQLite
+CURL: สำหรับการเชื่อมต่อ API ภายนอก
+GD/Imagick: สำหรับจัดการรูปภาพ
+BCMath: สำหรับการคำนวณที่ต้องการความแม่นยำสูง
+Mbstring: สำหรับการจัดการข้อความ
+สรุป
+ติดตั้ง Linux (ผ่าน WSL, VM, หรือแบบ Standalone)
+ติดตั้ง PHP, Composer และ Extensions ที่จำเป็น
+สร้างโปรเจกต์ Laravel และตั้งค่าเซิร์ฟเวอร์
+ติดตั้ง MySQL (ถ้าต้องการ) และตั้งค่า .env
+ตรวจสอบระบบด้วย php artisan serve และตรวจสอบผ่านเบราว์เซอร์
+
+    ไม่จำเป็นต้องติดตั้ง PHP, Composer, หรือ Extensions ใหม่ทุกครั้งที่สร้างโปรเจกต์ใหม่ หากระบบของคุณมีการตั้งค่าพื้นฐาน (PHP, Composer และ Extensions) อยู่แล้ว คุณสามารถสร้างโปรเจกต์ใหม่ได้ทันทีโดยไม่ต้องติดตั้งซ้ำ
+  
+    อย่างไรก็ตาม ต่อไปนี้เป็นรายละเอียดเกี่ยวกับสิ่งที่ต้องทำเมื่อสร้างโปรเจกต์ Laravel ใหม่:
+    
+    1. ไม่ต้องติดตั้งสิ่งเหล่านี้ซ้ำ
+    PHP และ Extensions: ติดตั้งครั้งเดียวในระบบ
+    Composer: ติดตั้งครั้งเดียวและใช้ได้ตลอด
+    MySQL หรือ SQLite: ฐานข้อมูลและการตั้งค่าเซิร์ฟเวอร์สามารถใช้งานต่อเนื่องได้
+
+    2. สิ่งที่ต้องทำเมื่อสร้างโปรเจกต์ใหม่
+        2.1 ใช้ Composer เพื่อสร้างโปรเจกต์
+        สร้างโปรเจกต์ใหม่ด้วยคำสั่ง:
+        bash
+        Copy
+        Edit
+        composer create-project laravel/laravel your-new-project
+        คำอธิบาย:
+        ทุกครั้งที่สร้างโปรเจกต์ใหม่ Composer จะดาวน์โหลด Laravel เวอร์ชันล่าสุดและไฟล์ที่จำเป็น
+        ไม่จำเป็นต้องติดตั้ง PHP หรือ Composer ใหม่
+      2.2 ตั้งค่าฐานข้อมูลสำหรับโปรเจกต์ใหม่
+        หากใช้ MySQL:
+        
+        สร้างฐานข้อมูลใหม่:
+        sql
+        Copy
+        Edit
+        CREATE DATABASE your_new_project_db;
+        ตั้งค่าในไฟล์ .env:
+        env
+        Copy
+        Edit
+        DB_CONNECTION=mysql
+        DB_HOST=127.0.0.1
+        DB_PORT=3306
+        DB_DATABASE=your_new_project_db
+        DB_USERNAME=root
+        DB_PASSWORD=your_password
+        หากใช้ SQLite:
+        
+        สร้างไฟล์ฐานข้อมูลใหม่:
+        bash
+        Copy
+        Edit
+        touch database/your_new_project.sqlite
+        ตั้งค่าในไฟล์ .env:
+        env
+        Copy
+        Edit
+        DB_CONNECTION=sqlite
+        DB_DATABASE=/absolute/path/to/database/your_new_project.sqlite
+      2.3 รัน Migration
+        หลังจากตั้งค่าฐานข้อมูล:
+        bash
+        Copy
+        Edit
+        php artisan migrate
+      2.4 รันเซิร์ฟเวอร์
+        ใช้คำสั่ง:
+        bash
+        Copy
+        Edit
+        php artisan serve
+        ระบบจะรันโปรเจกต์ใหม่ทันที
+
+    3. สถานการณ์ที่อาจต้องติดตั้งใหม่
+      3.1 หากคุณติดตั้งระบบปฏิบัติการใหม่
+        ต้องติดตั้ง PHP, Composer, และ Extensions อีกครั้ง
+      3.2 หากต้องการ PHP หรือ Laravel เวอร์ชันใหม่กว่า
+        อัปเดต PHP หรือ Laravel:
+        bash
+        Copy
+        Edit
+        composer global update
+        composer create-project laravel/laravel your-project
+    4. เคล็ดลับการทำงานกับหลายโปรเจกต์
+      โครงสร้างโปรเจกต์หลายตัว:
+      
+      เก็บโปรเจกต์ทั้งหมดในโฟลเดอร์เดียว เช่น ~/projects/
+      ตัวอย่าง:
+      javascript
+      Copy
+      Edit
+      ~/projects/project1
+      ~/projects/project2
+      ~/projects/project3
+      จัดการ PHP เวอร์ชัน (ถ้าต้องการหลายเวอร์ชัน):
+    
+    ใช้ Docker หรือ Laravel Sail สำหรับการแยก PHP เวอร์ชันในแต่ละโปรเจกต์
+    สรุป
+    ไม่ต้องลง PHP, Composer หรือ Extensions ใหม่ ทุกครั้งที่สร้างโปรเจกต์
+    เพียงสร้างโปรเจกต์ด้วย composer create-project และตั้งค่าฐานข้อมูลในไฟล์ .env
+    ถ้ามีการติดตั้งระบบใหม่หรือเปลี่ยนแปลง PHP เวอร์ชัน อาจต้องติดตั้งบางส่วนใหม่
+    
+    

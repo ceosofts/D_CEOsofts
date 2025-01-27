@@ -1,0 +1,12 @@
+@use "variables" as *; // นำเข้าไฟล์ variables
+@use "bootstrap/scss/bootstrap"; // นำเข้า SCSS ของ Bootstrap
+
+// Fonts
+@import url('https://fonts.bunny.net/css?family=Nunito');
+
+// CSS Customization
+body {
+    font-family: $font-family-sans-serif; // ใช้ตัวแปรจาก variables.scss
+    background-color: $body-bg; // ใช้ตัวแปรสีพื้นหลัง
+    color: $primary-color; // ใช้ตัวแปรสีข้อความหลัก
+}
