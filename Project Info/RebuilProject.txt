@@ -218,6 +218,13 @@ extracted_project_v2/
         web.php
       ...
 
+http://127.0.0.1:8000/ or welcome >>> it is work
+http://127.0.0.1:8000/login >>> it is work
+http://127.0.0.1:8000/logout >>> it is work
+http://127.0.0.1:8000/dashboard >>> it is work
+http://127.0.0.1:8000/customers >>> it is work
+http://127.0.0.1:8000/products >>> it is work
+ระบบ ถ้าไม่ login จะเข้า home + dashboard ไม่ได้  >>> it is work 
 
-      
+update products    28 Jan 2025 ซึ่งยังสวยดี แต่ดึกแล้ว เลยพอก่อน   
 /////////////////////////////////////// update at 28 jan 2025 ////////////////////////

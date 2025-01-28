@@ -8,35 +8,23 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     /**
-     * Display a listing of the resource with search, filter, and sorting functionality.
+     * Display a listing of the resource with search functionality.
      */
     public function index(Request $request)
     {
         $query = Product::query();
 
-        // Search by name
+        // Universal Search (Code, Name, SKU, Status)
         if ($request->has('search') && $request->search) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $query->where(function ($q) use ($request) {
+                $q->where('code', 'like', '%' . $request->search . '%')
+                    ->orWhere('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('sku', 'like', '%' . $request->search . '%')
+                    ->orWhere('is_active', 'like', '%' . $request->search . '%');
+            });
         }
 
-        // Filter by price range
-        if ($request->has('min_price') && $request->has('max_price')) {
-            $query->whereBetween('price', [$request->min_price, $request->max_price]);
-        }
-
-        // Filter by status (is_active)
-        if ($request->has('status')) {
-            $query->where('is_active', $request->status);
-        }
-
-        // Sorting
-        if ($request->has('sort_by')) {
-            $sortColumn = $request->sort_by;
-            $sortDirection = $request->has('sort_order') && $request->sort_order === 'desc' ? 'desc' : 'asc';
-            $query->orderBy($sortColumn, $sortDirection);
-        }
-
-        $products = $query->paginate(10); // Paginate the results
+        $products = $query->paginate(10);
 
         return view('products.index', compact('products'));
     }
@@ -46,7 +34,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('products.create');
+        $categories = ['Products', 'Parts', 'Material']; // SKU Categories
+        return view('products.create', compact('categories'));
     }
 
     /**
@@ -59,14 +48,52 @@ class ProductController extends Controller
             'description' => 'nullable',
             'price' => 'required|numeric',
             'stock_quantity' => 'required|integer',
-            'sku' => 'required|unique:products',
+            'sku' => 'required|in:Products,Parts,Material',
         ]);
 
-        Product::create($request->all());
-        return redirect()->route('products.index')->with('success', 'Product created successfully.');
+        // Generate a new code with P000X format if not set
+        $latestProduct = Product::where('code', 'like', 'P%')->orderBy('id', 'desc')->first();
+        $newCodeNumber = $latestProduct ? intval(substr($latestProduct->code, 1)) + 1 : 1;
+        $generatedCode = 'P' . str_pad($newCodeNumber, 4, '0', STR_PAD_LEFT);
+
+        Product::create(array_merge($request->all(), ['code' => $generatedCode]));
+
+        return redirect()->route('products.index')->with('success', 'Product created successfully with code: ' . $generatedCode);
     }
 
     /**
-     * Other CRUD methods (show, edit, update, destroy) remain unchanged.
+     * Show the form for editing the specified product.
      */
+    public function edit(Product $product)
+    {
+        $categories = ['Products', 'Parts', 'Material']; // SKU Categories
+        return view('products.edit', compact('product', 'categories'));
+    }
+
+    /**
+     * Update the specified product in storage.
+     */
+    public function update(Request $request, Product $product)
+    {
+        $request->validate([
+            'name' => 'required',
+            'description' => 'nullable',
+            'price' => 'required|numeric',
+            'stock_quantity' => 'required|integer',
+            'sku' => 'required|in:Products,Parts,Material',
+        ]);
+
+        $product->update($request->except('code'));
+
+        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+    }
+
+    /**
+     * Remove the specified product from storage.
+     */
+    public function destroy(Product $product)
+    {
+        $product->delete();
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+    }
 }

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
 
-
+            $table->string('code')->unique(); // รหัสสินค้าแบบ Unique
             $table->string('name'); // ชื่อสินค้า >>>เพิ่มจากของเดิม
             $table->text('description')->nullable(); // รายละเอียดสินค้า (ไม่จำเป็นต้องมี) >>>เพิ่มจากของเดิม
             $table->decimal('price', 10, 2); // ราคาสินค้า (ทศนิยม 2 ตำแหน่ง) >>>เพิ่มจากของเดิม
