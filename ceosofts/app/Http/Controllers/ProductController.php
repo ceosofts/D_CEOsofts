@@ -8,24 +8,38 @@ use Illuminate\Http\Request;
 class ProductController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource with search functionality.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::all();
+        $query = Product::query();
+
+        // Universal Search (Code, Name, SKU, Status)
+        if ($request->has('search') && $request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('code', 'like', '%' . $request->search . '%')
+                    ->orWhere('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('sku', 'like', '%' . $request->search . '%')
+                    ->orWhere('is_active', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $products = $query->paginate(10);
+
         return view('products.index', compact('products'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new product.
      */
     public function create()
     {
-        return view('products.create');
+        $categories = ['Products', 'Parts', 'Material']; // SKU Categories
+        return view('products.create', compact('categories'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created product in storage.
      */
     public function store(Request $request)
     {
@@ -34,33 +48,30 @@ class ProductController extends Controller
             'description' => 'nullable',
             'price' => 'required|numeric',
             'stock_quantity' => 'required|integer',
-            'sku' => 'required|unique:products',
+            'sku' => 'required|in:Products,Parts,Material',
         ]);
 
-        Product::create($request->all());
-        return redirect()->route('products.index')->with('success', 'Product created successfully.');
+        // Generate a new code with P000X format if not set
+        $latestProduct = Product::where('code', 'like', 'P%')->orderBy('id', 'desc')->first();
+        $newCodeNumber = $latestProduct ? intval(substr($latestProduct->code, 1)) + 1 : 1;
+        $generatedCode = 'P' . str_pad($newCodeNumber, 4, '0', STR_PAD_LEFT);
+
+        Product::create(array_merge($request->all(), ['code' => $generatedCode]));
+
+        return redirect()->route('products.index')->with('success', 'Product created successfully with code: ' . $generatedCode);
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Product $product)
-    {
-        return view('products.show', compact('product'));
-    }
-
-
-    /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified product.
      */
     public function edit(Product $product)
     {
-        return view('products.edit', compact('product'));
+        $categories = ['Products', 'Parts', 'Material']; // SKU Categories
+        return view('products.edit', compact('product', 'categories'));
     }
 
-
     /**
-     * Update the specified resource in storage.
+     * Update the specified product in storage.
      */
     public function update(Request $request, Product $product)
     {
@@ -69,15 +80,16 @@ class ProductController extends Controller
             'description' => 'nullable',
             'price' => 'required|numeric',
             'stock_quantity' => 'required|integer',
-            'sku' => 'required|unique:products,sku,' . $product->id,
+            'sku' => 'required|in:Products,Parts,Material',
         ]);
 
-        $product->update($request->all());
+        $product->update($request->except('code'));
+
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified product from storage.
      */
     public function destroy(Product $product)
     {
