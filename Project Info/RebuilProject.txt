@@ -167,3 +167,57 @@ user yai
 email yai@hotmail.com
 password 12345678
 /////////////////////////////////////// update at 27 jan 2025 ////////////////////////
+/////////////////////////////////////// update at 28 jan 2025 ////////////////////////
+extracted_project_v2/
+  D_CEOsofts-main/
+    .gitattributes
+    Project Info/
+      0.0 ProjectStatus.txt
+      9.0 คำสั่ง.txt
+      ERP_CRM_Detailed_Guide.txt
+      README.md
+      BIN/
+        0.0 ProjectStatusR1.txt
+        ...
+    ceosofts/
+      .editorconfig
+      .env.example
+      .gitattributes
+      .gitignore
+      README.md
+      artisan
+      composer.json
+      composer.lock
+      ...
+      app/
+        Http/
+          Controllers/
+            Controller.php
+            CustomerController.php
+            DashboardController.php
+            ...
+        Models/
+          Customer.php
+          Order.php
+          ...
+      ...
+      database/
+        .gitignore
+        factories/
+          UserFactory.php
+        migrations/
+          2025_01_21_140456_create_customers_table.php
+          ...
+      resources/
+        views/
+          dashboard.blade.php
+          home.blade.php
+          welcome.blade.php
+          ...
+      routes/
+        web.php
+      ...
+
+
+      
+/////////////////////////////////////// update at 28 jan 2025 ////////////////////////
