@@ -5,11 +5,25 @@
 @section('content')
 <div class="container">
     <h1>Customer List</h1>
-    <a href="{{ route('customers.create') }}" class="btn btn-success mb-3">Add Customer</a>
-    <table class="table table-striped">
-        <thead>
+    
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="{{ route('customers.create') }}" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i> Add Customer
+        </a>
+        <form method="GET" action="{{ route('customers.index') }}" class="d-flex flex-grow-1 ms-3">
+            <input type="text" name="search" class="form-control me-2" placeholder="Search by Code, Name, Email" value="{{ request('search') }}">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Search
+            </button>
+        </form>
+    </div>
+
+
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
             <tr>
-                <th>ID</th>
+                <th>Code</th>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Phone</th>
@@ -21,7 +35,7 @@
         <tbody>
             @forelse ($customers as $customer)
                 <tr>
-                    <td>{{ $customer->id }}</td>
+                    <td>{{ $customer->code }}</td>
                     <td>{{ $customer->name }}</td>
                     <td>{{ $customer->email }}</td>
                     <td>{{ $customer->phone }}</td>

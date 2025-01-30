@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log; // ✅ Import Log
 
 class UpdateCustomerRequest extends FormRequest
 {
@@ -11,7 +13,7 @@ class UpdateCustomerRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // ตั้งค่าเป็น true เพื่ออนุญาตให้ดำเนินการ
+        return true; // อนุญาตให้ดำเนินการ
     }
 
     /**
@@ -19,16 +21,64 @@ class UpdateCustomerRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
-        return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers,email,' . $this->route('customer'), // ตรวจสอบ unique แต่ยกเว้นอีเมลของลูกค้าปัจจุบัน
-            'phone' => 'nullable|string|max:15',
-            'address' => 'nullable|string|max:500',
-            'taxid' => 'nullable|string|max:20', // เพิ่มกฎสำหรับ taxid
-        ];
-    }
+   
+//      public function rules(): array
+// {
+//     $customerId = $this->route('customer'); // ดึงค่า ID ของลูกค้า
+
+//     Log::info('Customer ID in UpdateCustomerRequest:', ['customerId' => $customerId]);
+
+//     return [
+//         'name' => 'required|string|max:255',
+
+//         // ✅ แก้ปัญหา email ซ้ำ แต่ยกเว้นตัวเอง
+//         'email' => [
+//             'required',
+//             'email',
+//             Rule::unique('customers', 'email')->ignore($customerId),
+//         ],
+
+//         'phone' => 'nullable|string|max:15',
+//         'address' => 'nullable|string|max:500',
+//         'taxid' => 'nullable|string|max:20',
+
+//         // ✅ แก้ปัญหา code ซ้ำ แต่ยกเว้นตัวเอง
+//         'code' => [
+//             'required',
+//             'string',
+//             'max:10',
+//             Rule::unique('customers', 'code')->ignore($customerId),
+//         ],
+//     ];
+// }
+
+
+
+public function rules(): array
+{
+    $customerId = $this->route('customer'); // ดึงค่า ID ของลูกค้าที่กำลังอัปเดต
+
+    // ✅ Log เพื่อตรวจสอบค่า customerId
+    Log::info('Customer ID in UpdateCustomerRequest:', ['customerId' => $customerId]);
+
+    return [
+        'name' => 'required|string|max:255',
+
+        // ✅ ตรวจสอบว่า email ซ้ำหรือไม่ แต่ยกเว้นตัวเอง
+        'email' => [
+            'required',
+            'email',
+            Rule::unique('customers', 'email')->ignore($customerId),
+        ],
+
+        'code' => [
+            'required',
+            'string',
+            'max:10',
+            Rule::unique('customers', 'code')->ignore($customerId),
+        ],
+    ];
+}
 
     /**
      * Custom error messages for validation.
@@ -39,6 +89,7 @@ class UpdateCustomerRequest extends FormRequest
             'name.required' => 'The name field is required.',
             'email.required' => 'The email field is required.',
             'email.unique' => 'This email is already in use.',
+            'code.unique' => 'This code is already taken.',
         ];
     }
 }

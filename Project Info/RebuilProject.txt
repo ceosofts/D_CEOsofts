@@ -228,3 +228,14 @@ http://127.0.0.1:8000/products >>> it is work
 
 update products    28 Jan 2025 ซึ่งยังสวยดี แต่ดึกแล้ว เลยพอก่อน   
 /////////////////////////////////////// update at 28 jan 2025 ////////////////////////
+
+/////////////////////////////////////// update at 30 jan 2025 ////////////////////////
+http://127.0.0.1:8000/ or welcome >>> it is work
+http://127.0.0.1:8000/login >>> it is work
+http://127.0.0.1:8000/logout >>> it is work
+http://127.0.0.1:8000/dashboard >>> it is work
+http://127.0.0.1:8000/customers >>> it is work >>> update ui 30 Jan 2025 >>> อยากจะเพิ่ม ตอนแก้หรือตอนเพิ่มเนี่ยล่ะจำไม่ได้ ให้แสดง customers code
+http://127.0.0.1:8000/products >>> it is work  >>> update ui 30 Jan 2025
+ระบบ ถ้าไม่ login จะเข้า home + dashboard ไม่ได้  >>> it is work 
+
+/////////////////////////////////////// update at 30 jan 2025 ////////////////////////
