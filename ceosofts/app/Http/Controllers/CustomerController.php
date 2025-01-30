@@ -69,11 +69,22 @@ class CustomerController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
+    // public function edit(string $id)
+    // {
+    //     $customer = Customer::findOrFail($id);
+    //     return view('customers.edit', compact('customer'));
+    // }
+
     public function edit(string $id)
-    {
-        $customer = Customer::findOrFail($id);
-        return view('customers.edit', compact('customer'));
-    }
+{
+    $customer = Customer::findOrFail($id);
+
+    // ✅ Log ตรวจสอบค่าที่ส่งไปยัง View
+    \Log::info('Editing customer:', ['customer' => $customer]);
+
+    return view('customers.edit', compact('customer'));
+}
+
 
     /**
      * Update the specified resource in storage.
