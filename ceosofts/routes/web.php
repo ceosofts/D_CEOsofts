@@ -34,6 +34,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('orders', OrderController::class);
     Route::resource('orders.order-items', OrderItemController::class);
 
+    // เพิ่ม Route สำหรับ Customer Code (C000X)
+    Route::get('customers/code/{code}', [CustomerController::class, 'showByCode'])->name('customers.showByCode');
+    Route::get('customers/code/{code}/edit', [CustomerController::class, 'editByCode'])->name('customers.editByCode');
+    Route::put('customers/code/{code}', [CustomerController::class, 'updateByCode'])->name('customers.updateByCode');
+    Route::delete('customers/code/{code}', [CustomerController::class, 'destroyByCode'])->name('customers.destroyByCode');
+
+        
     // Route ชั่วคราวสำหรับ Profile (ถ้าใช้)
     Route::get('/profile', function () {
         return 'This is the profile page.';

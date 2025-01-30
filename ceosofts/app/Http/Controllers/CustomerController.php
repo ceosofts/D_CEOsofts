@@ -3,9 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Customer; // ใช้ Model Customer สำหรับการจัดการข้อมูลในฐานข้อมูล
+use App\Models\Customer;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
+use Illuminate\Support\Facades\Log; // ✅ Import Log แค่ครั้งเดียว
 
 class CustomerController extends Controller
 {
@@ -18,101 +19,120 @@ class CustomerController extends Controller
         $query = Customer::query();
 
         if ($request->has('search')) {
-            $query->where('name', 'LIKE', '%' . $request->search . '%')
-                ->orWhere('email', 'LIKE', '%' . $request->search . '%');
+            $query->where('code', 'LIKE', '%' . $request->search . '%')
+                  ->orWhere('name', 'LIKE', '%' . $request->search . '%')
+                  ->orWhere('email', 'LIKE', '%' . $request->search . '%');
         }
 
-        $customers = $query->paginate(10); // ดึงข้อมูลลูกค้าพร้อมแบ่งหน้า
-        return view('customers.index', compact('customers')); // ส่งข้อมูลไปยัง View
+        $customers = $query->paginate(10);
+        return view('customers.index', compact('customers'));
     }
 
     /**
      * Show the form for creating a new resource.
-     * ฟังก์ชันนี้แสดงฟอร์มสำหรับเพิ่มลูกค้าใหม่
      */
     public function create()
     {
-        return view('customers.create'); // แสดงหน้า View สำหรับสร้างลูกค้าใหม่
+        return view('customers.create');
     }
-
-    /** ยังไม่พร้อมใช้ตอนนี้
-     * Store a newly created resource in storage.
-     * ฟังก์ชันนี้บันทึกข้อมูลลูกค้าใหม่ลงในฐานข้อมูลหลังจากการตรวจสอบข้อมูล (Validation)
-     */
-    // public function store(StoreCustomerRequest $request)
-    // {
-    //     // บันทึกข้อมูลที่ผ่านการตรวจสอบลงฐานข้อมูล
-    //     Customer::create($request->validated());
-
-    //     // Redirect ไปยังหน้ารายการลูกค้าพร้อมข้อความสำเร็จ
-    //     return redirect()->route('customers.index')->with('success', 'Customer created successfully.');
-    // }
 
     public function store(StoreCustomerRequest $request)
     {
         try {
-            // บันทึกข้อมูลที่ผ่านการตรวจสอบลงในฐานข้อมูล
-            Customer::create($request->validated());
+            if (Customer::where('email', $request->email)->exists()) {
+                return redirect()->back()->withErrors(['error' => 'This email is already registered.']);
+            }
 
-            // Redirect ไปยังหน้ารายการลูกค้าพร้อมข้อความสำเร็จ
+            // สร้างรหัสลูกค้าอัตโนมัติ
+            $lastCode = Customer::max('code'); 
+            $lastNumber = $lastCode ? intval(substr($lastCode, 1)) : 0;
+            $newCode = 'C' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+
+            // บันทึกข้อมูล
+            $customer = Customer::create(array_merge($request->validated(), ['code' => $newCode]));
+
             return redirect()->route('customers.index')->with('success', 'Customer created successfully.');
         } catch (\Exception $e) {
-            // จัดการข้อผิดพลาดและแสดงข้อความที่เหมาะสม
             return redirect()->back()->withErrors(['error' => 'Failed to create customer: ' . $e->getMessage()]);
         }
     }
 
-
     /**
      * Display the specified resource.
-     * ฟังก์ชันนี้แสดงข้อมูลรายละเอียดของลูกค้าตาม ID ที่ระบุ
      */
     public function show(string $id)
     {
-        $customer = Customer::findOrFail($id); // ดึงข้อมูลลูกค้าด้วย ID
-        return view('customers.show', compact('customer')); // ส่งข้อมูลไปยัง View
+        $customer = Customer::findOrFail($id);
+        return view('customers.show', compact('customer'));
     }
 
     /**
      * Show the form for editing the specified resource.
-     * ฟังก์ชันนี้แสดงฟอร์มสำหรับแก้ไขข้อมูลลูกค้าตาม ID ที่ระบุ
      */
     public function edit(string $id)
     {
-        $customer = Customer::findOrFail($id); // ดึงข้อมูลลูกค้าด้วย ID
-        return view('customers.edit', compact('customer')); // ส่งข้อมูลไปยัง View
+        $customer = Customer::findOrFail($id);
+        return view('customers.edit', compact('customer'));
     }
 
     /**
      * Update the specified resource in storage.
-     * ฟังก์ชันนี้อัปเดตข้อมูลลูกค้าในฐานข้อมูลหลังจากการตรวจสอบข้อมูล (Validation)
      */
-    public function update(UpdateCustomerRequest $request, string $id)
-    {
-        $customer = Customer::findOrFail($id); // ดึงข้อมูลลูกค้าด้วย ID
-        $customer->update($request->validated()); // อัปเดตข้อมูลที่ผ่านการตรวจสอบ
-
-        // Redirect ไปยังหน้ารายการลูกค้าพร้อมข้อความสำเร็จ
-        return redirect()->route('customers.index')->with('success', 'Customer updated successfully.');
-    }
 
     // public function update(UpdateCustomerRequest $request, string $id)
     // {
-    //     $customer = Customer::findOrFail($id); // ดึงข้อมูลลูกค้า
-    //     $customer->update($request->validated()); // ใช้ข้อมูลที่ผ่านการตรวจสอบแล้วอัปเดต
+    //     $customer = Customer::findOrFail($id);
+        
+    //     Log::info('Updating customer: ' . $id, ['data' => $request->all()]);
 
+    //     if (!$customer->update($request->validated())) {
+    //         Log::error('Update failed for customer: ' . $id);
+    //         return redirect()->back()->withErrors(['error' => 'Update failed']);
+    //     }
+
+    //     Log::info('Customer updated successfully: ' . $id);
+        
     //     return redirect()->route('customers.index')->with('success', 'Customer updated successfully.');
     // }
+
+    
+
+public function update(UpdateCustomerRequest $request, string $id)
+{
+    $customer = Customer::findOrFail($id);
+
+    // ✅ Log เช็คค่าที่รับมา
+    Log::info('Updating customer: ' . $id, ['data' => $request->all()]);
+
+    // ✅ ตรวจสอบว่าค่าที่รับมาตรงกับฐานข้อมูลหรือไม่
+    Log::info('Current customer data', ['customer' => $customer->toArray()]);
+
+    // ✅ ตรวจสอบว่ามีลูกค้ารายอื่นใช้ email นี้อยู่หรือไม่
+    $exists = Customer::where('email', $request->email)
+                      ->where('id', '!=', $id)
+                      ->exists();
+
+    if ($exists) {
+        Log::error('Email already in use by another customer.');
+        return redirect()->back()->withErrors(['error' => 'This email is already registered by another customer.']);
+    }
+
+    // ✅ อัปเดตข้อมูล
+    $customer->update($request->validated());
+
+    Log::info('Customer updated successfully: ' . $id);
+    
+    return redirect()->route('customers.index')->with('success', 'Customer updated successfully.');
+}
+
     /**
      * Remove the specified resource from storage.
-     * ฟังก์ชันนี้ลบข้อมูลลูกค้าออกจากฐานข้อมูลตาม ID ที่ระบุ
      */
     public function destroy(string $id)
     {
-        $customer = Customer::findOrFail($id); // ดึงข้อมูลลูกค้าด้วย ID
-        $customer->delete(); // ลบข้อมูลลูกค้าออกจากฐานข้อมูล
+        $customer = Customer::findOrFail($id);
+        $customer->delete();
 
-        // Redirect ไปยังหน้ารายการลูกค้าพร้อมข้อความสำเร็จ
         return redirect()->route('customers.index')->with('success', 'Customer deleted successfully.');
     }
 }

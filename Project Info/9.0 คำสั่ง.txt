@@ -31,6 +31,119 @@
   php artisan cache:clear
   php artisan view:clear
   ```
+ใช้ >>> php artisan optimize และ >>> composer dump-autoload -o เพื่อให้ Laravel โหลดโค้ดได้เร็วขึ้น
+
+ ล้าง Laravel Log
+ให้รันคำสั่งนี้เพื่อลบ log เก่า:
+
+bash
+คัดลอก
+แก้ไข
+echo "" > storage/logs/laravel.log
+หรือถ้าต้องการลบไฟล์ log ไปเลยแล้วให้ Laravel สร้างใหม่อัตโนมัติ:
+
+bash
+คัดลอก
+แก้ไข
+rm storage/logs/laravel.log
+
+ตรวจสอบ Log ใหม่
+หลังจากเคลียร์ log แล้ว ให้ทดสอบระบบอีกครั้ง (เข้าเว็บ, login/logout) แล้วตรวจสอบ log ใหม่ด้วย:
+
+bash
+คัดลอก
+แก้ไข
+cat storage/logs/laravel.log
+หรือดู log แบบ real-time:
+
+bash
+คัดลอก
+แก้ไข
+tail -f storage/logs/laravel.log
+ถ้าไม่มี error ใหม่นั่นแปลว่าระบบทำงานได้ปกติ 🎉
+แต่ถ้ายังมีปัญหา error ใหม่ ให้ส่งข้อความ error มาเพื่อตรวจสอบเพิ่มเติมครับ! 😊
+
+ขั้นตอนที่ 3: เช็ค Route
+📌 รันคำสั่งนี้เพื่อตรวจสอบ Route
+
+bash
+คัดลอก
+แก้ไข
+php artisan route:list | grep products
+ดูว่ามี products.updateByCode อยู่ในลิสต์ไหม
+ถ้าไม่มี → ต้องไปเพิ่มใน routes/web.php:
+
+
+ceosoftslaptop@CeosoftsLapTop:/mnt/d/D_CEOsofts/ceosofts$ php artisan migrate:status
+
+
+  Migration name ......................................................................... Batch / Status  
+  0001_01_01_000000_create_users_table .......................................................... [1] Ran  
+  0001_01_01_000001_create_cache_table .......................................................... [1] Ran  
+  0001_01_01_000002_create_jobs_table ........................................................... [1] Ran  
+  2025_01_21_140456_create_customers_table ...................................................... [1] Ran  
+  2025_01_21_140510_create_products_table ....................................................... [1] Ran  
+  2025_01_21_140523_create_orders_table ......................................................... [1] Ran  
+  2025_01_21_140537_create_order_items_table .................................................... [1] Ran  
+  2025_01_29_125243_add_code_to_products_table .................................................. [3] Ran  
+
+ceosoftslaptop@CeosoftsLapTop:/mnt/d/D_CEOsofts/ceosofts$ 
+ceosoftslaptop@CeosoftsLapTop:/mnt/d/D_CEOsofts/ceosofts$ php artisan route:list | grep products
+
+php artisan route:list | grep customers
+
+  GET|HEAD        products ..................................... products.index › ProductController@index  
+  POST            products ..................................... products.store › ProductController@store  
+  GET|HEAD        products/code/{code} ............... products.showByCode › ProductController@showByCode  
+  PUT             products/code/{code} ........... products.updateByCode › ProductController@updateByCode  
+  DELETE          products/code/{code} ......... products.destroyByCode › ProductController@destroyByCode  
+  GET|HEAD        products/code/{code}/edit .......... products.editByCode › ProductController@editByCode  
+  GET|HEAD        products/create ............................ products.create › ProductController@create  
+  GET|HEAD        products/{product} ............................. products.show › ProductController@show  
+  PUT|PATCH       products/{product} ......................... products.update › ProductController@update  
+  DELETE          products/{product} ....................... products.destroy › ProductController@destroy  
+  GET|HEAD        products/{product}/edit ........................ products.edit › ProductController@edit  
+ceosoftslaptop@CeosoftsLapTop:/mnt/d/D_CEOsofts/ceosofts$ 
+ceosoftslaptop@CeosoftsLapTop:/mnt/d/D_CEOsofts/ceosofts$ php artisan make:request UpdateProductRequest
+
+   INFO  Request [app/Http/Requests/UpdateProductRequest.php] created successfully.
+
+ceosoftslaptop@CeosoftsLapTop:/mnt/d/D_CEOsofts/ceosofts$ 
+
+
+> DB::table('customers')->get();
+
+= Illuminate\Support\Collection {#6280
+    all: [
+      {#6278
+        +"id": 1,
+        +"name": "aaaa333",
+        +"email": "aaaa@hotmail.com",
+        +"phone": "629055888",
+        +"address": "aaaaaaa",
+        +"taxid": "1234567891234",
+        +"created_at": "2025-01-29 00:14:52",
+        +"updated_at": "2025-01-29 12:15:57",
+        +"code": "C0001",
+      },
+      {#6275
+        +"id": 2,
+        +"name": "bbb333",
+        +"email": "bbb333@hotmail.com",
+        +"phone": "629055888",
+        +"address": "bbbb",
+        +"taxid": "1234567891235",
+        +"created_at": "2025-01-29 00:20:22",
+        +"updated_at": "2025-01-30 00:38:58",
+        +"code": "C0002",
+      },
+    ],
+  }
+
+(END)
+
+
+
 
 ---
 

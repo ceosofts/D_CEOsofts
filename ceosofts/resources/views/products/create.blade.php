@@ -7,9 +7,15 @@
     <form action="{{ route('products.store') }}" method="POST">
         @csrf
         
-        <div class="form-group">
+        {{-- <div class="form-group">
             <label for="code_prefix">Code Prefix</label>
             <input type="text" name="code_prefix" class="form-control" placeholder="Enter prefix (e.g., P)" maxlength="3" required>
+        </div> --}}
+
+        <div class="form-group">
+            <label for="code">Product Code</label>
+            <input type="text" name="code" id="code" class="form-control"
+                value="{{ old('code', $generatedCode ?? '') }}" readonly>
         </div>
         
         <div class="form-group">

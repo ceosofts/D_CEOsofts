@@ -23,15 +23,14 @@ class StoreCustomerRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers,email',
+            'email' => 'required|email|unique:customers,email', // แนะนำให้ใช้ unique
             'phone' => 'nullable|string|max:15',
             'address' => 'nullable|string|max:500',
-            'taxid' => 'nullable|string|max:20', // เพิ่มการตรวจสอบสำหรับ taxid
-
-
-
+            'taxid' => 'nullable|string|max:20',
+            // 'code' => 'required|string|unique:customers,code', // แนะนำให้ใช้ unique
         ];
     }
+    
 
     /**
      * Get custom messages for validator errors.

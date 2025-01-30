@@ -14,8 +14,8 @@
         </form>
     </div>
 
-    <table class="table table-striped">
-        <thead>
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
             <tr>
                 <th>Code</th>
                 <th>Name</th>

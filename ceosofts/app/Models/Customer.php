@@ -15,7 +15,9 @@ class Customer extends Model
      *
      * @var array
      */
-    protected $fillable = ['name', 'email', 'phone', 'address', 'taxid'];
+    // protected $fillable = ['name', 'email', 'phone', 'address', 'taxid'];
+    protected $fillable = ['name', 'email', 'phone', 'address', 'taxid', 'code'];
+
 
     /**
      * ความสัมพันธ์กับ Order
