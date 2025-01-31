@@ -142,7 +142,20 @@ ceosoftslaptop@CeosoftsLapTop:/mnt/d/D_CEOsofts/ceosofts$
 
 (END)
 
-
+> $user = \App\Models\User::first();
+r->role;
+= App\Models\User {#6294
+    id: 1,
+    name: "Admin User",
+    email: "admin@example.com",
+    email_verified_at: null,
+    #password: "$2y$12$X6r8ef45P2XVU7CRQ.kZKOIJcGSUvqFlEFCMT6Y1QxocJTogohg9.",
+    #remember_token: null,
+    created_at: "2025-01-25 07:20:53",
+    updated_at: "2025-01-30 13:53:23",
+    department_id: 1,
+    role: "user",
+:
 
 
 ---
