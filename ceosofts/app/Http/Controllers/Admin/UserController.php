@@ -13,7 +13,10 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::with('department')->paginate(10);
+        // ✅ โหลด Users พร้อม Role และ Department
+        $users = User::paginate(10);
+        $users->load(['roles', 'department']); 
+        
         return view('admin.users.index', compact('users'));
     }
 
@@ -23,49 +26,27 @@ class UserController extends Controller
         return view('admin.users.create', compact('departments'));
     }
 
-    // public function store(Request $request)
-    // {
-    //     $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'email' => 'required|email|unique:users',
-    //         'password' => 'required|min:8',
-    //         'role' => 'required|in:admin,manager,leader,user',
-    //         'department_id' => 'nullable|exists:departments,id'
-    //     ]);
-
-    //     User::create([
-    //         'name' => $request->name,
-    //         'email' => $request->email,
-    //         'password' => Hash::make($request->password),
-    //         'role' => $request->role,
-    //         'department_id' => $request->department_id
-    //     ]);
-
-    //     return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
-    // }
-
     public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users',
-        'password' => 'required|min:8',
-        'role' => 'required|in:admin,manager,leader,user',
-        'department_id' => 'nullable|exists:departments,id'
-    ]);
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8',
+            'role' => 'required|in:admin,manager,leader,user',
+            'department_id' => 'nullable|exists:departments,id'
+        ]);
 
-    User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => $request->role,
-        'department_id' => $request->department_id
-    ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'department_id' => $request->department_id,
+        ]);
 
-    return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
-}
+        $user->assignRole($request->role); // ✅ Assign Role หลังจากสร้าง User
 
-
+        return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
+    }
 
     public function edit($id)
     {
@@ -74,76 +55,44 @@ class UserController extends Controller
         return view('admin.users.edit', compact('user', 'departments'));
     }
 
-    
-    // public function update(Request $request, $id)
-    // {
-    //     $user = User::findOrFail($id);
-
-    //     $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'email' => 'required|email|unique:users,email,' . $user->id,
-    //         'role' => 'required|in:admin,manager,leader,user',
-    //         'department_id' => 'nullable|exists:departments,id',
-    //         'password' => 'nullable|min:8' // ✅ แก้ไขให้ password ไม่จำเป็นต้องใส่
-    //     ]);
-
-    //     // ✅ ตรวจสอบว่ามีการส่ง password ใหม่มาหรือไม่
-    //     $data = [
-    //         'name' => $request->name,
-    //         'email' => $request->email,
-    //         'role' => $request->role,
-    //         'department_id' => $request->department_id
-    //     ];
-
-    //     if ($request->filled('password')) {
-    //         $data['password'] = Hash::make($request->password);
-    //     }
-
-    //     $user->update($data);
-
-    //     return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
-    // }
-
     public function update(Request $request, $id)
-{
-    $user = User::findOrFail($id);
+    {
+        $user = User::findOrFail($id);
 
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email,' . $user->id,
-        'role' => 'required|in:admin,manager,leader,user',
-        'department_id' => 'nullable|exists:departments,id',
-        'password' => 'nullable|min:8'
-    ]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role' => 'required|in:admin,manager,leader,user',
+            'department_id' => 'nullable|exists:departments,id',
+            'password' => 'nullable|min:8'
+        ]);
 
-    $data = [
-        'name' => $request->name,
-        'email' => $request->email,
-        'role' => $request->role,
-        'department_id' => $request->department_id
-    ];
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'department_id' => $request->department_id
+        ];
 
-    if ($request->filled('password')) {
-        $data['password'] = Hash::make($request->password);
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
+        $user->syncRoles([$request->role]); // ✅ เปลี่ยน Role ของ User
+
+        return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
     }
-
-    $user->update($data);
-
-    return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
-}
-
 
     public function destroy($id)
     {
-        try {
-            DB::beginTransaction();
-            $user = User::findOrFail($id);
-            $user->delete();
-            DB::commit();
-            return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->route('admin.users.index')->with('error', 'Cannot delete user: ' . $e->getMessage());
+        $user = User::findOrFail($id);
+
+        if ($user->hasRole('admin')) {
+            return redirect()->route('admin.users.index')->with('error', 'ไม่สามารถลบ Admin ได้');
         }
+
+        $user->delete();
+
+        return redirect()->route('admin.users.index')->with('success', 'ลบผู้ใช้เรียบร้อยแล้ว');
     }
 }

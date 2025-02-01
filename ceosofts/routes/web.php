@@ -40,6 +40,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('users', UserController::class); // ✅ ใช้ name('admin.') ทำให้ route('admin.users.index') ใช้งานได้
 });
 
+Route::get('/admin', function () {
+    return "Welcome Admin";
+})->middleware(['role:admin']);
 
 
 // 👥 **Manager, Leader, User (ต้องมี Role และอยู่ในแผนก)**
