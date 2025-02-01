@@ -27,8 +27,16 @@
                     <tr>
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
-                        <td>{{ ucfirst($user->role) }}</td>
-                        <td>{{ $user->department->name ?? 'ไม่มีแผนก' }}</td>
+                        {{-- <td>{{ ucfirst($user->role) }}</td> --}}
+                        {{-- <td>{{ $user->getRoleNames()->implode(', ') }}</td> <!-- ✅ ใช้ getRoleNames() --> --}}
+                        {{-- <td>{{ $user->getRoleNames()->isEmpty() ? 'ไม่มี Role' : $user->getRoleNames()->implode(', ') }}</td> --}}
+                        <td>{{ $user->getRoleNames()->implode(', ') }}</td>
+
+
+
+                        {{-- <td>{{ $user->department->name ?? 'ไม่มีแผนก' }}</td> --}}
+                        <td>{{ optional($user->department)->name ?? 'ไม่มีแผนก' }}</td>
+
                         <td>
                             {{-- <a href="{{ route('users.edit', $user->id) }}" class="btn btn-warning btn-sm">แก้ไข</a> --}}
                             <a href="{{ route('admin.users.edit', $user->id) }}" class="btn btn-warning btn-sm">แก้ไข</a>

@@ -5,51 +5,47 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name', 
         'email', 
         'password', 
-        'role', // เพิ่ม role จากโค้ดใหม่
-        'department_id', // เพิ่ม department_id จากโค้ดใหม่
+        'department_id', 
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $appends = ['role'];
+
+    public function department()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(Department::class);
+    }
+
+    public function getRoleAttribute()
+    {
+        return $this->getRoleNames()->first() ?? 'ไม่มี Role'; // ✅ ป้องกัน Null
     }
 
     /**
-     * Relationship: User belongs to a Department
+     * กำหนด Role ให้ User ใหม่อัตโนมัติ
      */
-    public function department() {
-        return $this->belongsTo(Department::class);
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($user) {
+            if (!$user->hasRole('admin') && !$user->hasRole('user')) {
+                $user->assignRole('user'); // ✅ กำหนด Role Default เป็น "user"
+            }
+        });
     }
 }
