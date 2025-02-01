@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+
+.input-group > input,
+.input-group > .form-control {
+    height: 40px !important; /* เพิ่มขนาดให้สูงขึ้น และใช้ !important */
+}
