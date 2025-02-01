@@ -33,14 +33,14 @@ class UserController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8',
             'role' => 'required|in:admin,manager,leader,user',
-            'department_id' => 'nullable|exists:departments,id'
+            'department_id' => 'required|exists:departments,id' // ✅ ต้องเลือกแผนกเสมอ
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'department_id' => $request->department_id,
+            'department_id' => $request->department_id, // ✅ กำหนดแผนกให้ User
         ]);
 
         $user->assignRole($request->role); // ✅ Assign Role หลังจากสร้าง User
