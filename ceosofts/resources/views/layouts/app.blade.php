@@ -13,6 +13,9 @@
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
 
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
@@ -37,6 +40,7 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('home') }}">{{ __('Home') }}</a>
                         </li>
+
                         @auth
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a>
@@ -50,6 +54,22 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('orders.index') }}">{{ __('Orders') }}</a>
                             </li>
+
+                            @can('manage departments')
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.departments.index') }}">
+                                        <i class="bi bi-building"></i> แผนก
+                                    </a>
+                                </li>
+                            @endcan
+
+                            @can('manage users')
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.users.index') }}">
+                                        <i class="bi bi-people"></i> ผู้ใช้
+                                    </a>
+                                </li>
+                            @endcan
                         @endauth
                     </ul>
 
@@ -87,23 +107,6 @@
                 </div>
             </div>
         </nav>
-
-        <!-- Flash Messages -->
-        {{-- <div class="container mt-3">
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            @endif
-        </div> --}}
 
         <!-- Main Content -->
         <main class="py-4">

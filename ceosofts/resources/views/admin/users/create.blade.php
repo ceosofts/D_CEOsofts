@@ -3,10 +3,9 @@
 @section('content')
     <div class="container">
         <h1>เพิ่มผู้ใช้</h1>
-        {{-- <form action="{{ route('users.store') }}" method="POST"> --}}
-            <form action="{{ route('admin.users.store') }}" method="POST">
-
+        <form action="{{ route('admin.users.store') }}" method="POST">
             @csrf
+
             <div class="mb-3">
                 <label for="name" class="form-label">ชื่อ</label>
                 <input type="text" class="form-control" name="name" required>
@@ -36,7 +35,7 @@
                 <label for="department_id" class="form-label">แผนก</label>
                 <select name="department_id" class="form-control">
                     <option value="">ไม่มีแผนก</option>
-                    @foreach ($departments as $department)
+                    @foreach($departments as $department)
                         <option value="{{ $department->id }}">{{ $department->name }}</option>
                     @endforeach
                 </select>
