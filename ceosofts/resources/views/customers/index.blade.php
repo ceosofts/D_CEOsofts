@@ -10,12 +10,14 @@
         <a href="{{ route('customers.create') }}" class="btn btn-success">
             <i class="bi bi-plus-lg"></i> Add Customer
         </a>
+
         <form method="GET" action="{{ route('customers.index') }}" class="d-flex flex-grow-1 ms-3">
             <input type="text" name="search" class="form-control me-2" placeholder="Search by Code, Name, Email" value="{{ request('search') }}">
             <button type="submit" class="btn btn-primary">
                 <i class="bi bi-search"></i> Search
             </button>
         </form>
+        
     </div>
 
 

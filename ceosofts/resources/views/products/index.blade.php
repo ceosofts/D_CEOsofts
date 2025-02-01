@@ -8,10 +8,12 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="{{ route('products.create') }}" class="btn btn-success" >Add Product</a>
+
         <form method="GET" action="{{ route('products.index') }}" class="d-flex flex-grow-1 ms-3">
             <input type="text" name="search" class="form-control me-2"  placeholder="Search by Code, Name, SKU, Status" value="{{ request('search') }}">
             <button type="submit" class="btn btn-primary" >Filters</button>
         </form>
+        
     </div>
 
     <table class="table table-striped table-hover">

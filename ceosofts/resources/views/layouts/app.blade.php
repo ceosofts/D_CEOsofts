@@ -18,9 +18,32 @@
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+    {{-- @vite(['resources/sass/app.scss', 'resources/js/app.js']) --}}
+    {{-- <link rel="stylesheet" href="{{ asset('css/app.css') }}"> --}}
+
+    {{-- @vite(['resources/css/app.css', 'resources/js/app.js']) --}}
+
 
     <!-- Styles (เพิ่มเติมสำหรับ CSS พิเศษในแต่ละหน้า) -->
     @stack('styles')
+
+    <!-- ✅ เพิ่ม CSS สำหรับ Search Box -->
+    {{-- @push('styles')
+    <style>
+        .input-group input {
+            height: 38px !important; /* หรือกำหนดค่าให้เหมือนกัน */
+        }
+    </style>
+    @endpush --}}
+
+    @push('styles')
+    <style>
+        .input-group .form-control {
+            height: 38px !important; /* บังคับให้เปลี่ยนขนาด */
+        }
+    </style>
+    @endpush
+
 </head>
 <body>
     <div id="app">
