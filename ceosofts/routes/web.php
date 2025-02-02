@@ -11,6 +11,7 @@ use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\CompanyController;
+use App\Http\Controllers\Admin\UnitController;
 
 // 🏠 **หน้าแรก (Welcome Page)**
 Route::get('/', fn() => view('welcome'))->name('welcome');
@@ -38,6 +39,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // 🏢 **จัดการแผนก**
     Route::resource('departments', DepartmentController::class);
+
+    // 🏢 **จัดการหน่วยนับ**
+    Route::resource('units', UnitController::class);
+    
+
 });
 
 // 📦 **Resource Routes (ต้อง Login และอยู่ในแผนก)**

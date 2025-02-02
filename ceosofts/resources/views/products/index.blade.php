@@ -24,6 +24,8 @@
                 <th>Description</th>
                 <th>Price</th>
                 <th>Stock</th>
+                {{-- <th>{{ $product->unit ? $product->unit->name : '-' }}</th> --}}
+                <th>Unit</th>
                 <th>SKU</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -37,6 +39,10 @@
                     <td>{{ $product->description }}</td>
                     <td>${{ number_format($product->price, 2) }}</td>
                     <td>{{ $product->stock_quantity }}</td>
+
+                    
+                    <td>{{ $product->unit ? $product->unit->name : '-' }}</td>
+
                     <td>{{ $product->sku }}</td>
                     <td>{{ $product->is_active ? 'Active' : 'Inactive' }}</td>
                     <td>

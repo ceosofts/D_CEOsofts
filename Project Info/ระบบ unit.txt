@@ -1,0 +1,1012 @@
+คู่มือเพิ่มระบบหน่วยสินค้า (Unit) ใน Laravel + SQLite
+✅ สรุปอย่างละเอียด ตั้งแต่เริ่มต้นจนแก้ไขปัญหาทั้งหมด
+🎯 เหมาะสำหรับการเก็บไว้ศึกษา และใช้เป็นแนวทางในการพัฒนาในอนาคต
+
+🔥 1. วางแผนและออกแบบระบบ
+ระบบหน่วยสินค้า (Unit) มีเป้าหมายเพื่อให้แต่ละสินค้าสามารถกำหนดหน่วยวัดได้ เช่น:
+
+อัน
+เส้น
+เมตร
+ท่อน
+🔹 ตารางที่เกี่ยวข้อง:
+
+units → เก็บข้อมูลหน่วยสินค้า
+products → เพิ่มฟิลด์ unit_id เพื่อเชื่อมโยงกับ units
+✅ 2. สร้าง Model, Migration และเพิ่มข้อมูลเริ่มต้น
+📌 2.1 สร้าง Model และ Migration สำหรับ Unit
+sh
+คัดลอก
+แก้ไข
+php artisan make:model Unit -m
+จะได้ไฟล์
+
+app/Models/Unit.php
+database/migrations/xxxx_xx_xx_xxxxxx_create_units_table.php
+📌 2.2 แก้ไข Migration create_units_table.php
+php
+คัดลอก
+แก้ไข
+public function up()
+{
+    Schema::create('units', function (Blueprint $table) {
+        $table->id();
+        $table->string('name')->unique();
+        $table->timestamps();
+    });
+}
+📌 2.3 เพิ่มฟิลด์ unit_id ในตาราง products
+sh
+คัดลอก
+แก้ไข
+php artisan make:migration add_unit_id_to_products_table --table=products
+จากนั้นแก้ไขไฟล์ Migration ที่สร้างขึ้น
+
+php
+คัดลอก
+แก้ไข
+public function up()
+{
+    Schema::table('products', function (Blueprint $table) {
+        $table->foreignId('unit_id')->nullable()->constrained('units')->onDelete('set null');
+    });
+}
+📌 2.4 รัน Migration
+sh
+คัดลอก
+แก้ไข
+php artisan migrate
+📌 2.5 เพิ่มข้อมูลเริ่มต้นใน DatabaseSeeder.php
+php
+คัดลอก
+แก้ไข
+use App\Models\Unit;
+
+public function run()
+{
+    Unit::insert([
+        ['name' => 'อัน'],
+        ['name' => 'เส้น'],
+        ['name' => 'เมตร'],
+        ['name' => 'ท่อน'],
+    ]);
+}
+จากนั้นรัน
+
+sh
+คัดลอก
+แก้ไข
+php artisan db:seed
+✅ 3. เพิ่มความสัมพันธ์ (relationship) ใน Model
+📌 3.1 แก้ไข Unit.php
+php
+คัดลอก
+แก้ไข
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Unit extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['name'];
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+}
+📌 3.2 แก้ไข Product.php
+php
+คัดลอก
+แก้ไข
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Product extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['code', 'name', 'description', 'price', 'stock_quantity', 'sku', 'unit_id'];
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit_id');
+    }
+}
+✅ 4. เพิ่มฟังก์ชันเลือกหน่วยสินค้าในฟอร์ม
+📌 4.1 แก้ไขหน้า create.blade.php
+blade
+คัดลอก
+แก้ไข
+<div class="form-group">
+    <label for="unit_id">หน่วยสินค้า</label>
+    <select name="unit_id" class="form-control" required>
+        <option value="">-- เลือกหน่วยสินค้า --</option>
+        @foreach(App\Models\Unit::all() as $unit)
+            <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+        @endforeach
+    </select>
+</div>
+📌 4.2 แก้ไขหน้า edit.blade.php
+blade
+คัดลอก
+แก้ไข
+<div class="form-group">
+    <label for="unit_id">หน่วยสินค้า</label>
+    <select name="unit_id" class="form-control" required>
+        <option value="">-- เลือกหน่วยสินค้า --</option>
+        @foreach(App\Models\Unit::all() as $unit)
+            <option value="{{ $unit->id }}" {{ $product->unit_id == $unit->id ? 'selected' : '' }}>
+                {{ $unit->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
+✅ 5. อัปเดต Controller ให้รองรับ unit_id
+📌 5.1 แก้ไข ProductController.php
+php
+คัดลอก
+แก้ไข
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'price' => 'required|numeric|min:0',
+        'stock_quantity' => 'required|integer|min:0',
+        'unit_id' => 'required|exists:units,id',
+        'sku' => 'required|string|max:20|unique:products,sku',
+    ]);
+
+    Product::create($request->all());
+
+    return redirect()->route('products.index')->with('success', 'Product added successfully.');
+}
+
+public function update(Request $request, Product $product)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'price' => 'required|numeric|min:0',
+        'stock_quantity' => 'required|integer|min:0',
+        'unit_id' => 'required|exists:units,id',
+        'sku' => 'required|string|max:20|unique:products,sku,' . $product->id,
+    ]);
+
+    $product->update($request->all());
+
+    return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+}
+✅ 6. แก้ไขปัญหาที่พบ
+❌ ปัญหา 1: unit_id ไม่ถูกอัปเดต
+📌 สาเหตุ: Laravel ใช้ Cache หรือ Model ไม่โหลดค่าล่าสุด
+✅ วิธีแก้ไข:
+
+php
+คัดลอก
+แก้ไข
+$product->refresh();
+❌ ปัญหา 2: Product::update() ไม่ทำงาน
+📌 สาเหตุ: unit_id ไม่อยู่ใน $fillable
+✅ วิธีแก้ไข:
+
+php
+คัดลอก
+แก้ไข
+protected $fillable = ['code', 'name', 'description', 'price', 'stock_quantity', 'sku', 'unit_id'];
+❌ ปัญหา 3: SQLite ไม่อัปเดตค่า
+📌 สาเหตุ: SQLite อาจล็อกหรือใช้ Cache
+✅ วิธีแก้ไข:
+
+sh
+คัดลอก
+แก้ไข
+sqlite3 database/database.sqlite
+SELECT * FROM products;
+UPDATE products SET unit_id = 2 WHERE id = 1;
+ถ้าแก้ผ่าน SQL ได้ แต่ Laravel ไม่ทำงาน ให้ใช้
+
+php
+คัดลอก
+แก้ไข
+use Illuminate\Support\Facades\DB;
+
+DB::table('products')->where('id', $product->id)->update([
+    'unit_id' => $request->unit_id,
+    'updated_at' => now(),
+]);
+🎯 สรุป
+ปัญหา	วิธีแก้ไข
+unit_id ไม่อัปเดต	ใช้ $product->refresh();
+Product::update() ไม่ทำงาน	ตรวจสอบ $fillable
+SQLite ไม่อัปเดตค่า	ใช้ DB::table()
+🎉 ตอนนี้ระบบทำงานได้สมบูรณ์แล้ว! 🚀
+📌 หากมีคำถามเพิ่มเติม ถามได้เลยครับ! 😊
+
+
+สรุปขั้นตอนการทำระบบหน่วยสินค้า (Unit) ตั้งแต่ต้นจนจบ
+🎯 เป้าหมายของระบบ
+
+เพิ่ม-ลบ-แก้ไขหน่วยสินค้า เช่น "ชิ้น", "เมตร", "กล่อง"
+เชื่อมสินค้า (Product) กับหน่วยสินค้า (Unit)
+ป้องกันการลบหน่วยสินค้าที่ถูกใช้งานอยู่
+ย้ายไปโซน Admin เพื่อให้เฉพาะ Admin จัดการได้
+🔥 STEP 1: เตรียมฐานข้อมูล
+1️⃣ สร้างตาราง units
+sh
+คัดลอก
+แก้ไข
+php artisan make:migration create_units_table --create=units
+📌 แก้ไข database/migrations/xxxx_xx_xx_create_units_table.php
+
+php
+คัดลอก
+แก้ไข
+public function up()
+{
+    Schema::create('units', function (Blueprint $table) {
+        $table->id();
+        $table->string('name')->unique();
+        $table->timestamps();
+    });
+}
+📌 รัน Migration
+
+sh
+คัดลอก
+แก้ไข
+php artisan migrate
+2️⃣ เพิ่ม unit_id ในตาราง products
+sh
+คัดลอก
+แก้ไข
+php artisan make:migration add_unit_id_to_products_table --table=products
+📌 แก้ไข database/migrations/xxxx_xx_xx_add_unit_id_to_products_table.php
+
+php
+คัดลอก
+แก้ไข
+public function up()
+{
+    Schema::table('products', function (Blueprint $table) {
+        $table->foreignId('unit_id')->nullable()->constrained('units')->onDelete('set null');
+    });
+}
+📌 รัน Migration
+
+sh
+คัดลอก
+แก้ไข
+php artisan migrate
+🔥 STEP 2: สร้าง Model และ Controller
+1️⃣ สร้าง Unit Model
+sh
+คัดลอก
+แก้ไข
+php artisan make:model Unit
+📌 แก้ไข app/Models/Unit.php
+
+php
+คัดลอก
+แก้ไข
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Unit extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['name'];
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+}
+2️⃣ แก้ไข Product Model เพื่อเชื่อมกับ Unit
+📌 แก้ไข app/Models/Product.php
+
+php
+คัดลอก
+แก้ไข
+public function unit()
+{
+    return $this->belongsTo(Unit::class);
+}
+3️⃣ สร้าง UnitController
+sh
+คัดลอก
+แก้ไข
+php artisan make:controller Admin/UnitController --resource
+📌 แก้ไข app/Http/Controllers/Admin/UnitController.php
+
+php
+คัดลอก
+แก้ไข
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Unit;
+
+class UnitController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('can:manage units');
+    }
+
+    public function index()
+    {
+        $units = Unit::all();
+        return view('admin.units.index', compact('units'));
+    }
+
+    public function create()
+    {
+        return view('admin.units.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate(['name' => 'required|string|max:255|unique:units']);
+        Unit::create(['name' => $request->name]);
+        return redirect()->route('units.index')->with('success', 'เพิ่มหน่วยสินค้าสำเร็จ!');
+    }
+
+    public function edit(Unit $unit)
+    {
+        return view('admin.units.edit', compact('unit'));
+    }
+
+    public function update(Request $request, Unit $unit)
+    {
+        $request->validate(['name' => 'required|string|max:255|unique:units,name,' . $unit->id]);
+        $unit->update(['name' => $request->name]);
+        return redirect()->route('units.index')->with('success', 'อัปเดตหน่วยสินค้าสำเร็จ!');
+    }
+
+    public function destroy(Unit $unit)
+    {
+        if ($unit->products()->count() > 0) {
+            return redirect()->route('units.index')->with('error', 'ไม่สามารถลบหน่วยที่ถูกใช้งานอยู่');
+        }
+        $unit->delete();
+        return redirect()->route('units.index')->with('success', 'ลบหน่วยสินค้าสำเร็จ!');
+    }
+}
+🔥 STEP 3: สร้างหน้า View สำหรับ Admin
+📌 สร้างโฟลเดอร์ resources/views/admin/units/
+pgsql
+คัดลอก
+แก้ไข
+resources/views/admin/units/
+    ├── index.blade.php  (แสดงรายการ)
+    ├── create.blade.php (เพิ่ม)
+    ├── edit.blade.php   (แก้ไข)
+1️⃣ หน้าแสดงรายการ (index.blade.php)
+blade
+คัดลอก
+แก้ไข
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <h1>หน่วยสินค้า</h1>
+    <a href="{{ route('units.create') }}" class="btn btn-primary mb-3">เพิ่มหน่วยสินค้า</a>
+
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ชื่อหน่วย</th>
+                <th>การจัดการ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($units as $unit)
+                <tr>
+                    <td>{{ $unit->name }}</td>
+                    <td>
+                        <a href="{{ route('units.edit', $unit->id) }}" class="btn btn-warning">แก้ไข</a>
+                        <form action="{{ route('units.destroy', $unit->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('ยืนยันการลบ?')">ลบ</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endsection
+🔥 STEP 4: เพิ่ม Middleware สำหรับ Admin
+📌 สร้าง Middleware AdminMiddleware
+
+sh
+คัดลอก
+แก้ไข
+php artisan make:middleware AdminMiddleware
+📌 แก้ไข app/Http/Middleware/AdminMiddleware.php
+
+php
+คัดลอก
+แก้ไข
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class AdminMiddleware
+{
+    public function handle(Request $request, Closure $next)
+    {
+        if (!Auth::check() || !Auth::user()->hasRole('admin')) {
+            abort(403, 'Unauthorized.');
+        }
+        return $next($request);
+    }
+}
+📌 เพิ่ม Middleware ใน app/Http/Kernel.php
+
+php
+คัดลอก
+แก้ไข
+protected $routeMiddleware = [
+    'admin' => \App\Http\Middleware\AdminMiddleware::class,
+];
+🔥 STEP 5: เพิ่มสิทธิ์ให้ Admin
+📌 ใช้ Tinker เพื่อเพิ่มสิทธิ์
+
+sh
+คัดลอก
+แก้ไข
+php artisan tinker
+php
+คัดลอก
+แก้ไข
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+
+Permission::create(['name' => 'manage units']);
+
+$adminRole = Role::where('name', 'admin')->first();
+$adminRole->givePermissionTo('manage units');
+🔥 STEP 6: ทดสอบระบบ
+✅ เข้า http://127.0.0.1:8000/admin/units
+✅ ทดสอบเพิ่ม/แก้ไข/ลบ หน่วยสินค้า
+✅ ทดสอบลบหน่วยสินค้าที่ถูกใช้งาน → ต้องแจ้งเตือน
+✅ ทดสอบ Tinker ดูว่าค่าถูกต้องหรือไม่
+
+🎯 สรุป
+🛠 สร้างตาราง units และเพิ่ม unit_id ใน products
+⚙ เชื่อม Product กับ Unit ผ่าน hasMany และ belongsTo
+🔐 ใช้ Middleware และสิทธิ์ manage units จำกัดเฉพาะ Admin
+🎨 สร้าง View สำหรับ Admin
+🚀 เพิ่ม-ลบ-แก้ไขหน่วยสินค้า และป้องกันการลบที่ถูกใช้งาน
+🔥 ระบบหน่วยสินค้าเสร็จสมบูรณ์! 🎉
+📌 ถ้ามีข้อสงสัยหรืออยากเพิ่มฟังก์ชันอื่น แจ้งมาได้เลยครับ 😊
+
+
+/////////////////////////// เริ่มจากของเดิม //////////////////////////////////////////////
+
+สรุปการเพิ่มระบบ "หน่วยสินค้า (Unit)" ตั้งแต่ต้นจนจบ
+🎯 เป้าหมาย:
+✅ เพิ่มระบบจัดการ "หน่วยสินค้า (Unit)" เช่น ชิ้น, เมตร, กล่อง
+✅ เชื่อมสินค้า (Product) กับหน่วยสินค้า
+✅ เพิ่ม-ลบ-แก้ไขหน่วยสินค้า
+✅ ป้องกันการลบหน่วยที่ถูกใช้งานอยู่
+✅ ย้ายการจัดการไปอยู่ในโซน Admin
+
+🔥 STEP 1: เชื่อม Product กับ Unit
+✅ 1. เพิ่ม unit_id ในตาราง products
+เรามี ฐานข้อมูลสินค้า (products) อยู่แล้ว แต่ยังไม่มีฟิลด์ unit_id
+📌 เพิ่มฟิลด์ unit_id ลงในตาราง products
+
+sh
+คัดลอก
+แก้ไข
+php artisan make:migration add_unit_id_to_products_table --table=products
+📌 แก้ไขไฟล์ database/migrations/xxxx_xx_xx_add_unit_id_to_products_table.php
+
+php
+คัดลอก
+แก้ไข
+public function up()
+{
+    Schema::table('products', function (Blueprint $table) {
+        $table->foreignId('unit_id')->nullable()->constrained('units')->onDelete('set null');
+    });
+}
+📌 รัน Migration เพื่ออัปเดตตาราง
+
+sh
+คัดลอก
+แก้ไข
+php artisan migrate
+✅ 2. อัปเดต Product Model ให้เชื่อมกับ Unit
+📌 แก้ไข app/Models/Product.php
+
+php
+คัดลอก
+แก้ไข
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Product extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['code', 'name', 'description', 'price', 'stock_quantity', 'sku', 'unit_id'];
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
+    }
+}
+✅ ตอนนี้สินค้าจะสามารถอ้างอิงหน่วยสินค้าได้แล้ว!
+
+🔥 STEP 2: สร้างระบบจัดการหน่วยสินค้า
+✅ 1. สร้าง Model Unit
+sh
+คัดลอก
+แก้ไข
+php artisan make:model Unit
+📌 แก้ไข app/Models/Unit.php
+
+php
+คัดลอก
+แก้ไข
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Unit extends Model
+{
+    use HasFactory;
+
+    protected $fillable = ['name'];
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
+}
+✅ 2. สร้าง UnitController
+sh
+คัดลอก
+แก้ไข
+php artisan make:controller Admin/UnitController --resource
+📌 แก้ไข app/Http/Controllers/Admin/UnitController.php
+
+php
+คัดลอก
+แก้ไข
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Unit;
+
+class UnitController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware('can:manage units');
+    }
+
+    public function index()
+    {
+        $units = Unit::all();
+        return view('admin.units.index', compact('units'));
+    }
+
+    public function create()
+    {
+        return view('admin.units.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate(['name' => 'required|string|max:255|unique:units']);
+        Unit::create(['name' => $request->name]);
+        return redirect()->route('units.index')->with('success', 'เพิ่มหน่วยสินค้าสำเร็จ!');
+    }
+
+    public function edit(Unit $unit)
+    {
+        return view('admin.units.edit', compact('unit'));
+    }
+
+    public function update(Request $request, Unit $unit)
+    {
+        $request->validate(['name' => 'required|string|max:255|unique:units,name,' . $unit->id]);
+        $unit->update(['name' => $request->name]);
+        return redirect()->route('units.index')->with('success', 'อัปเดตหน่วยสินค้าสำเร็จ!');
+    }
+
+    public function destroy(Unit $unit)
+    {
+        if ($unit->products()->count() > 0) {
+            return redirect()->route('units.index')->with('error', 'ไม่สามารถลบหน่วยที่ถูกใช้งานอยู่');
+        }
+        $unit->delete();
+        return redirect()->route('units.index')->with('success', 'ลบหน่วยสินค้าสำเร็จ!');
+    }
+}
+🔥 STEP 3: เพิ่ม Route และ จำกัดสิทธิ์
+📌 แก้ไข routes/web.php
+
+php
+คัดลอก
+แก้ไข
+use App\Http\Controllers\Admin\UnitController;
+
+Route::middleware(['auth', 'can:manage units'])->prefix('admin')->group(function () {
+    Route::resource('units', UnitController::class);
+});
+✅ ทำให้เฉพาะ Admin เท่านั้นที่เข้าถึง admin/units ได้
+
+🔥 STEP 4: เพิ่มสิทธิ์ให้ Admin จัดการหน่วยสินค้า
+📌 ใช้ Tinker เพื่อเพิ่มสิทธิ์
+
+sh
+คัดลอก
+แก้ไข
+php artisan tinker
+php
+คัดลอก
+แก้ไข
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+
+Permission::create(['name' => 'manage units']);
+
+$adminRole = Role::where('name', 'admin')->first();
+$adminRole->givePermissionTo('manage units');
+✅ ตอนนี้เฉพาะ Admin เท่านั้นที่สามารถจัดการหน่วยสินค้าได้
+
+🔥 STEP 5: สร้างหน้า View
+📌 โครงสร้างไฟล์
+
+pgsql
+คัดลอก
+แก้ไข
+resources/views/admin/units/
+    ├── index.blade.php  (แสดงรายการ)
+    ├── create.blade.php (เพิ่ม)
+    ├── edit.blade.php   (แก้ไข)
+✅ 1. index.blade.php (แสดงรายการ)
+blade
+คัดลอก
+แก้ไข
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <h1>หน่วยสินค้า</h1>
+    <a href="{{ route('units.create') }}" class="btn btn-primary mb-3">เพิ่มหน่วยสินค้า</a>
+
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ชื่อหน่วย</th>
+                <th>การจัดการ</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($units as $unit)
+                <tr>
+                    <td>{{ $unit->name }}</td>
+                    <td>
+                        <a href="{{ route('units.edit', $unit->id) }}" class="btn btn-warning">แก้ไข</a>
+                        <form action="{{ route('units.destroy', $unit->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('ยืนยันการลบ?')">ลบ</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endsection
+🔥 STEP 6: ทดสอบระบบ
+✅ เข้า http://127.0.0.1:8000/admin/units
+✅ ทดสอบเพิ่ม/แก้ไข/ลบ หน่วยสินค้า
+✅ ทดสอบลบหน่วยสินค้าที่ถูกใช้งาน → ต้องแจ้งเตือน
+✅ ทดสอบ Tinker ดูว่าค่าถูกต้องหรือไม่
+
+🎯 สรุป
+ขั้นตอน	รายละเอียด
+✅ เพิ่ม unit_id ใน products	เชื่อมสินค้ากับหน่วยสินค้า
+✅ สร้าง Model Unit	และกำหนดความสัมพันธ์กับสินค้า
+✅ สร้าง Controller UnitController	จัดการเพิ่ม-ลบ-แก้ไขหน่วยสินค้า
+✅ เพิ่ม Route /admin/units	จำกัดเฉพาะ Admin
+✅ เพิ่มสิทธิ์ manage units	ให้เฉพาะ Admin ใช้งานได้
+✅ ป้องกันการลบหน่วยที่ถูกใช้	ถ้ามีสินค้าใช้ จะไม่สามารถลบได้
+🚀 ตอนนี้ระบบหน่วยสินค้าเสร็จสมบูรณ์!
+📌 หากมีข้อสงสัย แจ้งได้เลยครับ 😊
+
+
+//////////////////////////// ขั้นตอนที่ทำจริงๆ ////////////////////////
+
+สรุปขั้นตอนการพัฒนาระบบ Unit ใน Laravel
+🔎 รายละเอียดตั้งแต่เริ่มต้น จนถึงการแก้ไขปัญหาทั้งหมดที่พบระหว่างทาง
+
+🎯 1. วางแผนโครงสร้างของระบบ Unit
+ก่อนเริ่มทำ เราต้องกำหนดว่า Unit (หน่วยสินค้า) จะเป็นส่วนหนึ่งของระบบ และจะถูกนำไปใช้ในตาราง Products (สินค้า)
+เป้าหมายหลัก:
+
+มีหน้าแสดงรายการ Unit
+สามารถเพิ่ม, แก้ไข, ลบ Unit ได้
+เชื่อมโยง Unit กับ Product
+🛠 2. สร้างฐานข้อมูล Unit
+🔹 2.1 สร้าง Migration สำหรับ units
+ใช้คำสั่งสร้างตาราง units
+
+bash
+คัดลอก
+แก้ไข
+php artisan make:migration create_units_table --create=units
+จากนั้นเพิ่มโค้ดใน database/migrations/YYYY_MM_DD_create_units_table.php
+
+php
+คัดลอก
+แก้ไข
+public function up()
+{
+    Schema::create('units', function (Blueprint $table) {
+        $table->id();
+        $table->string('name')->unique(); // หน่วยต้องไม่ซ้ำ
+        $table->timestamps();
+    });
+}
+รันคำสั่ง Migration
+
+bash
+คัดลอก
+แก้ไข
+php artisan migrate
+✅ ตรวจสอบตาราง Unit ในฐานข้อมูลเรียบร้อย
+
+🏗 3. สร้าง Model Unit
+ใช้คำสั่ง
+
+bash
+คัดลอก
+แก้ไข
+php artisan make:model Unit
+ไฟล์: app/Models/Unit.php
+
+php
+คัดลอก
+แก้ไข
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Unit extends Model
+{
+    use HasFactory;
+    
+    protected $fillable = ['name'];
+}
+✅ Unit Model พร้อมใช้งาน
+
+🖥 4. สร้าง Controller สำหรับหน่วยสินค้า
+ใช้คำสั่ง
+
+bash
+คัดลอก
+แก้ไข
+php artisan make:controller Admin/UnitController --resource
+ไฟล์ที่สร้าง: app/Http/Controllers/Admin/UnitController.php
+
+🚀 5. สร้างฟังก์ชันหลักใน UnitController
+🔹 5.1 ฟังก์ชันแสดงรายการ (index)
+php
+คัดลอก
+แก้ไข
+public function index()
+{
+    $units = Unit::all();
+    return view('admin.units.index', compact('units'));
+}
+🔹 5.2 ฟังก์ชันเพิ่ม Unit (create, store)
+php
+คัดลอก
+แก้ไข
+public function create()
+{
+    return view('admin.units.create');
+}
+
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|unique:units,name|max:255',
+    ]);
+
+    Unit::create($request->all());
+
+    return redirect()->route('admin.units.index')->with('success', 'หน่วยสินค้าเพิ่มสำเร็จ');
+}
+🔹 5.3 ฟังก์ชันแก้ไข Unit (edit, update)
+php
+คัดลอก
+แก้ไข
+public function edit(Unit $unit)
+{
+    return view('admin.units.edit', compact('unit'));
+}
+
+public function update(Request $request, Unit $unit)
+{
+    $request->validate([
+        'name' => 'required|unique:units,name,' . $unit->id . '|max:255',
+    ]);
+
+    $unit->update($request->all());
+
+    return redirect()->route('admin.units.index')->with('success', 'อัปเดตหน่วยสินค้าสำเร็จ');
+}
+🔹 5.4 ฟังก์ชันลบ Unit
+php
+คัดลอก
+แก้ไข
+public function destroy(Unit $unit)
+{
+    $unit->delete();
+    return redirect()->route('admin.units.index')->with('success', 'ลบหน่วยสินค้าสำเร็จ');
+}
+✅ Controller พร้อมใช้งาน
+
+🛣 6. กำหนด Routes
+ไฟล์: routes/web.php
+
+php
+คัดลอก
+แก้ไข
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('units', UnitController::class)->except(['show']);
+});
+✅ กำหนด Route สำหรับจัดการ Units
+
+🎨 7. สร้างหน้า UI สำหรับ Units
+ไฟล์ resources/views/admin/units/index.blade.php
+
+blade
+คัดลอก
+แก้ไข
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <h1>Unit List</h1>
+    <a href="{{ route('admin.units.create') }}" class="btn btn-success mb-3"><i class="bi bi-plus-lg"></i> Add Unit</a>
+
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Unit Name</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach ($units as $unit)
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $unit->name }}</td>
+                    <td>
+                        <a href="{{ route('admin.units.edit', $unit->id) }}" class="btn btn-warning btn-sm"><i class="bi bi-pencil"></i> Edit</a>
+                        <form action="{{ route('admin.units.destroy', $unit->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
+</div>
+@endsection
+✅ UI ตรงกับแนวทางของระบบ
+
+🛠 8. ปัญหาที่พบ และการแก้ไข
+ปัญหา	สาเหตุ	วิธีแก้ไข
+Target class [UnitController] does not exist.	Laravel หา Controller ไม่เจอ	ตรวจสอบ namespace และใช้ php artisan cache:clear
+Route [units.index] not defined.	Route ที่กำหนดผิด	ใช้ admin.units.index แทน
+MethodNotAllowedHttpException	ใช้ Method GET แทน POST	ตรวจสอบ Form และใช้ @method('DELETE')
+SQLSTATE: Integrity Constraint Violation	หน่วยสินค้าซ้ำ	เพิ่ม Validation unique:units,name
+✅ ทุกปัญหาถูกแก้ไขเรียบร้อย
+
+🔗 9. เพิ่มเมนู Units ใน Navbar
+ไฟล์ resources/views/layouts/navbar.blade.php
+
+blade
+คัดลอก
+แก้ไข
+<li><a class="nav-link" href="{{ route('admin.units.index') }}"><i class="bi bi-rulers"></i> Units</a></li>
+✅ Units แสดงใน Navbar เหมือนเมนูอื่นๆ
+
+🎉 สรุปผลสำเร็จ
+✅ ระบบ Unit ใช้งานได้ครบถ้วน
+✅ สามารถ เพิ่ม / แก้ไข / ลบ หน่วยสินค้าได้
+✅ หน้าตา UI สวยงามและเป็นแนวทางเดียวกับระบบ
+✅ แก้ไขปัญหาต่างๆ ที่พบเรียบร้อย
+
+🔥 ระบบพร้อมใช้งาน 100% 🚀
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
