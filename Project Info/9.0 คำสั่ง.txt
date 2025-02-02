@@ -66,6 +66,10 @@ tail -f storage/logs/laravel.log
 ขั้นตอนที่ 3: เช็ค Route
 📌 รันคำสั่งนี้เพื่อตรวจสอบ Route
 
+
+php artisan tinker
+
+
 bash
 คัดลอก
 แก้ไข
@@ -91,6 +95,7 @@ ceosoftslaptop@CeosoftsLapTop:/mnt/d/D_CEOsofts/ceosofts$
 ceosoftslaptop@CeosoftsLapTop:/mnt/d/D_CEOsofts/ceosofts$ php artisan route:list | grep products
 
 php artisan route:list | grep customers
+php artisan route:list | grep companies
 
   GET|HEAD        products ..................................... products.index › ProductController@index  
   POST            products ..................................... products.store › ProductController@store  
@@ -112,6 +117,10 @@ ceosoftslaptop@CeosoftsLapTop:/mnt/d/D_CEOsofts/ceosofts$
 
 
 > DB::table('customers')->get();
+DB::table('companies')->get();
+
+companies
+
 
 = Illuminate\Support\Collection {#6280
     all: [
@@ -283,6 +292,12 @@ r->role;
 - ดูข้อมูลในตาราง:
   ```sql
   SELECT * FROM table_name;
+
+SELECT * FROM companies;
+
+companies
+
+
   ```
 - ออกจาก SQLite CLI:
   ```bash
