@@ -33,12 +33,20 @@
         </div>
 
         <div class="form-group">
-            <label for="sku">SKU</label>
-            <select name="sku" class="form-control" required>
-                <option value="Products" {{ $product->sku == 'Products' ? 'selected' : '' }}>Products</option>
-                <option value="Parts" {{ $product->sku == 'Parts' ? 'selected' : '' }}>Parts</option>
-                <option value="Material" {{ $product->sku == 'Material' ? 'selected' : '' }}>Material</option>
+            <label for="unit_id">หน่วยสินค้า</label>
+            <select name="unit_id" class="form-control" required>
+                <option value="">-- เลือกหน่วยสินค้า --</option>
+                @foreach(App\Models\Unit::all() as $unit)
+                    <option value="{{ $unit->id }}" {{ $product->unit_id == $unit->id ? 'selected' : '' }}>
+                        {{ $unit->name }}
+                    </option>
+                @endforeach
             </select>
+        </div>
+
+        <div class="form-group">
+            <label for="sku">SKU</label>
+            <input type="text" name="sku" value="{{ $product->sku }}" class="form-control" required>
         </div>
 
         <button type="submit" class="btn btn-primary">Update</button>

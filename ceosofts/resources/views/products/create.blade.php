@@ -34,6 +34,27 @@
             <label for="stock_quantity">Stock Quantity</label>
             <input type="number" name="stock_quantity" class="form-control" required>
         </div>
+
+        {{-- <div class="form-group">
+            <label>หน่วยสินค้า:</label>
+            <select name="unit_id" required>
+                <option value="">-- เลือกหน่วยสินค้า --</option>
+                @foreach(App\Models\Unit::all() as $unit)
+                    <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                @endforeach
+            </select>
+        </div> --}}
+
+        <div class="form-group">
+            <label for="unit_id">หน่วยสินค้า:</label>
+            <select name="unit_id" id="unit_id" class="form-control selectpicker" required>
+                <option value="">-- เลือกหน่วยสินค้า --</option>
+                @foreach(App\Models\Unit::all() as $unit)
+                    <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
         <div class="form-group">
             <label for="sku">SKU</label>
             <input type="text" name="sku" class="form-control" required>
