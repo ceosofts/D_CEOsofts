@@ -1,0 +1,35 @@
+โครงสร้างโปรเจค D_CEOsofts-1Feb2025
+📂 D_CEOsofts-main
+├── 📂 Project Info (ข้อมูลโปรเจคและเอกสารที่เกี่ยวข้อง)
+│ ├── 📂 BIN (เก็บไฟล์สถานะของโปรเจค, โครงสร้างโปรเจค, คำสั่งติดตั้ง, ปัญหา, ฯลฯ)
+│ ├── 📝 ไฟล์ README.md, ปัญหาที่พบ, คำสั่งที่ใช้, การทำงาน, ฯลฯ
+│
+├── 📂 ceosofts (โค้ดหลักของโปรเจค - Laravel)
+│ ├── 📂 app (โค้ดของแอปพลิเคชัน)
+│ │ ├── 📂 Console (คำสั่งที่รันผ่าน CLI เช่น AddUserCommand.php)
+│ │ ├── 📂 Http (Controller, Middleware, Requests)
+│ │ ├── 📂 Models (โมเดลฐานข้อมูล เช่น Customer.php, Product.php, User.php)
+│ │ ├── 📂 Policies (กำหนดสิทธิ์การเข้าถึงข้อมูล)
+│ │ ├── 📂 Providers (Service Provider ของ Laravel)
+│ │
+│ ├── 📂 bootstrap (การโหลดไฟล์หลักของแอป, Cache config)
+│ ├── 📂 config (ไฟล์ตั้งค่าระบบ เช่น database.php, mail.php, session.php)
+│ ├── 📂 database (โครงสร้างฐานข้อมูล - migrations, seeders, factories)
+│ ├── 📂 public (ไฟล์ที่เข้าถึงได้จากภายนอก เช่น CSS, favicon.ico, index.php)
+│ ├── 📂 resources (ไฟล์ frontend - Blade Templates, CSS, JS, SASS)
+│ ├── 📂 routes (กำหนดเส้นทางเว็บ - web.php, console.php)
+│ ├── 📂 storage (เก็บไฟล์ที่ระบบใช้ เช่น logs, cache, session, public files)
+│ ├── 📂 tests (Unit & Feature Tests ของระบบ)
+│
+├── 📝 ไฟล์ config หลัก เช่น .env.example, composer.json, package.json, phpunit.xml
+
+ หน้าที่ของแต่ละโฟลเดอร์สำคัญ
+Project Info/ → เอกสารที่เกี่ยวข้องกับโปรเจค, ปัญหาต่างๆ, ข้อมูลการติดตั้ง
+ceosofts/app/ → โค้ดหลักของแอป (Controllers, Models, Middleware, Requests)
+ceosofts/config/ → ค่าตั้งค่าหลักของ Laravel (database, auth, mail, session, permission)
+ceosofts/database/ → โครงสร้างฐานข้อมูล (migrations, seeders, factories)
+ceosofts/public/ → ไฟล์ที่สามารถเข้าถึงจากภายนอก (CSS, index.php)
+ceosofts/resources/ → Frontend UI (Blade templates, JS, CSS, SCSS)
+ceosofts/routes/ → กำหนดเส้นทางเว็บ (web.php, api.php)
+ceosofts/storage/ → เก็บไฟล์ logs, cache, session และไฟล์อัปโหลด
+ceosofts/tests/ → Unit tests และ Feature tests

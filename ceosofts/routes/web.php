@@ -7,10 +7,9 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderItemController;
-// use App\Http\Controllers\DepartmentController;
-// use App\Http\Controllers\Admin\DepartmentController;
-use App\Http\Controllers\Admin\UserController; // ✅ เพิ่ม Controller สำหรับ Admin
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\CompanyController;
 
 // 🏠 **หน้าแรก (Welcome Page)**
 Route::get('/', fn() => view('welcome'))->name('welcome');
@@ -27,28 +26,18 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 // 🌟 **Admin Routes (เฉพาะ Admin เท่านั้น)**
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {    
-    Route::resource('departments', DepartmentController::class);
-    Route::resource('users', UserController::class);
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => "Welcome Admin"); // ✅ Route '/admin'
-});
-
-// 👥 **Manager, Leader, User (ต้องมี Role และอยู่ในแผนก)**
-// Route::middleware(['auth', 'role:manager,leader,user', 'department'])->group(function () {
-//     Route::get('/departments/{department_id}', [DepartmentController::class, 'show'])->name('departments.show');
-// });
-
-// Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {    
-//     Route::resource('departments', DepartmentController::class);
-
-// Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {    
-//     Route::resource('departments', DepartmentController::class); // ✅ ถูกต้อง
     
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {    
-    Route::resource('departments', DepartmentController::class); 
+    // 🏢 **จัดการบริษัท**
+    Route::resource('companies', CompanyController::class);
     
-});
+    // 👥 **จัดการผู้ใช้**
+    Route::resource('users', UserController::class);
 
+    // 🏢 **จัดการแผนก**
+    Route::resource('departments', DepartmentController::class);
+});
 
 // 📦 **Resource Routes (ต้อง Login และอยู่ในแผนก)**
 Route::middleware(['auth', 'department'])->group(function () {
@@ -68,5 +57,3 @@ Route::middleware(['auth', 'department'])->group(function () {
     // 👤 **Profile Page (ถ้ามี)**
     Route::get('/profile', fn() => 'This is the profile page.')->name('profile.show');
 });
-
-// ✅ รวม Route /admin/departments ที่ซ้ำเข้าไปในกลุ่ม Admin
