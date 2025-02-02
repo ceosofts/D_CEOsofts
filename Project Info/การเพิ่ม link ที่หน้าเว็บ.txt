@@ -1,0 +1,90 @@
+กรณีต้องการเพิ่ม link ที่ navber โดยเห็นได้เฉพาะ admin ต้องทำตามนี้
+1. เพิ่ม โค้ด link ที่ D:\D_CEOsofts\ceosofts\resources\views\layouts\app.blade.php
+
+ตัวอย่าง
+
+                            @can('manage companies')
+                                <li class="nav-item">
+                                    {{-- <a class="nav-link" href="{{ url('/admin/companies') }}"> --}}
+                                        <a class="nav-link" href="{{ route('admin.companies.index') }}">    
+                                        <i class="bi bi-building"></i> Companies
+                                    </a>
+                                </li>
+                            @endcan
+
+
+2. เพิ่มสิทธิที่ Spatie
+
+ตัวอย่าง
+
+
+> use Spatie\Permission\Models\Permission;
+rmission::whe> Permission::where('name', 'manage companies')->exists();
+= false
+
+> use Spatie\Permission\Models\Permission;
+ermissi> 
+> Permission::create(['name' => 'manage companies']);
+= Spatie\Permission\Models\Permission {#6342
+    guard_name: "web",
+    name: "manage companies",
+    updated_at: "2025-02-02 04:57:45",
+    created_at: "2025-02-02 04:57:45",
+    id: 4,
+  }
+
+> Permission::where('name', 'manage companies')->exists();
+= true
+
+> use Spatie\Permission\Models\Role;
+$adminRole = Role::where('name', 'a>
+dmin')-> $adminRole = Role::where('name', 'admin')->first();
+dminRole->hasPermissionTo('manage companies');
+= Spatie\Permission\Models\Role {#6300
+    id: 1,
+    name: "admin",
+    guard_name: "web",
+    created_at: "2025-01-25 07:20:54",
+    updated_at: "2025-01-25 07:20:54",
+  }
+
+> $adminRole->hasPermissionTo('manage companies');
+= false
+
+> $adminRole->givePermissionTo('manage companies');
+= Spatie\Permission\Models\Role {#6300
+    id: 1,
+    name: "admin",
+    guard_name: "web",
+    created_at: "2025-01-25 07:20:54",
+    updated_at: "2025-01-25 07:20:54",
+  }
+
+> use Spatie\Permission\Models\Role;
+ole = Role::w>
+> $adminRole = Role::where('name', 'admin')->first();
+dminRole->hasPermissionTo('manage companies');
+= Spatie\Permission\Models\Role {#6340
+    id: 1,
+    name: "admin",
+    guard_name: "web",
+    created_at: "2025-01-25 07:20:54",
+    updated_at: "2025-01-25 07:20:54",
+  }
+
+> $adminRole->hasPermissionTo('manage companies');
+= true
+
+>
+
+3. ที่ D:\D_CEOsofts\ceosofts\routes\web.php ไม่ได้ทำอะไร ถ้า หน้าเว็บนั้น เข้าได้ปรกติตั้งแต่ตอนแรกอยู่แล้ว
+
+
+สรุปสิ่งที่คุณทำและทำไมมันถึงได้ผล
+ขั้นตอน	คำสั่งที่ใช้	ทำไมถึงสำเร็จ?
+1. ตรวจสอบว่ามี Permission "manage companies" หรือไม่	Permission::where('name', 'manage companies')->exists();	เช็คว่า Permission นี้ถูกสร้างไว้แล้วหรือยัง
+2. ถ้าไม่มี ให้สร้าง Permission "manage companies"	Permission::create(['name' => 'manage companies']);	เพิ่ม Permission ลงในตาราง permissions
+3. ตรวจสอบว่า Role admin มี "manage companies" หรือไม่	$adminRole->hasPermissionTo('manage companies');	ดูว่า Role admin มีสิทธิ์นี้แล้วหรือยัง
+4. ถ้ายังไม่มี ให้เพิ่ม Permission "manage companies" ให้ Role admin	$adminRole->givePermissionTo('manage companies');	ให้ Role admin สามารถจัดการ companies ได้
+5. ตรวจสอบอีกครั้งเพื่อยืนยันว่า Role admin มี "manage companies" แล้ว	$adminRole->hasPermissionTo('manage companies');	ได้ค่า true แสดงว่าทุกอย่างทำงานถูกต้อง
+

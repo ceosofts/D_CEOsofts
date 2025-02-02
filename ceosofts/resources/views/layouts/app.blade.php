@@ -93,6 +93,24 @@
                                     </a>
                                 </li>
                             @endcan
+
+                            @can('manage companies')
+                                <li class="nav-item">
+                                    {{-- <a class="nav-link" href="{{ url('/admin/companies') }}"> --}}
+                                        <a class="nav-link" href="{{ route('admin.companies.index') }}">    
+                                        <i class="bi bi-building"></i> Companies
+                                    </a>
+                                </li>
+                            @endcan
+                            {{-- End of manage companies --}}
+{{-- @php
+    dump(Gate::allows('manage companies')); 
+@endphp
+@php
+    dd(Auth::user());
+@endphp --}}
+
+
                         @endauth
                     </ul>
 
