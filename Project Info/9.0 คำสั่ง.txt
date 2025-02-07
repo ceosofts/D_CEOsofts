@@ -50,6 +50,69 @@ rm storage/logs/laravel.log
 ตรวจสอบ Log ใหม่
 หลังจากเคลียร์ log แล้ว ให้ทดสอบระบบอีกครั้ง (เข้าเว็บ, login/logout) แล้วตรวจสอบ log ใหม่ด้วย:
 
+เพื่อความสะดวก และลดความผิดพลาดในการตั้งค่าโครงสร้างไฟล์ ควรใช้คำสั่ง 
+php artisan make:model Transaction -m เพื่อให้ Laravel สร้าง Model และ Migration ให้พร้อมใช้งาน 
+
+สร้าง Controller แบบ Resource Controller (CRUD ครบ)
+ถ้าต้องการ Controller ที่มีฟังก์ชัน CRUD (Create, Read, Update, Delete) ครบ
+
+bash
+คัดลอก
+แก้ไข
+php artisan make:controller TransactionController --resource
+📌 คำสั่งนี้จะสร้าง Controller ที่มีฟังก์ชันหลักครบ
+
+php
+คัดลอก
+แก้ไข
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Transaction;
+use Illuminate\Http\Request;
+
+class TransactionController extends Controller
+{
+    public function index()
+    {
+        return Transaction::all();
+    }
+
+    public function create()
+    {
+        //
+    }
+
+    public function store(Request $request)
+    {
+        return Transaction::create($request->all());
+    }
+
+    public function show(Transaction $transaction)
+    {
+        return $transaction;
+    }
+
+    public function edit(Transaction $transaction)
+    {
+        //
+    }
+
+    public function update(Request $request, Transaction $transaction)
+    {
+        $transaction->update($request->all());
+        return $transaction;
+    }
+
+    public function destroy(Transaction $transaction)
+    {
+        $transaction->delete();
+        return response()->json(['message' => 'Deleted']);
+    }
+}
+
+
 bash
 คัดลอก
 แก้ไข

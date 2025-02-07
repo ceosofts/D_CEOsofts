@@ -15,6 +15,16 @@
         </div>
 
         <div class="mb-3">
+            <label for="branch" class="form-label">รหัสสาขา:</label>
+            <input type="number" name="branch" class="form-control" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="branch_description" class="form-label">รายละเอียดสาขา:</label>
+            <input type="text" name="branch_description" class="form-control">
+        </div>
+
+        <div class="mb-3">
             <label for="address" class="form-label">ที่อยู่:</label>
             <textarea name="address" class="form-control"></textarea>
         </div>

@@ -16,6 +16,18 @@
         </div>
 
         <div class="mb-3">
+            <label for="branch" class="form-label">รหัสสาขา:</label>
+            <input type="number" name="branch" class="form-control" value="{{ $company->branch }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="branch_description" class="form-label">รายละเอียดสาขา:</label>
+            <input type="text" name="branch_description" class="form-control" value="{{ $company->branch_description }}">
+        </div>
+
+        
+
+        <div class="mb-3">
             <label for="address" class="form-label">ที่อยู่:</label>
             <textarea name="address" class="form-control">{{ $company->address }}</textarea>
         </div>
@@ -94,6 +106,7 @@
             <label for="contact_person" class="form-label">ชื่อผู้ติดต่อ:</label>
             <input type="text" name="contact_person" class="form-control" value="{{ $company->contact_person }}">
         </div>
+
 
         <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> บันทึกการแก้ไข</button>
         {{-- <p>Action URL: {{ route('admin.companies.update', $company->id) }}</p> --}}

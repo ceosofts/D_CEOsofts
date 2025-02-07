@@ -34,6 +34,8 @@ class CompanyController extends Controller
     {
         $request->validate([
             'company_name' => 'required|unique:companies|max:255',
+            'branch' => 'required|integer',
+            'branch_description' => 'nullable|string|max:255',
             'tax_id' => 'nullable|size:13',
             'email' => 'nullable|email',
         ]);
