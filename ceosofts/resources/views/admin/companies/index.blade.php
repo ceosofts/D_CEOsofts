@@ -16,6 +16,7 @@
         <thead class="table-dark">
             <tr>
                 <th>ชื่อบริษัท</th>
+                <th>สาขา</th> <!-- ✅ เพิ่มคอลัมน์ใหม่ -->
                 <th>ที่อยู่</th>
                 <th>เบอร์โทร</th>
                 <th>อีเมล</th>
@@ -27,6 +28,7 @@
             @forelse ($companies as $company)
                 <tr>
                     <td>{{ $company->company_name }}</td>
+                    <td>{{ $company->branch_description ?? 'ไม่ระบุ' }}</td> <!-- ✅ แสดง branch_description -->
                     <td>{{ $company->address }}</td>
                     <td>{{ $company->phone }}</td>
                     <td>{{ $company->email }}</td>
