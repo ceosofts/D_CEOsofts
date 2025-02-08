@@ -1,0 +1,15 @@
+ช่วยแนะนำอย่างละเอียด ทุกขั้นตอนทุกสเต็ป
+
+1.ฉันต้องการทำระบบ setting โดย admin หรือระดับ admin
+2.โดยเป็นระบบ ตำแหน่ง พนักงาน เช่น พนักงาน, หัวหน้างาน, หัวหน้าแนก, หัวหน้าฝ่าย, ผู้จัดการ, CEO 
+3.สร้างฐานข้อมูล
+4.ทำหน้าเว็บ บริหารจัดการ เพิ่ม ลด แก้ไข
+5.เพิ่ม link ไปไว้ใน D:\D_CEOsofts\ceosofts\resources\views\layouts\app.blade.php ใน admin setting เพื่อเป็นหมวดหมู่
+
+คุณต้องการข้อมูลอะไรเพิ่มให้แจ้งก่อนที่จะเริ่ม อธิบาย, แนะนำฉัน
+
+1.Laravel Framework 11.38.2
+2.มีระบบ Authentication & Authorization แล้ว
+3.ใช้ Role
+4.แสดง link ไปที่ admin setting ที่ app.blade.php 
+5.data use sqlite
