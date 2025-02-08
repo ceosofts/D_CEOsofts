@@ -7,7 +7,7 @@ use App\Models\Department;
 
 class DepartmentSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
         $departments = ['ฝ่ายขาย', 'ฝ่ายการตลาด', 'ฝ่ายบัญชี', 'ฝ่ายไอที', 'ฝ่ายบุคคล'];
 

@@ -1,0 +1,4 @@
+cid,name,type,notnull,dflt_value,pk
+0,id,INTEGER,1,,1
+1,migration,varchar,1,,0
+2,batch,INTEGER,1,,0

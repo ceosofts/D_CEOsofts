@@ -1,0 +1,11 @@
+cid,name,type,notnull,dflt_value,pk
+0,id,varchar,1,,1
+1,name,varchar,1,,0
+2,total_jobs,INTEGER,1,,0
+3,pending_jobs,INTEGER,1,,0
+4,failed_jobs,INTEGER,1,,0
+5,failed_job_ids,TEXT,1,,0
+6,options,TEXT,0,,0
+7,cancelled_at,INTEGER,0,,0
+8,created_at,INTEGER,1,,0
+9,finished_at,INTEGER,0,,0

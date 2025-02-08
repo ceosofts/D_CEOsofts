@@ -1,0 +1,10 @@
+cid,name,type,notnull,dflt_value,pk
+0,id,INTEGER,1,,1
+1,name,varchar,1,,0
+2,email,varchar,1,,0
+3,phone,varchar,0,,0
+4,address,varchar,0,,0
+5,taxid,varchar,0,,0
+6,created_at,datetime,0,,0
+7,updated_at,datetime,0,,0
+8,code,varchar,1,,0

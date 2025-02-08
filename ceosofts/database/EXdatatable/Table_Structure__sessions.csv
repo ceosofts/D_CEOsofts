@@ -1,0 +1,7 @@
+cid,name,type,notnull,dflt_value,pk
+0,id,varchar,1,,1
+1,user_id,INTEGER,0,,0
+2,ip_address,varchar,0,,0
+3,user_agent,TEXT,0,,0
+4,payload,TEXT,1,,0
+5,last_activity,INTEGER,1,,0

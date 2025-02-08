@@ -1,0 +1,12 @@
+cid,name,type,notnull,dflt_value,pk
+0,id,INTEGER,1,,1
+1,name,varchar,1,,0
+2,email,varchar,1,,0
+3,email_verified_at,datetime,0,,0
+4,password,varchar,1,,0
+5,remember_token,varchar,0,,0
+6,created_at,datetime,0,,0
+7,updated_at,datetime,0,,0
+8,department_id,INTEGER,0,,0
+9,role,varchar,1,'user',0
+10,position_id,INTEGER,0,,0

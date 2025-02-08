@@ -1,0 +1,24 @@
+Database Tables
+migrations
+sqlite_sequence
+password_reset_tokens
+sessions
+cache
+cache_locks
+jobs
+job_batches
+failed_jobs
+orders
+order_items
+permissions
+roles
+model_has_permissions
+model_has_roles
+role_has_permissions
+customers
+departments
+companies
+units
+products
+positions
+users

@@ -1,0 +1,10 @@
+cid,name,type,notnull,dflt_value,pk
+0,id,INTEGER,1,,1
+1,customer_id,INTEGER,1,,0
+2,order_number,varchar,1,,0
+3,order_date,date,1,,0
+4,total_amount,numeric,1,,0
+5,status,varchar,1,'pending',0
+6,notes,TEXT,0,,0
+7,created_at,datetime,0,,0
+8,updated_at,datetime,0,,0
