@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\PositionController;
 use App\Http\Controllers\Admin\PrefixController;
+use App\Http\Controllers\Admin\ItemStatusController;
 
 // 🏠 **หน้าแรก (Welcome Page)**
 Route::get('/', fn() => view('welcome'))->name('welcome');
@@ -51,6 +52,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // 🏢 **จัดการคำนำหน้าชื่อ**
     Route::resource('prefixes', PrefixController::class);
+
+    // 🏢 **จัดการสถานะของสินค้า**
+    Route::resource('item_statuses', ItemStatusController::class);
 
     
 

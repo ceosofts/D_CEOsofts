@@ -7,9 +7,9 @@ use App\Models\Position;
 
 class PositionSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
-        $positions = ['CEO', 'Manager', 'Staff'];
+        $positions = ['พนักงาน', 'หัวหน้างาน', 'หัวหน้าแผนก', 'หัวหน้าฝ่าย', 'ผู้จัดการ', 'admin'];
 
         foreach ($positions as $position) {
             Position::firstOrCreate(['name' => $position]);

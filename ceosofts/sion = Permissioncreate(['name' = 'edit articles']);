@@ -1,8 +1,0 @@
-[90m= [39m[34;4mSpatie\Permission\Models\Role[39;24m {#6296
-    [34mguard_name[39m: "[32mweb[39m",
-    [34mname[39m: "[32muser[39m",
-    [34mupdated_at[39m: "[32m2025-01-31 23:44:51[39m",
-    [34mcreated_at[39m: "[32m2025-01-31 23:44:51[39m",
-    [34mid[39m: [35m2[39m,
-  }
-
