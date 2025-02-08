@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\PositionController;
+use App\Http\Controllers\Admin\PrefixController;
 
 // 🏠 **หน้าแรก (Welcome Page)**
 Route::get('/', fn() => view('welcome'))->name('welcome');
@@ -46,6 +48,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // 🏢 **จัดการตำแหน่ง**
     Route::resource('positions', PositionController::class);
+
+    // 🏢 **จัดการคำนำหน้าชื่อ**
+    Route::resource('prefixes', PrefixController::class);
 
     
 

@@ -122,6 +122,12 @@
                     </a>
                 @endcan
 
+                @can('manage prefixes')
+                    <a class="dropdown-item" href="{{ route('admin.prefixes.index') }}">
+                        <i class="bi bi-list"></i> จัดการคำนำหน้าชื่อ
+                    </a>
+                @endcan
+
                 
             </div>
         </li>

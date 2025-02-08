@@ -1,0 +1,8 @@
+cid,name,type,notnull,dflt_value,pk
+0,id,INTEGER,1,,1
+1,uuid,varchar,1,,0
+2,connection,TEXT,1,,0
+3,queue,TEXT,1,,0
+4,payload,TEXT,1,,0
+5,exception,TEXT,1,,0
+6,failed_at,datetime,1,CURRENT_TIMESTAMP,0

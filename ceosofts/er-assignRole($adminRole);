@@ -1,4 +1,4 @@
-[90m= [39m[34;4mSpatie\Permission\Models\Role[39;24m {#6647
+[90m= [39m[34;4mSpatie\Permission\Models\Role[39;24m {#6501
     [34mid[39m: [35m1[39m,
     [34mname[39m: "[32madmin[39m",
     [34mguard_name[39m: "[32mweb[39m",
