@@ -35,6 +35,12 @@ class User extends Authenticatable
         return $this->getRoleNames()->first() ?? 'ไม่มี Role'; // ✅ ป้องกัน Null
     }
 
+        public function position()
+    {
+        return $this->belongsTo(Position::class);
+    }
+
+
     /**
      * กำหนด Role ให้ User ใหม่อัตโนมัติ
      */

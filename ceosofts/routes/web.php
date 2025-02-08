@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\CompanyController;
 use App\Http\Controllers\Admin\UnitController;
+use App\Http\Controllers\Admin\PositionController;
 
 // 🏠 **หน้าแรก (Welcome Page)**
 Route::get('/', fn() => view('welcome'))->name('welcome');
@@ -42,6 +43,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // 🏢 **จัดการหน่วยนับ**
     Route::resource('units', UnitController::class);
+
+    // 🏢 **จัดการตำแหน่ง**
+    Route::resource('positions', PositionController::class);
+
     
 
 });
