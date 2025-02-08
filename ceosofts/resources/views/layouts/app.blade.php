@@ -127,64 +127,18 @@
                         <i class="bi bi-list"></i> จัดการคำนำหน้าชื่อ
                     </a>
                 @endcan
-
+                
+                @can('manage item statuses')
+                    <a class="dropdown-item" href="{{ route('admin.item_statuses.index') }}">
+                        <i class="bi bi-list"></i> จัดการสถานะสินค้า
+                    </a>
+                @endcan
                 
             </div>
         </li>
     @endcanany
 @endauth
 
-{{-- 
-                        @auth
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('dashboard') }}">{{ __('Dashboard') }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('customers.index') }}">{{ __('Customers') }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('products.index') }}">{{ __('Products') }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('orders.index') }}">{{ __('Orders') }}</a>
-                            </li>
-
-                            
-                            @can('manage departments')
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.departments.index') }}">
-                                        <i class="bi bi-building"></i> แผนก
-                                    </a>
-                                </li>
-                            @endcan
-
-                            @can('manage users')
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('admin.users.index') }}">
-                                        <i class="bi bi-people"></i> ผู้ใช้
-                                    </a>
-                                </li>
-                            @endcan
-
-                            @can('manage companies')
-                                <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('admin.companies.index') }}">    
-                                        <i class="bi bi-building"></i> Companies
-                                    </a>
-                                </li>
-                            @endcan
-
-                            @can('manage units')
-                                <li class="nav-item">
-                                        <a class="nav-link" href="{{ route('admin.units.index') }}">    
-                                        <i class="bi bi-building"></i> Units
-                                    </a>
-                                </li>
-                            @endcan 
-
-                        @endauth
-
-                         --}}
                     </ul>
 
                     <!-- Right Side Of Navbar -->
