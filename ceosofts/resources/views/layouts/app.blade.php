@@ -133,7 +133,13 @@
                         <i class="bi bi-list"></i> จัดการสถานะสินค้า
                     </a>
                 @endcan
-                
+
+                @can('manage payment statuses')
+                    <a class="dropdown-item" href="{{ route('admin.payment_statuses.index') }}">
+                        <i class="bi bi-list"></i> จัดการสถานะการจ่ายเงิน
+                    </a>
+                @endcan
+
             </div>
         </li>
     @endcanany

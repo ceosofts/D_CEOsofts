@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\PositionController;
 use App\Http\Controllers\Admin\PrefixController;
 use App\Http\Controllers\Admin\ItemStatusController;
+use App\Http\Controllers\Admin\PaymentStatusController;
 
 // 🏠 **หน้าแรก (Welcome Page)**
 Route::get('/', fn() => view('welcome'))->name('welcome');
@@ -55,6 +56,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // 🏢 **จัดการสถานะของสินค้า**
     Route::resource('item_statuses', ItemStatusController::class);
+
+    // 🏢 **จัดการสถานะการชำระเงิน**
+    Route::resource('payment_statuses', PaymentStatusController::class);
 
     
 

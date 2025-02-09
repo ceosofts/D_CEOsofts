@@ -21,6 +21,8 @@ class DatabaseSeeder extends Seeder
             CustomersTableSeeder::class,  // ✅ ข้อมูลลูกค้า
             OrdersTableSeeder::class,     // ✅ ข้อมูลคำสั่งซื้อ
             OrderItemsTableSeeder::class, // ✅ ข้อมูลรายการคำสั่งซื้อ
+            PaymentStatusSeeder::class,   // ✅ ข้อมูลสถานะการชำระเงิน
+            
             
 
             
