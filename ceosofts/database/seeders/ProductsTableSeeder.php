@@ -16,21 +16,21 @@ class ProductsTableSeeder extends Seeder
         //>>>เพิ่มจากของเดิม
         \App\Models\Product::create([
             'name' => 'Product A',
-            'code' => 'P001', // ✅ เพิ่ม `code` ที่จำเป็นต้องมี
+            'code' => 'P0001', // ✅ เพิ่ม `code` ที่จำเป็นต้องมี
             'description' => 'This is product A.',
             'price' => 100.00,
             'stock_quantity' => 50,
-            'sku' => 'PROD001',
+            'sku' => 'PRO0001',
             'is_active' => false,
         ]);
 
         \App\Models\Product::create([
             'name' => 'Product B',
-            'code' => 'P002', // ✅ เพิ่ม `code` ที่จำเป็นต้องมี
+            'code' => 'P0002', // ✅ เพิ่ม `code` ที่จำเป็นต้องมี
             'description' => 'This is product B.',
             'price' => 200.00,
             'stock_quantity' => 30,
-            'sku' => 'PROD002',
+            'sku' => 'PRO0002',
             'is_active' => true,
         ]);
         //>>>เพิ่มจากของเดิม

@@ -28,6 +28,7 @@ class RolePermissionSeeder extends Seeder
             'manage companies',
             'manage units',
             'manage item statuses',
+            'manage payment statuses',
         ];
 
         foreach ($permissions as $permission) {
