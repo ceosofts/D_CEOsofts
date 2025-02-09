@@ -3,21 +3,41 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Department;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DepartmentSeeder extends Seeder
 {
     public function run()
     {
-        // $departments = ['ฝ่ายขาย', 'ฝ่ายการตลาด', 'ฝ่ายบัญชี', 'ฝ่ายไอที', 'ฝ่ายบุคคล'];
+        $departments = [
+            ['name' => 'ฝ่ายขาย'],
+            ['name' => 'ฝ่ายการตลาด'],
+            ['name' => 'ฝ่ายบัญชี'],
+            ['name' => 'ฝ่ายไอที'],
+            ['name' => 'ฝ่ายบุคคล'],
+            ['name' => 'ฝ่ายบริหาร'],
+            ['name' => 'ฝ่ายวิจัยและพัฒนา'],
+            ['name' => 'ฝ่ายการผลิต'],
+            ['name' => 'ฝ่ายฝึกอบรม'],
+            ['name' => 'ฝ่ายความปลอดภัย'],
+            ['name' => 'ฝ่ายบริการลูกค้า'],
+            ['name' => 'ฝ่ายธุรการ'],
+            ['name' => 'ฝ่ายขนส่ง'],
+            ['name' => 'ฝ่ายสื่อสาร'],
+            ['name' => 'ฝ่ายศูนย์ข้อมูล']
+        ];
 
-        $departments = ['ฝ่ายขาย', 'ฝ่ายการตลาด', 'ฝ่ายบัญชี', 'ฝ่ายไอที', 'ฝ่ายบุคคล',
-        'ฝ่ายบริหาร', 'ฝ่ายวิจัยและพัฒนา', 'ฝ่ายการผลิต',
-         'ฝ่ายฝึกอบรม', 'ฝ่ายความปลอดภัย', 'ฝ่ายบริการลูกค้า', 'ฝ่ายธุรการ', 'ฝ่ายขนส่ง',
-          'ฝ่ายสื่อสาร', 'ฝ่ายศูนย์ข้อมูล'];
+        // เพิ่ม timestamps ให้ข้อมูล
+        $now = Carbon::now();
+        $departments = array_map(function ($department) use ($now) {
+            return array_merge($department, [
+                'created_at' => $now,
+                'updated_at' => $now
+            ]);
+        }, $departments);
 
-        foreach ($departments as $department) {
-            Department::firstOrCreate(['name' => $department]);
-        }
+        // ใช้ insertOrIgnore() เพื่อป้องกันการเพิ่มข้อมูลซ้ำ
+        DB::table('departments')->insertOrIgnore($departments);
     }
 }
