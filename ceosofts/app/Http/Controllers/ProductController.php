@@ -18,7 +18,7 @@ class ProductController extends Controller
         $query = Product::with('unit'); // โหลดข้อมูล unit ด้วย
 
         // ✅ ค้นหาจาก Code, Name, SKU, และสถานะ
-        if ($request->has('search') && $request->search) {
+        if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('code', 'like', '%' . $request->search . '%')
                     ->orWhere('name', 'like', '%' . $request->search . '%')
@@ -37,11 +37,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $units = Unit::all(); // ดึงข้อมูลหน่วยสินค้า
-        $latestProduct = Product::where('code', 'like', 'P%')->orderBy('id', 'desc')->first();
-        $newCodeNumber = $latestProduct ? intval(substr($latestProduct->code, 1)) + 1 : 1;
-        $generatedCode = 'P' . str_pad($newCodeNumber, 4, '0', STR_PAD_LEFT);
-
+        $units = Unit::all();
+        $generatedCode = Product::generateNewProductCode(); // ✅ ใช้ฟังก์ชันที่สร้างใน Model
         return view('products.create', compact('units', 'generatedCode'));
     }
 
@@ -51,23 +48,17 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
+            'name'           => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'price'          => 'required|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
-            'unit_id' => 'required|exists:units,id',
-            'sku' => 'required|string|max:20|unique:products,sku',
+            'unit_id'        => 'required|exists:units,id',
         ]);
 
-        // ✅ สร้างรหัสสินค้าใหม่
-        $latestProduct = Product::where('code', 'like', 'P%')->orderBy('id', 'desc')->first();
-        $newCodeNumber = $latestProduct ? intval(substr($latestProduct->code, 1)) + 1 : 1;
-        $generatedCode = 'P' . str_pad($newCodeNumber, 4, '0', STR_PAD_LEFT);
+        // ✅ สร้างสินค้าใหม่ (SKU & Code จะถูกสร้างอัตโนมัติจาก Model)
+        $product = Product::create($request->all());
 
-        // ✅ บันทึกสินค้า
-        Product::create(array_merge($request->all(), ['code' => $generatedCode]));
-
-        return redirect()->route('products.index')->with('success', 'Product added successfully with code: ' . $generatedCode);
+        return redirect()->route('products.index')->with('success', 'เพิ่มสินค้าเรียบร้อยแล้ว: ' . $product->code);
     }
 
     /**
@@ -75,59 +66,28 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        $units = Unit::all(); // ดึงข้อมูลหน่วยสินค้า
+        $units = Unit::all();
         return view('products.edit', compact('product', 'units'));
     }
 
     /**
      * อัปเดตข้อมูลสินค้า
      */
-
-    // public function update(Request $request, Product $product)
-    // {
-    //     $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'description' => 'nullable|string',
-    //         'price' => 'required|numeric|min:0',
-    //         'stock_quantity' => 'required|integer|min:0',
-    //         'unit_id' => 'required|exists:units,id',
-    //         'sku' => 'required|string|max:20|unique:products,sku,' . $product->id,
-    //     ]);
-
-    //     // ✅ Debug ข้อมูลก่อนอัปเดต
-    //     Log::info('Before Update:', $product->toArray());
-    //     Log::info('New Data:', $request->all());
-
-    //     $product->fill($request->all());
-
-    //     if ($product->isDirty()) { // ถ้าข้อมูลมีการเปลี่ยนแปลง
-    //         $product->save();
-    //         Log::info('Product updated successfully:', $product->toArray());
-    //     } else {
-    //         Log::warning('No changes detected for product:', $product->toArray());
-    //     }
-
-    //     return redirect()->route('products.index')->with('success', 'Product updated successfully.');
-    // }
-
-    //     public function update(Request $request, Product $product)
-    // {
-    //     dd($request->all()); // ✅ เช็คค่าที่ส่งมาจากฟอร์ม
-    // }
-
-
-        public function update(Request $request, Product $product)
+    public function update(Request $request, Product $product)
     {
-        $product->update([
-            'unit_id' => $request->unit_id,
+        $request->validate([
+            'name'           => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'price'          => 'required|numeric|min:0',
+            'stock_quantity' => 'required|integer|min:0',
+            'unit_id'        => 'required|exists:units,id',
         ]);
 
-        // ✅ บังคับให้โหลดค่าล่าสุดจากฐานข้อมูล
-        $product->refresh();
+        $product->update($request->all());
+        $product->refresh(); // ✅ โหลดค่าล่าสุดจากฐานข้อมูล
 
-        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+        return redirect()->route('products.index')->with('success', 'อัปเดตสินค้าเรียบร้อยแล้ว');
     }
-
 
     /**
      * ลบสินค้า
@@ -135,6 +95,6 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->delete();
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
+        return redirect()->route('products.index')->with('success', 'ลบสินค้าเรียบร้อยแล้ว');
     }
 }
