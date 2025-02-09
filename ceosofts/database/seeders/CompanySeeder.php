@@ -4,11 +4,15 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class CompanySeeder extends Seeder
 {
     public function run(): void
     {
+        // ✅ ใช้ Carbon::now() เพื่อให้ timestamps ถูกต้อง
+        $now = Carbon::now();
+
         // ✅ เพิ่มข้อมูลบริษัท ถ้ายังไม่มี
         DB::table('companies')->updateOrInsert(
             ['branch' => '00000'], // เช็คว่ามีข้อมูลนี้หรือยัง
@@ -32,8 +36,8 @@ class CompanySeeder extends Seeder
                 'contact_person'     => 'คุณสมชาย แซ่ลี้',
                 'branch'             => '00000', // ✅ รหัสสาขา
                 'branch_description' => 'สำนักงานใหญ่', // ✅ คำอธิบายสาขา
-                'created_at'         => now(),
-                'updated_at'         => now(),
+                'created_at'         => $now,
+                'updated_at'         => $now,
             ]
         );
     }

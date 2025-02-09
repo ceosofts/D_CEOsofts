@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class OrdersTableSeeder extends Seeder
 {
@@ -12,17 +13,20 @@ class OrdersTableSeeder extends Seeder
      */
     public function run(): void
     {
+        $orders = [
+            [
+                'customer_id'  => 1, // ใช้ ID ของลูกค้าที่สร้างใน CustomersTableSeeder
+                'order_number' => 'ORD001',
+                'order_date'   => Carbon::now(),
+                'total_amount' => 300.00,
+                'status'       => 'completed',
+                'notes'        => 'Sample order.',
+                'created_at'   => Carbon::now(),
+                'updated_at'   => Carbon::now(),
+            ]
+        ];
 
-        //>>>เพิ่มจากของเดิม
-        \App\Models\Order::create([
-            'customer_id' => 1, // ใช้ ID ของลูกค้าที่สร้างใน CustomersTableSeeder
-            'order_number' => 'ORD001',
-            'order_date' => now(),
-            'total_amount' => 300.00,
-            'status' => 'completed',
-            'notes' => 'Sample order.',
-        ]);
-        //>>>เพิ่มจากของเดิม
-
+        // ใช้ insertOrIgnore() เพื่อป้องกันข้อมูลซ้ำ
+        DB::table('orders')->insertOrIgnore($orders);
     }
 }

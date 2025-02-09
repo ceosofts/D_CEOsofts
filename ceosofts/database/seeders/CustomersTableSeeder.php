@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class CustomersTableSeeder extends Seeder
 {
@@ -12,14 +13,19 @@ class CustomersTableSeeder extends Seeder
      */
     public function run(): void
     {
+        $customers = [
+            [
+                'name' => 'John Doe',
+                'email' => 'john@example.com',
+                'phone' => '123456789',
+                'address' => '123 Main Street',
+                'taxid' => '1234567890123',
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ]
+        ];
 
-        \App\Models\Customer::create([  //>>>เพิ่มจากของเดิม
-            'name' => 'John Doe', //>>>เพิ่มจากของเดิม
-            'email' => 'john@example.com', //>>>เพิ่มจากของเดิม
-            'phone' => '123456789', //>>>เพิ่มจากของเดิม
-            'address' => '123 Main Street', //>>>เพิ่มจากของเดิม
-            'taxid' => '1234567890123', //>>>เพิ่มจากของเดิม
-        ]);  //>>>เพิ่มจากของเดิม
-
+        // ใช้ insertOrIgnore() เพื่อป้องกันข้อมูลซ้ำ
+        DB::table('customers')->insertOrIgnore($customers);
     }
 }
