@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\PositionController;
 use App\Http\Controllers\Admin\PrefixController;
 use App\Http\Controllers\Admin\ItemStatusController;
 use App\Http\Controllers\Admin\PaymentStatusController;
+use App\Http\Controllers\Admin\TaxSettingController;
 
 // 🏠 **หน้าแรก (Welcome Page)**
 Route::get('/', fn() => view('welcome'))->name('welcome');
@@ -59,6 +60,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // 🏢 **จัดการสถานะการชำระเงิน**
     Route::resource('payment_statuses', PaymentStatusController::class);
+
+    // 🏢 **จัดการการตั้งค่าภาษี**
+    Route::resource('tax', TaxSettingController::class);
 
     
 

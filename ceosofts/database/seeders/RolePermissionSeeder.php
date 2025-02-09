@@ -36,6 +36,7 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'manage units', 'guard_name' => 'web'],
             ['name' => 'manage item statuses', 'guard_name' => 'web'],
             ['name' => 'manage payment statuses', 'guard_name' => 'web'],
+            ['name' => 'manage tax settings', 'guard_name' => 'web'],
         ];
 
         // ใช้ insertOrIgnore() เพื่อป้องกัน Permission ซ้ำ

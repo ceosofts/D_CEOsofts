@@ -65,92 +65,95 @@
                         </li>
 
 
-        @auth
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('dashboard') }}">
-                    <i class="bi bi-speedometer2"></i> {{ __('Dashboard') }}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('customers.index') }}">
-                    <i class="bi bi-person"></i> {{ __('Customers') }}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('products.index') }}">
-                    <i class="bi bi-box-seam"></i> {{ __('Products') }}
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('orders.index') }}">
-                    <i class="bi bi-basket"></i> {{ __('Orders') }}
-                </a>
-            </li>
+                        @auth
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('dashboard') }}">
+            <i class="bi bi-speedometer2"></i> {{ __('Dashboard') }}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('customers.index') }}">
+            <i class="bi bi-person"></i> {{ __('Customers') }}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('products.index') }}">
+            <i class="bi bi-box-seam"></i> {{ __('Products') }}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{{ route('orders.index') }}">
+            <i class="bi bi-basket"></i> {{ __('Orders') }}
+        </a>
+    </li>
 
-            <!-- ✅ รวม Admin Setting ไว้ที่เดียว -->
-            @canany(['manage departments', 'manage users', 'manage companies', 'manage units'])
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
-                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="bi bi-gear"></i> Admin Setting
+    <!-- ✅ รวม Admin Setting ไว้ที่เดียว -->
+    @canany(['manage departments', 'manage users', 'manage companies', 'manage units'])
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
+               data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="bi bi-gear"></i> Admin Setting
+            </a>
+            <div class="dropdown-menu" aria-labelledby="adminDropdown">
+                @can('manage departments')
+                    <a class="dropdown-item" href="{{ route('admin.departments.index') }}">
+                        <i class="bi bi-building"></i> แผนก
                     </a>
-                    <div class="dropdown-menu" aria-labelledby="adminDropdown">
-                        @can('manage departments')
-                            <a class="dropdown-item" href="{{ route('admin.departments.index') }}">
-                                <i class="bi bi-building"></i> แผนก
-                            </a>
-                        @endcan
-                        @can('manage users')
-                            <a class="dropdown-item" href="{{ route('admin.users.index') }}">
-                                <i class="bi bi-people"></i> ผู้ใช้
-                            </a>
-                        @endcan
-                        @can('manage companies')
-                            <a class="dropdown-item" href="{{ route('admin.companies.index') }}">
-                                <i class="bi bi-buildings"></i> Companies
-                            </a>
-                        @endcan
-                        @can('manage units')
-                            <a class="dropdown-item" href="{{ route('admin.units.index') }}">
-                                <i class="bi bi-rulers"></i> Units
-                            </a>
-                        @endcan
+                @endcan
+                @can('manage users')
+                    <a class="dropdown-item" href="{{ route('admin.users.index') }}">
+                        <i class="bi bi-people"></i> ผู้ใช้
+                    </a>
+                @endcan
+                @can('manage companies')
+                    <a class="dropdown-item" href="{{ route('admin.companies.index') }}">
+                        <i class="bi bi-buildings"></i> Companies
+                    </a>
+                @endcan
+                @can('manage units')
+                    <a class="dropdown-item" href="{{ route('admin.units.index') }}">
+                        <i class="bi bi-rulers"></i> Units
+                    </a>
+                @endcan
 
-                        @can('manage positions')
-                            <a class="dropdown-item" href="{{ route('admin.positions.index') }}">
-                                <i class="bi bi-person-badge"></i> จัดการตำแหน่งพนักงาน
-                            </a>
-                        @endcan
+                @can('manage positions')
+                    <a class="dropdown-item" href="{{ route('admin.positions.index') }}">
+                        <i class="bi bi-person-badge"></i> จัดการตำแหน่งพนักงาน
+                    </a>
+                @endcan
 
-                        @can('manage prefixes')
-                            <a class="dropdown-item" href="{{ route('admin.prefixes.index') }}">
-                                <i class="bi bi-list"></i> จัดการคำนำหน้าชื่อ
-                            </a>
-                        @endcan
+                @can('manage prefixes')
+                    <a class="dropdown-item" href="{{ route('admin.prefixes.index') }}">
+                        <i class="bi bi-list"></i> จัดการคำนำหน้าชื่อ
+                    </a>
+                @endcan
 
-                        @can('manage item statuses')
-                            <a class="dropdown-item" href="{{ route('admin.item_statuses.index') }}">
-                                <i class="bi bi-list"></i> จัดการสถานะสินค้า
-                            </a>
-                        @endcan
-                        
-                        @can('manage payment statuses')
-                            <a class="dropdown-item" href="{{ route('admin.payment_statuses.index') }}">
-                                <i class="bi bi-list"></i> จัดการสถานะการจ่ายเงิน
-                            </a>
-                        @endcan
+                @can('manage item statuses')
+                    <a class="dropdown-item" href="{{ route('admin.item_statuses.index') }}">
+                        <i class="bi bi-list"></i> จัดการสถานะสินค้า
+                    </a>
+                @endcan
+                
+                @can('manage payment statuses')
+                    <a class="dropdown-item" href="{{ route('admin.payment_statuses.index') }}">
+                        <i class="bi bi-list"></i> จัดการสถานะการจ่ายเงิน
+                    </a>
+                @endcan
 
-                        @can('manage tax settings')
-                            <a class="dropdown-item" href="{{ route('admin.tax.index') }}">
-                                <i class="bi bi-list"></i> จัดการการตั้งค่าภาษี
-                            </a>
-                        @endcan
+                @can('manage tax settings')
+                    <a class="dropdown-item" href="{{ route('admin.tax.index') }}">
+                        <i class="bi bi-list"></i> จัดการการตั้งค่าภาษี
+                    </a>
+                @endcan
 
 
-                    </div>
-                </li>
-            @endcanany
-        @endauth
+
+
+
+            </div>
+        </li>
+    @endcanany
+@endauth
 
                     </ul>
 
