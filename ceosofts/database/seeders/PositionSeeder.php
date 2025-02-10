@@ -11,12 +11,18 @@ class PositionSeeder extends Seeder
     public function run()
     {
         $positions = [
-            ['name' => 'พนักงาน'],
-            ['name' => 'หัวหน้างาน'],
-            ['name' => 'หัวหน้าแผนก'],
-            ['name' => 'หัวหน้าฝ่าย'],
-            ['name' => 'ผู้จัดการ'],
-            ['name' => 'admin']
+            // ['name' => 'พนักงาน'],
+            // ['name' => 'หัวหน้างาน'],
+            // ['name' => 'หัวหน้าแผนก'],
+            // ['name' => 'หัวหน้าฝ่าย'],
+            // ['name' => 'ผู้จัดการ'],
+            
+            ['name' => 'user'],
+            ['name' => 'leader'],
+            ['name' => 'manager'],
+            ['name' => 'auditor'],
+            ['name' => 'admin'],
+            ['name' => 'super_admin']
         ];
 
         // เพิ่ม timestamps ให้ข้อมูล
