@@ -87,6 +87,10 @@
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('employees.index') }}">Employees</a>
+            </li>
+
             <!-- ✅ รวม Admin Setting ไว้ที่เดียว -->
             @canany(['manage departments', 'manage users', 'manage companies', 'manage units'])
                 <li class="nav-item dropdown">

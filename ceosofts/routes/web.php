@@ -8,6 +8,8 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderItemController;
+use App\Http\Controllers\EmployeeController;
+
 
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DepartmentController;
@@ -18,6 +20,7 @@ use App\Http\Controllers\Admin\PrefixController;
 use App\Http\Controllers\Admin\ItemStatusController;
 use App\Http\Controllers\Admin\PaymentStatusController;
 use App\Http\Controllers\Admin\TaxSettingController;
+
 
 // 🏠 **หน้าแรก (Welcome Page)**
 Route::get('/', fn() => view('welcome'))->name('welcome');
@@ -64,9 +67,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // 🏢 **จัดการการตั้งค่าภาษี**
     Route::resource('tax', TaxSettingController::class);
 
-    
+
 
 });
+
+
 
 // 📦 **Resource Routes (ต้อง Login และอยู่ในแผนก)**
 Route::middleware(['auth', 'department'])->group(function () {
@@ -74,6 +79,9 @@ Route::middleware(['auth', 'department'])->group(function () {
     Route::resource('products', ProductController::class);
     Route::resource('orders', OrderController::class);
     Route::resource('orders.order-items', OrderItemController::class);
+
+        // 🏢 **จัดการพนักงาน**
+    Route::resource('employees', EmployeeController::class);
 
     // 🆔 **ค้นหา Customer ตาม Code**
     Route::prefix('customers/code/{code}')->group(function () {

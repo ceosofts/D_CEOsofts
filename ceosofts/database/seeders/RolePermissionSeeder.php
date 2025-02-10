@@ -45,6 +45,12 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'audit system', 'guard_name' => 'web'],
             ['name' => 'full access', 'guard_name' => 'web'],
 
+            ['name' => 'manage employees', 'guard_name' => 'web'],
+            ['name' => 'manage attendance', 'guard_name' => 'web'],
+            ['name' => 'manage holidays', 'guard_name' => 'web'],
+            ['name' => 'manage salaries', 'guard_name' => 'web'],
+            ['name' => 'manage deductions', 'guard_name' => 'web'],
+
             
         ];
 

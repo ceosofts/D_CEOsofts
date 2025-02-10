@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             OrderItemsTableSeeder::class, // 12✅ ข้อมูลรายการคำสั่งซื้อ
             PaymentStatusSeeder::class,   // 13✅ ข้อมูลสถานะการชำระเงิน
             TaxSettingSeeder::class,      // 14✅ ข้อมูลการตั้งค่าภาษี
+            EmployeeSeeder::class,        // 15✅ ข้อมูลพนักงาน
             
             
         ]);
