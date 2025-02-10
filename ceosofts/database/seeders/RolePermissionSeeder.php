@@ -12,13 +12,16 @@ class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // ✅ สร้าง Role ถ้ายังไม่มี
+        // ✅ สร้าง Role ถี่มีแล้ว
         $roles = [
             ['name' => 'admin', 'guard_name' => 'web'],
             ['name' => 'user', 'guard_name' => 'web'],
+            ['name' => 'leader', 'guard_name' => 'web'],
+            ['name' => 'manager', 'guard_name' => 'web'],
+            ['name' => 'auditor', 'guard_name' => 'web'],
+            ['name' => 'super_admin', 'guard_name' => 'web'],
         ];
 
-        // ใช้ insertOrIgnore() เพื่อป้องกัน Role ซ้ำ
         DB::table('roles')->insertOrIgnore(array_map(function ($role) {
             return array_merge($role, [
                 'created_at' => Carbon::now(),
@@ -26,8 +29,10 @@ class RolePermissionSeeder extends Seeder
             ]);
         }, $roles));
 
-        // ✅ สร้าง Permission ถ้ายังไม่มี
+        // ✅ สร้าง Permission ถี่มีแล้ว
         $permissions = [
+            ['name' => 'view dashboard', 'guard_name' => 'web'], // ✅ เพิ่มเข้าไป
+            ['name' => 'manage orders', 'guard_name' => 'web'],
             ['name' => 'manage users', 'guard_name' => 'web'],
             ['name' => 'manage prefixes', 'guard_name' => 'web'],
             ['name' => 'manage departments', 'guard_name' => 'web'],
@@ -37,9 +42,12 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'manage item statuses', 'guard_name' => 'web'],
             ['name' => 'manage payment statuses', 'guard_name' => 'web'],
             ['name' => 'manage tax settings', 'guard_name' => 'web'],
+            ['name' => 'audit system', 'guard_name' => 'web'],
+            ['name' => 'full access', 'guard_name' => 'web'],
+
+            
         ];
 
-        // ใช้ insertOrIgnore() เพื่อป้องกัน Permission ซ้ำ
         DB::table('permissions')->insertOrIgnore(array_map(function ($permission) {
             return array_merge($permission, [
                 'created_at' => Carbon::now(),
@@ -47,14 +55,25 @@ class RolePermissionSeeder extends Seeder
             ]);
         }, $permissions));
 
-        // ✅ อัปเดต `guard_name` ถ้ามีค่า NULL
+        // ✅ อัปเดต `guard_name` ถี่มีค่า NULL
         Role::whereNull('guard_name')->update(['guard_name' => 'web']);
         Permission::whereNull('guard_name')->update(['guard_name' => 'web']);
 
-        // ✅ กำหนด Permission ให้ Role Admin
-        $adminRole = Role::where('name', 'admin')->first();
-        if ($adminRole) {
-            $adminRole->syncPermissions(array_column($permissions, 'name'));
+        // ✅ กำหนด Permission ให้ Role
+        $rolePermissions = [
+            'user' => ['view dashboard'],
+            'leader' => ['view dashboard', 'manage orders'],
+            'manager' => ['view dashboard', 'manage orders', 'manage users'],
+            'auditor' => ['audit system'],
+            'admin' => array_column($permissions, 'name'),
+            'super_admin' => Permission::pluck('name')->toArray(),
+        ];
+
+        foreach ($rolePermissions as $roleName => $perms) {
+            $role = Role::where('name', $roleName)->first();
+            if ($role) {
+                $role->syncPermissions($perms);
+            }
         }
     }
 }

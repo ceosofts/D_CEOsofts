@@ -198,13 +198,6 @@
                 <li><a href="#" target="_blank">Line</a></li>
                 <li><a href="https://ourcompany.com" target="_blank">Website</a></li>
             </ul>
-
-            <h2>📍 ติดต่อเรา</h2>
-            <p><strong>ที่อยู่:</strong> 1234 ถนนหลัก เมืองใหญ่ ประเทศไทย</p>
-            <p><strong>โทร:</strong> 081-234-5678</p>
-            <p><strong>อีเมล:</strong> <a href="mailto:contact@ourcompany.com">contact@ourcompany.com</a></p>
-        
-            
         </section>
     </div>
 

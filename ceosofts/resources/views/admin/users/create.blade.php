@@ -25,13 +25,22 @@
                     <input type="password" class="form-control" name="password" required>
                 </div>
 
-                <div class="mb-3">
+                {{-- <div class="mb-3">
                     <label for="role" class="form-label">Role</label>
                     <select name="role" class="form-control" required>
                         <option value="admin">Admin</option>
                         <option value="manager">Manager</option>
                         <option value="leader">Leader</option>
                         <option value="user">User</option>
+                    </select>
+                </div> --}}
+
+                <div class="mb-3">
+                    <label for="role" class="form-label">Role</label>
+                    <select name="role" class="form-control" required>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->name }}">{{ ucfirst($role->name) }}</option>
+                        @endforeach
                     </select>
                 </div>
 

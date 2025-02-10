@@ -8,6 +8,9 @@ use App\Models\User;
 use App\Models\Department;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+// use App\Models\Role; // นำเข้า Model Role
+use Spatie\Permission\Models\Role; // ✅ ใช้ Spatie Role แทน
+
 
 class UserController extends Controller
 {
@@ -20,10 +23,21 @@ class UserController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
+    // public function create()
+    // {
+        
+    //     $roles = Role::all(); // ดึง Role ทั้งหมดจากฐานข้อมูล
+    //     $departments = Department::all(); // ดึงแผนกทั้งหมด
+
+    //     return view('admin.users.create', compact('departments'));
+    // }
+
     public function create()
     {
-        $departments = Department::all();
-        return view('admin.users.create', compact('departments'));
+        $roles = Role::all(); // ✅ ดึง Role ทั้งหมดจากฐานข้อมูล
+        $departments = Department::all(); // ✅ ดึงแผนกทั้งหมด
+
+        return view('admin.users.create', compact('roles', 'departments')); // ✅ ส่ง $roles ไปที่ View
     }
 
     public function store(Request $request)
