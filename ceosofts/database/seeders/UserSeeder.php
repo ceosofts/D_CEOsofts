@@ -39,5 +39,38 @@ class UserSeeder extends Seeder
         
         // ✅ กำหนด role ให้แน่ใจว่ามีแค่ "admin" เท่านั้น
         $adminUser->syncRoles([$adminRole]);
+
+
+        // ✅ สร้าง Manager User
+        $managerUser = User::firstOrCreate(
+            ['email' => 'manager@example.com'],
+            [
+                'name'              => 'Manager User',
+                'password'          => Hash::make('password123'),
+                'email_verified_at' => Carbon::now(),
+                'remember_token'    => Str::random(10),
+                'department_id'     => 1,
+                'position_id'       => 3,
+                'created_at'        => Carbon::now(),
+                'updated_at'        => Carbon::now(),
+            ]
+        );
+        $managerUser->syncRoles(['manager']);
+
+        // ✅ สร้าง User ทั่วไป
+        $regularUser = User::firstOrCreate(
+            ['email' => 'user@example.com'],
+            [
+                'name'              => 'Regular User',
+                'password'          => Hash::make('password123'),
+                'email_verified_at' => Carbon::now(),
+                'remember_token'    => Str::random(10),
+                'department_id'     => 1,
+                'position_id'       => 1,
+                'created_at'        => Carbon::now(),
+                'updated_at'        => Carbon::now(),
+            ]
+        );
+        $regularUser->syncRoles(['user']);
     }
 }

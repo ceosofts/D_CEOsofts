@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             PaymentStatusSeeder::class,   // 13✅ ข้อมูลสถานะการชำระเงิน
             TaxSettingSeeder::class,      // 14✅ ข้อมูลการตั้งค่าภาษี
             EmployeeSeeder::class,        // 15✅ ข้อมูลพนักงาน
+            CompanyHolidaySeeder::class,  // 16✅ ข้อมูลวันหยุดของบริษัท
             
             
         ]);

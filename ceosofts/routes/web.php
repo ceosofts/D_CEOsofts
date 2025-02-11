@@ -9,6 +9,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderItemController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\CompanyHolidayController;
 
 
 use App\Http\Controllers\Admin\UserController;
@@ -36,6 +37,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'department'])
     ->name('dashboard');
 
+
+    
 // 🌟 **Admin Routes (เฉพาะ Admin เท่านั้น)**
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => "Welcome Admin"); // ✅ Route '/admin'
@@ -68,26 +71,46 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('tax', TaxSettingController::class);
 
 
-
 });
 
 
 
-// 📦 **Resource Routes (ต้อง Login และอยู่ในแผนก)**
-Route::middleware(['auth', 'department'])->group(function () {
-    Route::resource('customers', CustomerController::class);
-    Route::resource('products', ProductController::class);
-    Route::resource('orders', OrderController::class);
-    Route::resource('orders.order-items', OrderItemController::class);
+    // 📦 **Resource Routes (ต้อง Login และอยู่ในแผนก)**
+    Route::middleware(['auth', 'department'])->group(function () {
+
+        // 🏠 **หน้าแรก (Dashboard)**
+        Route::resource('customers', CustomerController::class);
+
+        // 📦 **Products**
+        Route::resource('products', ProductController::class);
+
+        // 📦 **Orders**
+        Route::resource('orders', OrderController::class);
+
+        // 📦 **Order Items**
+        Route::resource('orders.order-items', OrderItemController::class);
 
         // 🏢 **จัดการพนักงาน**
-    Route::resource('employees', EmployeeController::class);
+        Route::resource('employees', EmployeeController::class);
+
+        // 🏢 **จัดการวันหยุดของบริษัท**
+        Route::resource('company-holidays', CompanyHolidayController::class);
+
+
 
     // 🆔 **ค้นหา Customer ตาม Code**
     Route::prefix('customers/code/{code}')->group(function () {
+
+        // 📦 **Products**
         Route::get('/', [CustomerController::class, 'showByCode'])->name('customers.showByCode');
+
+        // 📦 **Orders**
         Route::get('/edit', [CustomerController::class, 'editByCode'])->name('customers.editByCode');
+
+        // 📦 **Orders**
         Route::put('/', [CustomerController::class, 'updateByCode'])->name('customers.updateByCode');
+
+        // 📦 **Orders**
         Route::delete('/', [CustomerController::class, 'destroyByCode'])->name('customers.destroyByCode');
     });
 
