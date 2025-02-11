@@ -91,6 +91,16 @@
                 <a class="nav-link" href="{{ route('employees.index') }}">Employees</a>
             </li>
 
+            <li class="nav-item">
+                @can('view company holidays')
+                    <a class="nav-link" href="{{ route('company-holidays.index') }}">📅 ปฏิทินวันหยุด</a>
+                @endcan
+            </li>
+
+
+
+
+
             <!-- ✅ รวม Admin Setting ไว้ที่เดียว -->
             @canany(['manage departments', 'manage users', 'manage companies', 'manage units'])
                 <li class="nav-item dropdown">

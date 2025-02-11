@@ -51,6 +51,12 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'manage salaries', 'guard_name' => 'web'],
             ['name' => 'manage deductions', 'guard_name' => 'web'],
 
+                        // 🆕 เพิ่มสิทธิ์สำหรับ Company Holidays
+            ['name' => 'view company holidays', 'guard_name' => 'web'],
+            ['name' => 'create company holidays', 'guard_name' => 'web'],
+            ['name' => 'edit company holidays', 'guard_name' => 'web'],
+            ['name' => 'delete company holidays', 'guard_name' => 'web'],
+
             
         ];
 
@@ -74,6 +80,25 @@ class RolePermissionSeeder extends Seeder
             'admin' => array_column($permissions, 'name'),
             'super_admin' => Permission::pluck('name')->toArray(),
         ];
+
+                // ✅ ให้สิทธิ์กับ Role "Manager" (เฉพาะจัดการวันหยุด)
+        $managerRole = Role::where('name', 'manager')->first();
+        if ($managerRole) {
+            $managerRole->givePermissionTo([
+                'view company holidays',
+                'create company holidays',
+                'edit company holidays',
+            ]);
+        }
+
+                // ✅ ให้สิทธิ์กับ Role "User" (ดูวันหยุดได้อย่างเดียว)
+        $userRole = Role::where('name', 'user')->first();
+        if ($userRole) {
+            $userRole->givePermissionTo([
+                'view company holidays',
+            ]);
+        }
+        
 
         foreach ($rolePermissions as $roleName => $perms) {
             $role = Role::where('name', $roleName)->first();
