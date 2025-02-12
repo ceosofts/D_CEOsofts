@@ -96,7 +96,24 @@
                     <a class="nav-link" href="{{ route('company-holidays.index') }}">📅 ปฏิทินวันหยุด</a>
                 @endcan
             </li>
+            
+            <li class="nav-item">
+                @can('view attendances')
+                    <a class="nav-link" href="{{ route('company-attendances.index') }}">บันทึกเวลาทำงาน</a>
+                @endcan
+            </li>
 
+            {{-- <li class="nav-item">
+                <a class="nav-link" href="{{ route('payroll.summary') }}">
+                    <i class="fas fa-coins"></i> สรุปค่าแรง
+                </a>
+            </li> --}}
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('wages.summary') }}">
+                    <i class="fas fa-hand-holding-usd"></i> สรุปค่าแรง
+                </a>
+            </li>
 
 
 
