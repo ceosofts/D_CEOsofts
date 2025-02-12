@@ -12,93 +12,43 @@ class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // ✅ สร้าง Role ถี่มีแล้ว
-        $roles = [
-            ['name' => 'admin', 'guard_name' => 'web'],
-            ['name' => 'user', 'guard_name' => 'web'],
-            ['name' => 'leader', 'guard_name' => 'web'],
-            ['name' => 'manager', 'guard_name' => 'web'],
-            ['name' => 'auditor', 'guard_name' => 'web'],
-            ['name' => 'super_admin', 'guard_name' => 'web'],
-        ];
+        // ✅ สร้าง Role (ถ้ายังไม่มี)
+        $roles = ['admin', 'user', 'leader', 'manager', 'auditor', 'super_admin'];
 
-        DB::table('roles')->insertOrIgnore(array_map(function ($role) {
-            return array_merge($role, [
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ]);
-        }, $roles));
+        foreach ($roles as $role) {
+            Role::updateOrCreate(
+                ['name' => $role, 'guard_name' => 'web'],
+                ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+            );
+        }
 
-        // ✅ สร้าง Permission ถี่มีแล้ว
+        // ✅ สร้าง Permission (ถ้ายังไม่มี)
         $permissions = [
-            ['name' => 'view dashboard', 'guard_name' => 'web'], // ✅ เพิ่มเข้าไป
-            ['name' => 'manage orders', 'guard_name' => 'web'],
-            ['name' => 'manage users', 'guard_name' => 'web'],
-            ['name' => 'manage prefixes', 'guard_name' => 'web'],
-            ['name' => 'manage departments', 'guard_name' => 'web'],
-            ['name' => 'manage positions', 'guard_name' => 'web'],
-            ['name' => 'manage companies', 'guard_name' => 'web'],
-            ['name' => 'manage units', 'guard_name' => 'web'],
-            ['name' => 'manage item statuses', 'guard_name' => 'web'],
-            ['name' => 'manage payment statuses', 'guard_name' => 'web'],
-            ['name' => 'manage tax settings', 'guard_name' => 'web'],
-            ['name' => 'audit system', 'guard_name' => 'web'],
-            ['name' => 'full access', 'guard_name' => 'web'],
-
-            ['name' => 'manage employees', 'guard_name' => 'web'],
-            ['name' => 'manage attendance', 'guard_name' => 'web'],
-            ['name' => 'manage holidays', 'guard_name' => 'web'],
-            ['name' => 'manage salaries', 'guard_name' => 'web'],
-            ['name' => 'manage deductions', 'guard_name' => 'web'],
-
-                        // 🆕 เพิ่มสิทธิ์สำหรับ Company Holidays
-            ['name' => 'view company holidays', 'guard_name' => 'web'],
-            ['name' => 'create company holidays', 'guard_name' => 'web'],
-            ['name' => 'edit company holidays', 'guard_name' => 'web'],
-            ['name' => 'delete company holidays', 'guard_name' => 'web'],
-
-            
+            'view dashboard', 'manage orders', 'manage users', 'manage prefixes',
+            'manage departments', 'manage positions', 'manage companies', 'manage units',
+            'manage item statuses', 'manage payment statuses', 'manage tax settings',
+            'audit system', 'full access', 'manage employees', 'manage attendance',
+            'manage holidays', 'manage salaries', 'manage deductions',
+            'view company holidays', 'create company holidays', 'edit company holidays', 'delete company holidays',
+            'view attendance', 'create attendance', 'edit attendance', 'delete attendance', 'Wage', 'WorkShift'
         ];
 
-        DB::table('permissions')->insertOrIgnore(array_map(function ($permission) {
-            return array_merge($permission, [
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
-            ]);
-        }, $permissions));
+        foreach ($permissions as $permission) {
+            Permission::updateOrCreate(
+                ['name' => $permission, 'guard_name' => 'web'],
+                ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
+            );
+        }
 
-        // ✅ อัปเดต `guard_name` ถี่มีค่า NULL
-        Role::whereNull('guard_name')->update(['guard_name' => 'web']);
-        Permission::whereNull('guard_name')->update(['guard_name' => 'web']);
-
-        // ✅ กำหนด Permission ให้ Role
+        // ✅ ให้ Role มีสิทธิ์ที่กำหนด
         $rolePermissions = [
-            'user' => ['view dashboard'],
+            'user' => ['view dashboard', 'view company holidays'],
             'leader' => ['view dashboard', 'manage orders'],
-            'manager' => ['view dashboard', 'manage orders', 'manage users'],
+            'manager' => ['view dashboard', 'manage orders', 'manage users', 'view company holidays', 'create company holidays', 'edit company holidays'],
             'auditor' => ['audit system'],
-            'admin' => array_column($permissions, 'name'),
+            'admin' => Permission::pluck('name')->toArray(),
             'super_admin' => Permission::pluck('name')->toArray(),
         ];
-
-                // ✅ ให้สิทธิ์กับ Role "Manager" (เฉพาะจัดการวันหยุด)
-        $managerRole = Role::where('name', 'manager')->first();
-        if ($managerRole) {
-            $managerRole->givePermissionTo([
-                'view company holidays',
-                'create company holidays',
-                'edit company holidays',
-            ]);
-        }
-
-                // ✅ ให้สิทธิ์กับ Role "User" (ดูวันหยุดได้อย่างเดียว)
-        $userRole = Role::where('name', 'user')->first();
-        if ($userRole) {
-            $userRole->givePermissionTo([
-                'view company holidays',
-            ]);
-        }
-        
 
         foreach ($rolePermissions as $roleName => $perms) {
             $role = Role::where('name', $roleName)->first();

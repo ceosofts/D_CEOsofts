@@ -8,3 +8,17 @@
 .input-group > .form-control {
     height: 40px !important; /* เพิ่มขนาดให้สูงขึ้น และใช้ !important */
 }
+
+.pagination {
+    font-size: 0.8rem;
+    /* ลดขนาดตัวอักษร */
+    padding: 5px;
+}
+
+.pagination .page-item {
+    margin: 2px;
+}
+
+.pagination .page-link {
+    padding: 5px 10px;
+}

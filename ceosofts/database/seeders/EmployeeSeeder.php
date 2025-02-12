@@ -28,6 +28,7 @@ class EmployeeSeeder extends Seeder
         // ✅ กำหนดพนักงานตัวอย่าง
         $employees = [
             [
+                'employee_code' => 'EMP001',
                 'first_name' => 'สมชาย',
                 'last_name' => 'ใจดี',
                 'email' => 'somchai@example.com',
@@ -54,6 +55,7 @@ class EmployeeSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
+                'employee_code' => 'EMP002',
                 'first_name' => 'สายลม',
                 'last_name' => 'แสงแดด',
                 'email' => 'sailom@example.com',
@@ -77,6 +79,7 @@ class EmployeeSeeder extends Seeder
                 'updated_at' => Carbon::now(),
             ],
             [
+                'employee_code' => 'EMP003',
                 'first_name' => 'มานะ',
                 'last_name' => 'พยายาม',
                 'email' => 'mana@example.com',
