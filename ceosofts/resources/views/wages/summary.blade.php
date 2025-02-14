@@ -49,20 +49,32 @@
                     <th>ยอดรวม</th>
                 </tr>
             </thead>
-<tbody>
-    @foreach($wageSummaries as $wage)
-        <tr class="text-center">
-            <td>{{ $wage->employee->employee_code }}</td> {{-- ✅ แสดง employee_code --}}
-            <td class="text-start">{{ $wage->employee->first_name }} {{ $wage->employee->last_name }}</td>
-            <td>{{ $wage->work_days ?? 0 }}</td>
-            <td>{{ number_format($wage->daily_wage ?? 0, 2) }}</td>
-            <td>{{ number_format($wage->total_wage ?? 0, 2) }}</td>
-            <td>{{ number_format($wage->ot_hours ?? 0, 2) }}</td>
-            <td>{{ number_format($wage->ot_pay ?? 0, 2) }}</td>
-            <td class="fw-bold">{{ number_format($wage->grand_total ?? 0, 2) }}</td>
-        </tr>
-    @endforeach
-</tbody>
+            <tbody>
+                @foreach($wageSummaries as $wage)
+                    <tr class="text-center">
+                        <td>{{ $wage->employee->employee_code }}</td> {{-- ✅ แสดง employee_code --}}
+                        <td class="text-start">{{ $wage->employee->first_name }} {{ $wage->employee->last_name }}</td>
+                        <td>{{ $wage->work_days ?? 0 }}</td>
+                        <td>{{ number_format($wage->daily_wage ?? 0, 2) }}</td>
+                        <td>{{ number_format($wage->total_wage ?? 0, 2) }}</td>
+                        <td>{{ number_format($wage->ot_hours ?? 0, 2) }}</td>
+                        <td>{{ number_format($wage->ot_pay ?? 0, 2) }}</td>
+                        <td class="fw-bold">{{ number_format($wage->grand_total ?? 0, 2) }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+
+            <tfoot>
+                <tr>
+                    <th colspan="3" class="text-right">รวมทั้งเดือน:</th>
+                    <th>{{ number_format($wageSummaries->sum('daily_wage'), 2) }}</th>
+                    <th>{{ number_format($wageSummaries->sum('total_wage'), 2) }}</th>
+                    <th>{{ number_format($wageSummaries->sum('ot_hours'), 2) }}</th>
+                    <th>{{ number_format($wageSummaries->sum('ot_pay'), 2) }}</th>
+                    <th><strong>{{ number_format($wageSummaries->sum('grand_total'), 2) }}</strong></th>
+                </tr>
+            </tfoot>
+
 
         </table>
     </div>

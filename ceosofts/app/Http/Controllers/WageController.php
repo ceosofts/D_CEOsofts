@@ -54,6 +54,7 @@ public function index(Request $request)
         ];
     });
 
+    
     return view('wages.summary', compact('wageSummaries', 'month', 'year'));
 }
 
