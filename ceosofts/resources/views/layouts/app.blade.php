@@ -87,33 +87,24 @@
                 </a>
             </li>
 
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('employees.index') }}">Employees</a>
-            </li>
-
-            <li class="nav-item">
-                @can('view company holidays')
-                    <a class="nav-link" href="{{ route('company-holidays.index') }}">📅 ปฏิทินวันหยุด</a>
-                @endcan
-            </li>
-            
-            <li class="nav-item">
-                @can('view attendances')
-                    <a class="nav-link" href="{{ route('company-attendances.index') }}">บันทึกเวลาทำงาน</a>
-                @endcan
-            </li>
-
-            {{-- <li class="nav-item">
-                <a class="nav-link" href="{{ route('payroll.summary') }}">
-                    <i class="fas fa-coins"></i> สรุปค่าแรง
-                </a>
-            </li> --}}
-
-            <li class="nav-item">
-                <a class="nav-link" href="{{ route('wages.summary') }}">
-                    <i class="fas fa-hand-holding-usd"></i> สรุปค่าแรง
-                </a>
-            </li>
+                    <!-- Dropdown HR Menu -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarHRDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            HR
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarHRDropdown">
+                            <a class="dropdown-item" href="{{ route('employees.index') }}">Employees</a>
+                            @can('view company holidays')
+                                <a class="dropdown-item" href="{{ route('company-holidays.index') }}">📅 ปฏิทินวันหยุด</a>
+                            @endcan
+                            <a class="dropdown-item" href="{{ url('/attendances') }}">
+                                <i class="bi bi-calendar-check"></i> บันทึกเวลางาน
+                            </a>
+                            <a class="dropdown-item" href="{{ route('wages.summary') }}">
+                                <i class="fas fa-hand-holding-usd"></i> สรุปค่าแรง
+                            </a>
+                        </div>
+                    </li>
 
 
 

@@ -78,7 +78,7 @@ Route::middleware(['auth', 'department'])->group(function () {
 
 
     // 🏢 **จัดการเงินเดือน**
-    Route::get('/payroll-summary', [PayrollController::class, 'index'])->name('payroll.summary');
+    // Route::get('/payroll-summary', [PayrollController::class, 'index'])->name('payroll.summary');
 
 
     // 🏢 **จัดการค่าจ้าง**
