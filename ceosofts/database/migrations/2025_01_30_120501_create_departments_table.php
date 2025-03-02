@@ -5,15 +5,17 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up() {
+    public function up()
+    {
         Schema::create('departments', function (Blueprint $table) {
-            $table->id();
+            $table->id(); // ใช้ bigIncrements('id') ซึ่งเป็น UNSIGNED BIGINT
             $table->string('name')->unique();
             $table->timestamps();
         });
     }
 
-    public function down() {
+    public function down()
+    {
         Schema::dropIfExists('departments');
     }
 };
