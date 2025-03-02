@@ -1,45 +1,63 @@
 @extends('layouts.app')
 
-@section('title', 'สรุปค่าแรงพนักงาน')
+@section('title','สรุปค่าแรงพนักงาน')
 
 @section('content')
 <div class="container">
-    <h1 class="mb-4"><i class="fas fa-hand-holding-usd"></i> สรุปค่าแรงพนักงาน</h1>
+    <h1 class="mb-4">
+        <i class="fas fa-hand-holding-usd"></i> สรุปค่าแรงพนักงาน
+    </h1>
 
-    {{-- ✅ ฟอร์มเลือกเดือน / ปี --}}
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    {{-- ฟอร์มเลือกเดือน/ปี (GET) --}}
     <form method="GET" class="row mb-4">
         <div class="col-md-4">
             <label class="form-label">เลือกเดือน</label>
-            <select class="form-control" name="month">
-                @foreach(range(1, 12) as $m)
-                    <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}" 
-                        {{ $month == $m ? 'selected' : '' }}>
+            <select class="form-control" name="month" onchange="this.form.submit()">
+                @for($m=1; $m<=12; $m++)
+                    @php
+                        $mm = str_pad($m, 2, '0', STR_PAD_LEFT);
+                    @endphp
+                    <option value="{{ $mm }}"
+                        {{ $month == $mm ? 'selected' : '' }}>
                         {{ \Carbon\Carbon::create()->month($m)->format('F') }}
                     </option>
-                @endforeach
+                @endfor
             </select>
         </div>
         <div class="col-md-4">
             <label class="form-label">เลือกปี</label>
-            <select class="form-control" name="year">
-                @foreach(range(now()->year - 5, now()->year) as $y)
+            <select class="form-control" name="year" onchange="this.form.submit()">
+                @php
+                    $currentYear = now()->year;
+                @endphp
+                @for($y=$currentYear-5; $y<=$currentYear+1; $y++)
                     <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>
                         {{ $y }}
                     </option>
-                @endforeach
+                @endfor
             </select>
         </div>
         <div class="col-md-4 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100"><i class="fas fa-filter"></i> ค้นหา</button>
+            <!--
+                ถ้าคุณต้องการ “ปุ่มค้นหา” ก็เก็บไว้ได้
+                หรือจะลบออกไปเลยก็ได้
+            -->
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="fas fa-filter"></i> ค้นหา
+            </button>
         </div>
     </form>
 
-    {{-- ✅ ตารางสรุปค่าแรง --}}
+    {{-- ตารางสรุปค่าแรง --}}
     <div class="table-responsive">
         <table class="table table-striped table-hover">
             <thead class="table-dark">
                 <tr class="text-center">
-                    <th>รหัสพนักงาน</th>  {{-- ✅ เพิ่มคอลัมน์ --}}
+                    <th>รหัสพนักงาน</th>
                     <th>พนักงาน</th>
                     <th>วันทำงาน</th>
                     <th>ค่าแรงรายวัน</th>
@@ -51,10 +69,13 @@
             </thead>
             <tbody>
                 @foreach($wageSummaries as $wage)
+                    @php
+                        $emp = $wage->employee;
+                    @endphp
                     <tr class="text-center">
-                        <td>{{ $wage->employee->employee_code }}</td> {{-- ✅ แสดง employee_code --}}
-                        <td class="text-start">{{ $wage->employee->first_name }} {{ $wage->employee->last_name }}</td>
-                        <td>{{ $wage->work_days ?? 0 }}</td>
+                        <td>{{ $emp->employee_code }}</td>
+                        <td class="text-start">{{ $emp->first_name }} {{ $emp->last_name }}</td>
+                        <td>{{ number_format($wage->work_days ?? 0, 2) }}</td>
                         <td>{{ number_format($wage->daily_wage ?? 0, 2) }}</td>
                         <td>{{ number_format($wage->total_wage ?? 0, 2) }}</td>
                         <td>{{ number_format($wage->ot_hours ?? 0, 2) }}</td>
@@ -63,10 +84,9 @@
                     </tr>
                 @endforeach
             </tbody>
-
             <tfoot>
-                <tr>
-                    <th colspan="3" class="text-right">รวมทั้งเดือน:</th>
+                <tr class="text-center">
+                    <th colspan="3" class="text-end">รวมทั้งเดือน:</th>
                     <th>{{ number_format($wageSummaries->sum('daily_wage'), 2) }}</th>
                     <th>{{ number_format($wageSummaries->sum('total_wage'), 2) }}</th>
                     <th>{{ number_format($wageSummaries->sum('ot_hours'), 2) }}</th>
@@ -74,17 +94,21 @@
                     <th><strong>{{ number_format($wageSummaries->sum('grand_total'), 2) }}</strong></th>
                 </tr>
             </tfoot>
-
-
         </table>
     </div>
 
-    {{-- ✅ ปุ่มบันทึกค่าแรงเดือนนี้ --}}
-    <form action="{{ route('wages.storeMonthly') }}" method="POST">
+    {{-- ปุ่มบันทึกค่าแรงเดือนนี้ --}}
+    <form action="{{ route('wages.storeMonthly') }}" method="POST" class="row">
         @csrf
-        <button type="submit" class="btn btn-success">
-            <i class="fas fa-save"></i> บันทึกค่าแรงเดือนนี้
-        </button>
+        <!-- ส่ง month, year ไปด้วย -->
+        <input type="hidden" name="month" value="{{ $month }}">
+        <input type="hidden" name="year"  value="{{ $year }}">
+
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> บันทึกค่าแรงเดือนนี้
+            </button>
+        </div>
     </form>
 </div>
 @endsection

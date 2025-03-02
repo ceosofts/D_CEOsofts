@@ -5,13 +5,16 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up() {
+    public function up()
+    {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('user')->after('email'); // ✅ เพิ่มฟิลด์ role
+            // เพิ่มคอลัมน์ role หลังคอลัมน์ email
+            $table->string('role')->default('user')->after('email');
         });
     }
 
-    public function down() {
+    public function down()
+    {
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('role');
         });

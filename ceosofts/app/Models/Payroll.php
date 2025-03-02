@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Payroll extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'employee_id',
+        'month_year',
+        'salary',
+        'overtime',
+        'bonus',
+        'commission',
+        'transport',
+        'special_severance_pay',
+        'other_income',
+        'tax',
+        'social_fund',
+        'provident_fund',
+        'telephone_bill',
+        'house_rental',
+        'no_pay_leave',
+        'other_deductions',
+        'total_income',
+        'total_deductions',
+        'net_income',
+        'ytd_income',
+        'ytd_tax',
+        'ytd_social_fund',
+        'ytd_provident_fund',
+        'accumulate_provident_fund',
+        'accumulate_social_fund',
+        'remarks',
+        'prepared_by',
+    ];
+
+    /**
+     * Relationship: Payroll belongs to an Employee.
+     */
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id', 'id');
+        // หรือ belongsTo(Employee::class) เฉยๆ ถ้า naming ตรงกัน
+    }
+}

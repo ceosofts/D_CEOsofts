@@ -19,11 +19,15 @@ class Wage extends Model
         'grand_total',
         'month_year',
         'status',
+
+        // ถ้าคุณมีฟิลด์อื่น (accumulate_provident_fund, commission, etc.) ใส่ที่นี่ด้วย
+        // 'accumulate_provident_fund',
+        // 'accumulate_social_fund',
+        // 'commission',
     ];
 
     public function employee()
     {
         return $this->belongsTo(Employee::class);
-        
     }
 }

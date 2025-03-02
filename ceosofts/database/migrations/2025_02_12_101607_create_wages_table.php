@@ -17,7 +17,8 @@ return new class extends Migration {
             $table->decimal('ot_pay', 10, 2)->default(0);
             $table->decimal('grand_total', 10, 2);
             $table->string('status')->default('pending'); // สถานะการจ่ายเงิน
-            $table->date('month_year'); // ใช้ "YYYY-MM" เก็บข้อมูลแต่ละเดือน
+            // เก็บข้อมูลเดือนและปีในรูปแบบ "YYYY-MM" เช่น "2025-03"
+            $table->string('month_year', 7)->nullable();
             $table->timestamps();
         });
     }

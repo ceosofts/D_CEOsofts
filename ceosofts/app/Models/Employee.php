@@ -5,15 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Carbon\Carbon;
 use App\Traits\GeneratesEmployeeCode;
+use App\Models\Attendance;
+use App\Models\Department;
+use App\Models\Position;
 
 class Employee extends Model
 {
     use HasFactory, GeneratesEmployeeCode;
 
     /**
-     * กำหนดค่า fillable สำหรับ Mass Assignment
+     * The attributes that are mass assignable.
      */
     protected $fillable = [
         'employee_code',
@@ -38,25 +42,24 @@ class Employee extends Model
     ];
 
     /**
-     * ✅ Relationship: เชื่อมกับตาราง attendances (การเข้างาน)
+     * Relationship: Get all attendances for the employee.
      */
-    public function attendances()
+    public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class, 'employee_id');
     }
 
-    
     /**
-     * แปลงค่าฟิลด์วันที่เป็น Carbon instance
+     * The attributes that should be cast to native types.
      */
     protected $casts = [
-        'date_of_birth' => 'datetime:Y-m-d',
-        'hire_date' => 'datetime:Y-m-d',
+        'date_of_birth'   => 'datetime:Y-m-d',
+        'hire_date'       => 'datetime:Y-m-d',
         'resignation_date' => 'datetime:Y-m-d',
     ];
 
     /**
-     * ความสัมพันธ์กับ Department
+     * Relationship: Get the department that the employee belongs to.
      */
     public function department(): BelongsTo
     {
@@ -64,7 +67,7 @@ class Employee extends Model
     }
 
     /**
-     * ความสัมพันธ์กับ Position
+     * Relationship: Get the position that the employee holds.
      */
     public function position(): BelongsTo
     {
@@ -72,18 +75,20 @@ class Employee extends Model
     }
 
     /**
-     * Accessor: คำนวณอายุจาก date_of_birth
+     * Accessor: Calculate the age from date_of_birth.
      */
     public function getAgeAttribute(): ?int
     {
-        return $this->date_of_birth ? Carbon::parse($this->date_of_birth)->age : null;
+        return $this->date_of_birth ? $this->date_of_birth->age : null;
     }
 
-    public static function generateEmployeeCode()
+    /**
+     * Generate a new employee code.
+     */
+    public static function generateEmployeeCode(): string
     {
         $latestEmployee = self::whereNotNull('employee_code')->latest('id')->first();
         $nextNumber = $latestEmployee ? intval(substr($latestEmployee->employee_code, 3)) + 1 : 1;
         return 'EMP' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
     }
-
 }
