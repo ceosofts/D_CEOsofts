@@ -12,7 +12,6 @@
         </a>
     </div>
 
-    {{-- ✅ ทำให้ตาราง Responsive --}}
     <div class="table-responsive">
         <table class="table table-sm table-striped table-hover">
             <thead class="table-dark">
@@ -31,20 +30,35 @@
             <tbody>
                 @forelse($attendances as $attendance)
                     <tr class="text-center">
-                        <td class="text-start">{{ $attendance->employee->first_name }} {{ $attendance->employee->last_name }}</td>
-                        <td>{{ \Carbon\Carbon::parse($attendance->date)->translatedFormat('d F Y') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($attendance->check_in)->format('H:i') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($attendance->check_out)->format('H:i') }}</td>
-                        <td>{{ number_format($attendance->work_hours, 2) }}</td>
+                        <td class="text-start">
+                            {{ optional($attendance->employee)->first_name }} {{ optional($attendance->employee)->last_name }}
+                        </td>
+                        <td>
+                            {{-- ตรวจสอบว่า date มีค่าไหม แล้ว format ด้วย Carbon --}}
+                            {{ $attendance->date ? \Carbon\Carbon::parse($attendance->date)->translatedFormat('d F Y') : '-' }}
+                        </td>
+                        <td>
+                            {{ $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in)->format('H:i') : '-' }}
+                        </td>
+                        <td>
+                            {{ $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out)->format('H:i') : '-' }}
+                        </td>
+                        <td>{{ is_numeric($attendance->work_hours) ? number_format($attendance->work_hours, 2) : '-' }}</td>
                         <td>
                             <span class="badge bg-{{ $attendance->work_hours_completed ? 'success' : 'danger' }}">
                                 {{ $attendance->work_hours_completed ? '✅ Yes' : '❌ No' }}
                             </span>
                         </td>
-                        <td>{{ $attendance->overtime_hours > 0 ? number_format($attendance->overtime_hours, 2) : '-' }}</td>
                         <td>
-                            <span class="badge bg-{{ $attendance->work_hours >= 8 ? 'success' : 'warning' }}">
-                                {{ $attendance->work_hours >= 8 ? 'Normal' : 'Incomplete' }}
+                            @if(is_numeric($attendance->overtime_hours) && $attendance->overtime_hours > 0)
+                                {{ number_format($attendance->overtime_hours, 2) }}
+                            @else
+                                -
+                            @endif
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ (is_numeric($attendance->work_hours) && $attendance->work_hours >= 8) ? 'success' : 'warning' }}">
+                                {{ (is_numeric($attendance->work_hours) && $attendance->work_hours >= 8) ? 'Normal' : 'Incomplete' }}
                             </span>
                         </td>
                         <td class="text-nowrap">
@@ -70,7 +84,6 @@
         </table>
     </div>
 
-    {{-- ✅ แก้ปัญหา Pagination ซ้ำ และลดขนาด --}}
     @if ($attendances->hasPages())
         <div class="d-flex justify-content-center mt-2">
             {{ $attendances->links('vendor.pagination.bootstrap-5') }}

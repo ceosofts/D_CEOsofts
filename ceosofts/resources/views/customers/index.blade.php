@@ -4,15 +4,17 @@
 
 @section('content')
 <div class="container">
-    <h1><i class="fas fa-users"></i> Customer List</h1>
+    <h1 class="mb-4"><i class="fas fa-users"></i> Customer List</h1>
 
     <div class="row align-items-center mb-3">
+        <!-- Add Customer Button -->
         <div class="col-md-6">
             <a href="{{ route('customers.create') }}" class="btn btn-success">
                 <i class="fas fa-plus"></i> Add Customer
             </a>
         </div>
 
+        <!-- Search Form -->
         <div class="col-md-6">
             <form method="GET" action="{{ route('customers.index') }}" class="d-flex">
                 <input type="text" name="search" class="form-control me-2"
@@ -24,7 +26,7 @@
         </div>
     </div>
 
-    {{-- ✅ ทำให้ตาราง Responsive --}}
+    <!-- Responsive Table -->
     <div class="table-responsive">
         <table class="table table-sm table-striped table-hover">
             <thead class="table-dark">
@@ -39,7 +41,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($customers as $customer)
+                @forelse ($customers as $customer)
                     <tr>
                         <td>{{ $customer->code }}</td>
                         <td>{{ $customer->name }}</td>
@@ -54,8 +56,8 @@
                             <a href="{{ route('customers.edit', $customer->id) }}" class="btn btn-warning btn-sm">
                                 <i class="fas fa-edit"></i> Edit
                             </a>
-                            <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline"
-                                  onsubmit="return confirm('Are you sure?');">
+                            <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline" 
+                                  onsubmit="return confirm('Are you sure you want to delete this customer?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm">
@@ -64,16 +66,18 @@
                             </form>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No customers found.</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
 
-    {{-- ✅ แสดงข้อความถ้าไม่มีลูกค้า --}}
-    @if ($customers->isEmpty())
-        <div class="alert alert-warning text-center mt-3">
-            <i class="fas fa-exclamation-circle"></i> No customers found.
-        </div>
-    @endif
+    <!-- Pagination Links -->
+    <div class="d-flex justify-content-center mt-3">
+        {{ $customers->links() }}
+    </div>
 </div>
 @endsection

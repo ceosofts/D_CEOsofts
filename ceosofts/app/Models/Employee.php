@@ -12,12 +12,21 @@ use App\Models\Attendance;
 use App\Models\Department;
 use App\Models\Position;
 
+/**
+ * Class Employee
+ *
+ * Represents an employee record in the system.
+ *
+ * @package App\Models
+ */
 class Employee extends Model
 {
     use HasFactory, GeneratesEmployeeCode;
 
     /**
      * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
      */
     protected $fillable = [
         'employee_code',
@@ -42,7 +51,20 @@ class Employee extends Model
     ];
 
     /**
-     * Relationship: Get all attendances for the employee.
+     * The attributes that should be cast to native types.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'date_of_birth'    => 'datetime:Y-m-d',
+        'hire_date'        => 'datetime:Y-m-d',
+        'resignation_date' => 'datetime:Y-m-d',
+    ];
+
+    /**
+     * Get all attendances for the employee.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function attendances(): HasMany
     {
@@ -50,16 +72,9 @@ class Employee extends Model
     }
 
     /**
-     * The attributes that should be cast to native types.
-     */
-    protected $casts = [
-        'date_of_birth'   => 'datetime:Y-m-d',
-        'hire_date'       => 'datetime:Y-m-d',
-        'resignation_date' => 'datetime:Y-m-d',
-    ];
-
-    /**
-     * Relationship: Get the department that the employee belongs to.
+     * Get the department that the employee belongs to.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function department(): BelongsTo
     {
@@ -67,7 +82,9 @@ class Employee extends Model
     }
 
     /**
-     * Relationship: Get the position that the employee holds.
+     * Get the position that the employee holds.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function position(): BelongsTo
     {
@@ -75,7 +92,9 @@ class Employee extends Model
     }
 
     /**
-     * Accessor: Calculate the age from date_of_birth.
+     * Accessor: Calculate the employee's age based on the date of birth.
+     *
+     * @return int|null
      */
     public function getAgeAttribute(): ?int
     {
@@ -84,6 +103,10 @@ class Employee extends Model
 
     /**
      * Generate a new employee code.
+     *
+     * This function retrieves the latest employee code and increments the numeric portion.
+     *
+     * @return string
      */
     public static function generateEmployeeCode(): string
     {

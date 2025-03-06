@@ -22,10 +22,12 @@
         <!-- Employee Selection -->
         <div class="mb-3">
             <label for="employee_id" class="form-label">Employee</label>
-            <select class="form-control" name="employee_id" required>
-                <option value="" disabled selected>-- Select Employee --</option>
+            <select name="employee_id" id="employee_id" class="form-control" required>
+                <option value="" disabled {{ old('employee_id') ? '' : 'selected' }}>-- Select Employee --</option>
                 @foreach($employees as $employee)
-                    <option value="{{ $employee->id }}">{{ $employee->first_name }} {{ $employee->last_name }}</option>
+                    <option value="{{ $employee->id }}" {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
+                        {{ $employee->first_name }} {{ $employee->last_name }}
+                    </option>
                 @endforeach
             </select>
         </div>
@@ -33,18 +35,20 @@
         <!-- Date -->
         <div class="mb-3">
             <label for="date" class="form-label">Date</label>
-            <input type="date" class="form-control" name="date" required>
+            <input type="date" name="date" id="date" class="form-control" value="{{ old('date') }}" required>
         </div>
 
-<div class="mb-3">
-    <label for="check_in" class="form-label">Check-in Time</label>
-    <input type="datetime-local" class="form-control" name="check_in" required>
-</div>
+        <!-- Check-in Time -->
+        <div class="mb-3">
+            <label for="check_in" class="form-label">Check-in Time</label>
+            <input type="datetime-local" name="check_in" id="check_in" class="form-control" value="{{ old('check_in') }}" required>
+        </div>
 
-<div class="mb-3">
-    <label for="check_out" class="form-label">Check-out Time</label>
-    <input type="datetime-local" class="form-control" name="check_out" required>
-</div>
+        <!-- Check-out Time -->
+        <div class="mb-3">
+            <label for="check_out" class="form-label">Check-out Time</label>
+            <input type="datetime-local" name="check_out" id="check_out" class="form-control" value="{{ old('check_out') }}" required>
+        </div>
 
         <!-- Submit Button -->
         <button type="submit" class="btn btn-success">Save</button>
@@ -52,9 +56,10 @@
 </div>
 
 <script>
+// Example: log form data on submit (for debugging purposes)
 document.querySelector('form').addEventListener('submit', function(event) {
-    console.log("Form Submitted", new FormData(this));
+    const formData = Object.fromEntries(new FormData(this).entries());
+    console.log("Form Submitted", formData);
 });
 </script>
-
 @endsection

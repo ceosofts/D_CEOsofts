@@ -9,6 +9,11 @@ class Payroll extends Model
 {
     use HasFactory;
 
+    /**
+     * ฟิลด์ที่อนุญาตให้ทำ Mass Assignment
+     *
+     * @var array
+     */
     protected $fillable = [
         'employee_id',
         'month_year',
@@ -40,11 +45,13 @@ class Payroll extends Model
     ];
 
     /**
-     * Relationship: Payroll belongs to an Employee.
+     * Relationship: แสดงความสัมพันธ์ระหว่าง Payroll กับ Employee
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function employee()
     {
-        return $this->belongsTo(Employee::class, 'employee_id', 'id');
-        // หรือ belongsTo(Employee::class) เฉยๆ ถ้า naming ตรงกัน
+        return $this->belongsTo(Employee::class);
+        // ในกรณีที่ชื่อ foreign key เป็น employee_id และ primary key เป็น id สามารถเรียกใช้งานแบบนี้ได้เลย
     }
 }

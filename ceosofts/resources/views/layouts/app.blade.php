@@ -16,7 +16,7 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
 
-    <!-- Scripts with Vite -->
+    <!-- Vite Scripts & Styles -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 
     <!-- Additional Styles -->
@@ -48,7 +48,6 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('home') }}">{{ __('Home') }}</a>
                         </li>
-
                         @auth
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('dashboard') }}">
@@ -70,7 +69,7 @@
                                     <i class="bi bi-basket"></i> {{ __('Orders') }}
                                 </a>
                             </li>
-
+                            
                             <!-- Dropdown HR Menu -->
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarHRDropdown" role="button" 
@@ -80,20 +79,22 @@
                                 <div class="dropdown-menu" aria-labelledby="navbarHRDropdown">
                                     <a class="dropdown-item" href="{{ route('employees.index') }}">Employees</a>
                                     @can('view company holidays')
-                                        <a class="dropdown-item" href="{{ route('company-holidays.index') }}">📅 ปฏิทินวันหยุด</a>
+                                        <a class="dropdown-item" href="{{ route('company-holidays.index') }}">
+                                            <i class="bi bi-calendar-day"></i> Company Holidays
+                                        </a>
                                     @endcan
-                                    <a class="dropdown-item" href="{{ url('/attendances') }}">
-                                        <i class="bi bi-calendar-check"></i> บันทึกเวลางาน
+                                    <a class="dropdown-item" href="{{ route('attendances.index') }}">
+                                        <i class="bi bi-calendar-check"></i> Attendance
                                     </a>
                                     <a class="dropdown-item" href="{{ route('wages.summary') }}">
-                                        <i class="fas fa-hand-holding-usd"></i> สรุปค่าแรง
+                                        <i class="fas fa-hand-holding-usd"></i> Wage Summary
                                     </a>
-                                       <a class="nav-link" href="{{ route('payroll.index') }}">
-       <i class="bi bi-receipt"></i> Payrolls
-   </a>
+                                    <a class="dropdown-item" href="{{ route('payroll.index') }}">
+                                        <i class="bi bi-receipt"></i> Payrolls
+                                    </a>
                                 </div>
                             </li>
-
+                            
                             <!-- Admin Settings Dropdown -->
                             @canany(['manage departments', 'manage users', 'manage companies', 'manage units'])
                                 <li class="nav-item dropdown">
@@ -104,12 +105,12 @@
                                     <div class="dropdown-menu" aria-labelledby="adminDropdown">
                                         @can('manage departments')
                                             <a class="dropdown-item" href="{{ route('admin.departments.index') }}">
-                                                <i class="bi bi-building"></i> แผนก
+                                                <i class="bi bi-building"></i> Departments
                                             </a>
                                         @endcan
                                         @can('manage users')
                                             <a class="dropdown-item" href="{{ route('admin.users.index') }}">
-                                                <i class="bi bi-people"></i> ผู้ใช้
+                                                <i class="bi bi-people"></i> Users
                                             </a>
                                         @endcan
                                         @can('manage companies')
@@ -124,27 +125,27 @@
                                         @endcan
                                         @can('manage positions')
                                             <a class="dropdown-item" href="{{ route('admin.positions.index') }}">
-                                                <i class="bi bi-person-badge"></i> จัดการตำแหน่งพนักงาน
+                                                <i class="bi bi-person-badge"></i> Employee Positions
                                             </a>
                                         @endcan
                                         @can('manage prefixes')
                                             <a class="dropdown-item" href="{{ route('admin.prefixes.index') }}">
-                                                <i class="bi bi-list"></i> จัดการคำนำหน้าชื่อ
+                                                <i class="bi bi-list"></i> Name Prefixes
                                             </a>
                                         @endcan
                                         @can('manage item statuses')
                                             <a class="dropdown-item" href="{{ route('admin.item_statuses.index') }}">
-                                                <i class="bi bi-list"></i> จัดการสถานะสินค้า
+                                                <i class="bi bi-list"></i> Product Statuses
                                             </a>
                                         @endcan
                                         @can('manage payment statuses')
                                             <a class="dropdown-item" href="{{ route('admin.payment_statuses.index') }}">
-                                                <i class="bi bi-list"></i> จัดการสถานะการจ่ายเงิน
+                                                <i class="bi bi-list"></i> Payment Statuses
                                             </a>
                                         @endcan
                                         @can('manage tax settings')
                                             <a class="dropdown-item" href="{{ route('admin.tax.index') }}">
-                                                <i class="bi bi-list"></i> จัดการการตั้งค่าภาษี
+                                                <i class="bi bi-list"></i> Tax Settings
                                             </a>
                                         @endcan
                                     </div>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Company Holiday')
+@section('title', 'แก้ไขวันหยุดบริษัท')
 
 @section('content')
 <div class="container">
@@ -14,16 +14,38 @@
 
                 <div class="mb-3">
                     <label for="date" class="form-label">วันที่</label>
-                    <input type="date" class="form-control" id="date" name="date" value="{{ $companyHoliday->date }}" required>
+                    <input 
+                        type="date" 
+                        name="date" 
+                        id="date" 
+                        class="form-control @error('date') is-invalid @enderror" 
+                        value="{{ old('date', $companyHoliday->date) }}" 
+                        required>
+                    @error('date')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
                 <div class="mb-3">
                     <label for="name" class="form-label">ชื่อวันหยุด</label>
-                    <input type="text" class="form-control" id="name" name="name" value="{{ $companyHoliday->name }}" required>
+                    <input 
+                        type="text" 
+                        name="name" 
+                        id="name" 
+                        class="form-control @error('name') is-invalid @enderror" 
+                        value="{{ old('name', $companyHoliday->name) }}" 
+                        required>
+                    @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
 
-                <button type="submit" class="btn btn-warning">บันทึกการแก้ไข</button>
-                <a href="{{ route('company-holidays.index') }}" class="btn btn-secondary">🔙 ย้อนกลับ</a>
+                <button type="submit" class="btn btn-warning">
+                    <i class="bi bi-check-lg"></i> บันทึกการแก้ไข
+                </button>
+                <a href="{{ route('company-holidays.index') }}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> ย้อนกลับ
+                </a>
             </form>
         </div>
     </div>

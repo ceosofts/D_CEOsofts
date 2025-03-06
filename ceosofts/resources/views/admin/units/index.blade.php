@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container">
-    <h1>Unit List</h1>
+    <h1 class="mb-4">Unit List</h1>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="{{ route('admin.units.create') }}" class="btn btn-success">
@@ -13,7 +13,9 @@
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
     @endif
 
     <table class="table table-striped table-hover">
@@ -33,10 +35,10 @@
                         <a href="{{ route('admin.units.edit', $unit->id) }}" class="btn btn-warning btn-sm">
                             <i class="bi bi-pencil"></i> Edit
                         </a>
-                        <form action="{{ route('admin.units.destroy', $unit->id) }}" method="POST" style="display:inline;">
+                        <form action="{{ route('admin.units.destroy', $unit->id) }}" method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this unit?')">
                                 <i class="bi bi-trash"></i> Delete
                             </button>
                         </form>
@@ -49,5 +51,10 @@
             @endforelse
         </tbody>
     </table>
+
+    {{-- แสดง Pagination ถ้ามี --}}
+    <div class="d-flex justify-content-center">
+        {{ $units->links() }}
+    </div>
 </div>
 @endsection

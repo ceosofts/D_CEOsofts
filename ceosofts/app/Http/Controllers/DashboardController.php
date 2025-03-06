@@ -13,6 +13,7 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return view('dashboard'); // ชี้ไปยัง view `resources/views/dashboard.blade.php`
+        // หากต้องการส่งข้อมูลเพิ่มเติมไปยัง view สามารถเพิ่ม array ใน parameter ที่สองได้
+        return \view('dashboard'); // ชี้ไปยัง view ที่อยู่ใน resources/views/dashboard.blade.php
     }
 }

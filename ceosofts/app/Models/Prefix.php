@@ -8,5 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Prefix extends Model
 {
     use HasFactory;
+
+    /**
+     * ฟิลด์ที่อนุญาตให้ทำ Mass Assignment
+     *
+     * @var array
+     */
     protected $fillable = ['name'];
 }
