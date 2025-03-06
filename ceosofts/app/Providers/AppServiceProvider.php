@@ -10,21 +10,34 @@ use Illuminate\Pagination\Paginator;
 
 class AuthServiceProvider extends ServiceProvider
 {
+    /**
+     * The policy mappings for the application.
+     *
+     * @var array<class-string, class-string>
+     */
     protected $policies = [
         Post::class => PostPolicy::class,
     ];
 
+    /**
+     * Register any authentication / authorization services.
+     *
+     * @return void
+     */
     public function boot()
     {
+        // Register all the policies defined in $policies
         $this->registerPolicies();
 
-        // ✅ ใช้ Bootstrap Pagination
-        Paginator::useBootstrapFive(); // ใช้ Bootstrap 5 (Laravel 10+)
-        // Paginator::useBootstrapFour(); // ถ้าต้องการใช้ Bootstrap 4
+        // ตั้งค่า pagination ให้ใช้ Bootstrap 5 สำหรับ Laravel 10+ (หากใช้ Bootstrap 4 ให้เปลี่ยนเป็น useBootstrapFour())
+        Paginator::useBootstrapFive();
 
-        // ✅ ให้ Super Admin มีสิทธิ์ทุกอย่าง
+        // ให้ผู้ใช้ที่มี role 'super_admin' มีสิทธิ์ทุกอย่าง
         Gate::before(function ($user, $ability) {
-            return $user->hasRole('super_admin') ? true : null;
+            if ($user->hasRole('super_admin')) {
+                return true;
+            }
+            return null;
         });
     }
 }

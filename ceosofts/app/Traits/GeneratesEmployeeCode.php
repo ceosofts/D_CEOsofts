@@ -7,12 +7,15 @@ use App\Models\Employee;
 trait GeneratesEmployeeCode
 {
     /**
-     * กำหนด employee_code อัตโนมัติเมื่อสร้างพนักงานใหม่
+     * Boot method ของ trait สำหรับการกำหนด employee_code อัตโนมัติเมื่อสร้างพนักงานใหม่
      */
     protected static function bootGeneratesEmployeeCode()
     {
         static::creating(function ($employee) {
-            $employee->employee_code = self::generateEmployeeCode();
+            // ถ้า employee_code ยังไม่มีการกำหนดไว้ ให้สร้างอัตโนมัติ
+            if (empty($employee->employee_code)) {
+                $employee->employee_code = static::generateEmployeeCode();
+            }
         });
     }
 

@@ -1,61 +1,99 @@
 <?php
 
-// namespace App\Http\Controllers;
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller; // ✅ เพิ่มบรรทัดนี้
+use App\Http\Controllers\Controller;
 use App\Models\Department;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class DepartmentController extends Controller
-// class DepartmentController extends Controller
 {
+    /**
+     * แสดงรายการแผนกทั้งหมด
+     */
     public function index()
     {
-        $departments = Department::all();
-        return view('admin.departments.index', compact('departments'));
+        // ใช้ paginate เพื่อแบ่งหน้าการแสดงผล (สามารถเปลี่ยนเป็น all() หากต้องการแสดงทั้งหมด)
+        $departments = Department::paginate(10);
+        return \view('admin.departments.index', compact('departments'));
     }
 
+    /**
+     * แสดงฟอร์มสร้างแผนกใหม่
+     */
     public function create()
     {
-        return view('admin.departments.create');
+        return \view('admin.departments.create');
     }
 
+    /**
+     * บันทึกข้อมูลแผนกใหม่
+     */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|unique:departments|max:255',
         ]);
 
-        Department::create(['name' => $request->name]);
+        try {
+            $department = new Department();
+            $department->fill($validated);
+            $department->save();
 
-        // return redirect()->route('departments.index')->with('success', 'Department created successfully.');
-        // return redirect()->route('admin.departments.index')->with('success', 'Department created successfully.');
-        return redirect()->route('admin.departments.index')->with('success', 'Department updated successfully.');
-
-        
-
+            return \redirect()->route('admin.departments.index')
+                ->with('success', 'Department created successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error storing department: ' . $e->getMessage());
+            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 
+    /**
+     * แสดงฟอร์มแก้ไขข้อมูลแผนก
+     */
     public function edit(Department $department)
     {
-        return view('admin.departments.edit', compact('department'));
+        return \view('admin.departments.edit', compact('department'));
     }
 
+    /**
+     * อัปเดตข้อมูลแผนก
+     */
     public function update(Request $request, Department $department)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|unique:departments,name,' . $department->id . '|max:255',
         ]);
 
-        $department->update(['name' => $request->name]);
+        try {
+            // ใช้ forceFill เพื่อบังคับอัปเดตข้อมูล
+            $department->forceFill($validated);
+            $department->updated_at = \now();
+            $department->save();
 
-        return redirect()->route('departments.index')->with('success', 'Department updated successfully.');
+            return \redirect()->route('admin.departments.index')
+                ->with('success', 'Department updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error updating department: ' . $e->getMessage());
+            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 
+    /**
+     * ลบข้อมูลแผนก
+     */
     public function destroy(Department $department)
     {
-        $department->delete();
-        return redirect()->route('departments.index')->with('success', 'Department deleted successfully.');
+        try {
+            $department->delete();
+            return \redirect()->route('admin.departments.index')
+                ->with('success', 'Department deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error deleting department: ' . $e->getMessage());
+            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+        }
     }
 }

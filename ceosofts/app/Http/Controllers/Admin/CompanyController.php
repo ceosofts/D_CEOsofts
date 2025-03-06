@@ -15,8 +15,8 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        $companies = Company::paginate(10); // ✅ ใช้ paginate เพื่อแบ่งหน้าการแสดงผล
-        return view('admin.companies.index', compact('companies'));
+        $companies = Company::paginate(10); // ใช้ paginate เพื่อแบ่งหน้าการแสดงผล
+        return \view('admin.companies.index', compact('companies'));
     }
 
     /**
@@ -24,7 +24,7 @@ class CompanyController extends Controller
      */
     public function create()
     {
-        return view('admin.companies.create');
+        return \view('admin.companies.create');
     }
 
     /**
@@ -45,9 +45,9 @@ class CompanyController extends Controller
             $company->fill($request->all());
             $company->save();
 
-            return redirect()->route('admin.companies.index')->with('success', 'เพิ่มบริษัทสำเร็จ!');
+            return \redirect()->route('admin.companies.index')->with('success', 'เพิ่มบริษัทสำเร็จ!');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])->withInput();
+            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])->withInput();
         }
     }
 
@@ -56,7 +56,7 @@ class CompanyController extends Controller
      */
     public function show(Company $company)
     {
-        return view('admin.companies.show', compact('company'));
+        return \view('admin.companies.show', compact('company'));
     }
 
     /**
@@ -64,7 +64,7 @@ class CompanyController extends Controller
      */
     public function edit(Company $company)
     {
-        return view('admin.companies.edit', compact('company'));
+        return \view('admin.companies.edit', compact('company'));
     }
 
     /**
@@ -80,26 +80,19 @@ class CompanyController extends Controller
 
         $data = $request->except(['_token', '_method']);
 
-        // ✅ Debug: ตรวจสอบค่าที่ส่งมาจากฟอร์ม
         Log::info('Update Request Data:', $data);
 
-        // ✅ บังคับอัปเดตข้อมูลโดยใช้ forceFill()
         $company->forceFill($data);
+        $company->updated_at = \now();
 
-        // ✅ บังคับอัปเดต timestamps (ป้องกันปัญหาที่ Laravel ไม่เห็นการเปลี่ยนแปลง)
-        $company->updated_at = now();
-
-        // ✅ Debug: ตรวจสอบค่าที่เปลี่ยนแปลงก่อน Save
         Log::info('Before Save (Dirty Data):', $company->getDirty());
-        
-        // ✅ บันทึกข้อมูล
+
         $company->save();
 
-        // ✅ Debug: เช็ค Query ที่ถูก execute
         DB::enableQueryLog();
         Log::info('Executed Queries:', DB::getQueryLog());
 
-        return redirect()->route('admin.companies.index')->with('success', 'อัปเดตข้อมูลบริษัทสำเร็จ!');
+        return \redirect()->route('admin.companies.index')->with('success', 'อัปเดตข้อมูลบริษัทสำเร็จ!');
     }
 
     /**
@@ -109,9 +102,9 @@ class CompanyController extends Controller
     {
         try {
             $company->delete();
-            return redirect()->route('admin.companies.index')->with('success', 'ลบบริษัทสำเร็จ!');
+            return \redirect()->route('admin.companies.index')->with('success', 'ลบบริษัทสำเร็จ!');
         } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
         }
     }
 }

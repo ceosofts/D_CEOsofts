@@ -27,35 +27,51 @@ use App\Http\Controllers\Admin\{
     TaxSettingController
 };
 
-// 🏠 Welcome Page
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
+
+// Welcome Page
 Route::get('/', fn() => view('welcome'))->name('welcome');
 
-// 🏠 Redirect Home → Dashboard (requires authentication)
+// Authentication Routes
+Auth::routes();
+
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes
+|--------------------------------------------------------------------------
+*/
+
+// Redirect /home to dashboard (requires authentication)
 Route::get('/home', fn() => redirect()->route('dashboard'))
     ->middleware('auth')
     ->name('home');
 
-// 🔐 Authentication Routes
-Auth::routes();
-
-// 🏠 Dashboard (requires auth and department middleware)
+// Dashboard (requires auth and department middleware)
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'department'])
     ->name('dashboard');
 
-// 🌟 Admin Routes (เฉพาะ Admin เท่านั้น)
+/*
+|--------------------------------------------------------------------------
+| Admin Routes (For users with 'admin' role)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
 
-    // หน้าแรกของ Admin
+    // Admin Home
     Route::get('/', fn() => "Welcome Admin");
 
-    // จัดการบริษัท
+    // Manage Companies
     Route::resource('companies', CompanyController::class);
 
-    // จัดการผู้ใช้
+    // Manage Users
     Route::resource('users', UserController::class);
 
-    // จัดการแผนก, หน่วยนับ, ตำแหน่ง, คำนำหน้าชื่อ
+    // Manage Departments, Units, Positions, and Prefixes
     Route::resources([
         'departments' => DepartmentController::class,
         'units'       => UnitController::class,
@@ -63,7 +79,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         'prefixes'    => PrefixController::class,
     ]);
 
-    // จัดการสถานะของสินค้า, การชำระเงิน, การตั้งค่าภาษี
+    // Manage Item Statuses, Payment Statuses, and Tax Settings
     Route::resources([
         'item_statuses'    => ItemStatusController::class,
         'payment_statuses' => PaymentStatusController::class,
@@ -71,49 +87,40 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     ]);
 });
 
-// 📦 Resource Routes (ต้อง Login และอยู่ในแผนก)
+/*
+|--------------------------------------------------------------------------
+| Resource Routes (For authenticated users with department)
+|--------------------------------------------------------------------------
+*/
 Route::middleware(['auth', 'department'])->group(function () {
 
-    // Customers, Products, Orders
+    // Customers, Products, and Orders
     Route::resources([
         'customers' => CustomerController::class,
         'products'  => ProductController::class,
         'orders'    => OrderController::class,
     ]);
 
-    // Order Items (Nested Resource)
+    // Nested Resource: Order Items for a given Order
     Route::resource('orders.order-items', OrderItemController::class);
 
-    // จัดการพนักงาน & วันหยุดของบริษัท
+    // Manage Employees and Company Holidays
     Route::resources([
         'employees'        => EmployeeController::class,
         'company-holidays' => CompanyHolidayController::class,
     ]);
 
-    // จัดการเวลาทำงาน (เฉพาะ Admin สำหรับ attendance)
+    // Attendance Routes (restricted to admin role)
     Route::resource('attendances', AttendanceController::class)
         ->middleware('role:admin');
 
-    // จัดการเวลาทำงาน (Work Shifts)
+    // Work Shifts
     Route::resource('work-shifts', WorkShiftController::class);
 
-    // จัดการค่าจ้าง (Wages)
-    // Route::get('/wages-summary', [WageController::class, 'index'])->name('wages.summary');
-    // Route::get('/api/wages', [WageController::class, 'getWageData'])->name('api.wages');
-    // Route::post('/store-monthly-wages', [WageController::class, 'storeMonthlyWages'])->name('wages.store');
-    // Route::post('/wages/store-monthly', [WageController::class, 'storeMonthlyWages'])->name('wages.storeMonthly');
-
-    // สรุปค่าแรง
+    // Wages & Payroll
     Route::get('/wages-summary', [WageController::class, 'index'])->name('wages.summary');
-    // บันทึกค่าแรง
     Route::post('/wages/store-monthly', [WageController::class, 'storeMonthlyWages'])->name('wages.storeMonthly');
-    // API ให้หน้า create payroll slip เรียก
     Route::get('/api/wages', [WageController::class, 'getWageData'])->name('api.wages');
-
-
-
-    // **Payroll Routes**
-    // ภายใน Route::middleware(['auth', 'department'])->group(function () { ... }
 
     Route::get('/payrolls', [PayrollController::class, 'index'])->name('payroll.index');
     Route::get('/payrolls/create', [PayrollController::class, 'create'])->name('payroll.create');
@@ -125,7 +132,7 @@ Route::middleware(['auth', 'department'])->group(function () {
     Route::get('/payroll-slip/{id}/pdf', [PayrollController::class, 'downloadSlipPdf'])->name('payroll.slip.pdf');
     Route::get('/api/check-payroll', [PayrollController::class, 'checkPayroll'])->name('payroll.check');
 
-    // ค้นหา Customer ตาม Code
+    // Customer lookup by code (custom routes)
     Route::prefix('customers/code/{code}')->name('customers.')->group(function () {
         Route::get('/', [CustomerController::class, 'showByCode'])->name('showByCode');
         Route::get('/edit', [CustomerController::class, 'editByCode'])->name('editByCode');

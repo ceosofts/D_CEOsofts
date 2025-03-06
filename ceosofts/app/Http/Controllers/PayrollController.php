@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\Payroll;
-use App\Models\Wage; // ถ้าคุณมี Model Wage
+use App\Models\Wage; // ถ้ามี Model Wage สำหรับดึงข้อมูลค่าแรง
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class PayrollController extends Controller
 {
@@ -21,7 +22,7 @@ class PayrollController extends Controller
 
         $query = Payroll::with('employee');
 
-        // ถ้ามีข้อความค้นหา
+        // กรองด้วยข้อความค้นหา (ค้นหาจาก employee_code, first_name, last_name)
         if (!empty($search)) {
             $query->whereHas('employee', function ($q) use ($search) {
                 $q->where('employee_code', 'LIKE', "%$search%")
@@ -30,9 +31,9 @@ class PayrollController extends Controller
             });
         }
 
-        // ถ้าเลือก month/year
+        // กรองโดยเดือน/ปี หากมีค่า
         if (!empty($month) && !empty($year)) {
-            $monthYear = $year . '-' . $month; // "2025-02"
+            $monthYear = $year . '-' . $month;
             $query->where('month_year', $monthYear);
         }
 
@@ -51,12 +52,14 @@ class PayrollController extends Controller
      */
     public function create(Request $request)
     {
-        $employees = \App\Models\Employee::all();
+        $employees = Employee::all();
 
+        // รับค่า employee_id, month, year จาก query string (เพื่อ auto-fill ข้อมูลจากตาราง wage)
         $empId = $request->query('employee_id');
         $month = $request->query('month');
         $year  = $request->query('year');
 
+        // กำหนดค่า default สำหรับฟิลด์ต่างๆ
         $autoFill = [
             'salary'                => 0,
             'overtime'              => 0,
@@ -65,39 +68,40 @@ class PayrollController extends Controller
             'transport'             => 0,
             'special_severance_pay' => 0,
             'other_income'          => 0,
-
             'tax'                   => 0,
-            'social_fund'          => 0,
-            'provident_fund'       => 0,
+            'social_fund'           => 0,
+            'provident_fund'        => 0,
             'telephone_bill'        => 0,
             'house_rental'          => 0,
             'no_pay_leave'          => 0,
             'other_deductions'      => 0,
-
             'total_income'          => 0,
             'total_deductions'      => 0,
             'net_income'            => 0,
-
             'accumulate_provident_fund' => 0,
             'accumulate_social_fund'    => 0,
             'remarks'               => '',
         ];
 
+        // หากมี employee, month, year ให้ดึงข้อมูลจาก Wage (ถ้ามี)
         if ($empId && $month && $year) {
             $monthYear = $year . '-' . $month;
-            // สมมติจะดึงจากตาราง wages หรือที่อื่น
-            $wage = \App\Models\Wage::where('employee_id', $empId)
+            $wage = Wage::where('employee_id', $empId)
                 ->where('month_year', $monthYear)
                 ->first();
             if ($wage) {
-                // ตัวอย่าง mapping
-                $autoFill['salary']    = $wage->total_wage;
-                $autoFill['overtime']  = $wage->ot_pay;
+                // Mapping ค่า จาก Wage มายัง autoFill (ปรับตามที่ต้องการ)
+                $autoFill['salary'] = $wage->total_wage;
+                $autoFill['overtime'] = $wage->ot_pay;
+                $autoFill['bonus'] = $wage->bonus;
+                $autoFill['commission'] = $wage->commission;
+                $autoFill['transport'] = $wage->transport;
+                $autoFill['special_severance_pay'] = $wage->special_severance_pay;
+                $autoFill['other_income'] = $wage->other_income;
                 $autoFill['total_income'] = $wage->grand_total;
-
-                // สมมติ provident_fund เก็บเป็น accumulate_provident_fund
+                // สมมติให้ provident_fund เป็นค่า accumulate_provident_fund
                 $autoFill['accumulate_provident_fund'] = $wage->provident_fund ?? 0;
-                // เป็นต้น
+                // เพิ่มเติม mapping อื่น ๆ ตามที่ต้องการ
             }
         }
 
@@ -127,7 +131,6 @@ class PayrollController extends Controller
             'transport'        => 'nullable|numeric',
             'special_severance_pay' => 'nullable|numeric',
             'other_income'     => 'nullable|numeric',
-            'total_income'     => 'required|numeric',
             'tax'              => 'nullable|numeric',
             'social_fund'      => 'nullable|numeric',
             'provident_fund'   => 'nullable|numeric',
@@ -135,10 +138,12 @@ class PayrollController extends Controller
             'house_rental'     => 'nullable|numeric',
             'no_pay_leave'     => 'nullable|numeric',
             'other_deductions' => 'nullable|numeric',
-            // YTD fields ไม่จำเป็นต้องให้ผู้ใช้กรอก เพราะจะคำนวณอัตโนมัติ
+            'total_income'     => 'required|numeric',
+            'total_deductions' => 'required|numeric',
+            'net_income'       => 'required|numeric',
         ]);
 
-        // สร้าง month_year เป็น "YYYY-MM"
+        // สร้าง month_year ในรูปแบบ "YYYY-MM"
         $monthYear = $validated['year'] . '-' . $validated['month'];
         unset($validated['month'], $validated['year']);
         $validated['month_year'] = $monthYear;
@@ -146,10 +151,10 @@ class PayrollController extends Controller
         // รับ employee_id จาก validated data
         $empId = $validated['employee_id'];
 
-        // คำนวณหาเดือนก่อนหน้า
-        $currentYear  = (int) substr($monthYear, 0, 4);
-        $currentMonth = (int) substr($monthYear, 5, 2);
+        // แยกปีและเดือนจาก month_year
+        list($currentYear, $currentMonth) = array_map('intval', explode('-', $monthYear));
 
+        // คำนวณหาเดือนก่อนหน้า
         if ($currentMonth == 1) {
             $prevMonth = 12;
             $prevYear  = $currentYear - 1;
@@ -157,27 +162,27 @@ class PayrollController extends Controller
             $prevMonth = $currentMonth - 1;
             $prevYear  = $currentYear;
         }
-        $prevMonthStr = str_pad($prevMonth, 2, '0', STR_PAD_LEFT);
+        $prevMonthStr  = str_pad($prevMonth, 2, '0', STR_PAD_LEFT);
         $prevMonthYear = $prevYear . '-' . $prevMonthStr;
 
-        // ค้นหา record ของเดือนก่อนหน้าสำหรับ employee เดียวกัน
+        // ค้นหา record ของ payroll สำหรับ employee เดียวกันในเดือนก่อนหน้า
         $prevPayroll = Payroll::where('employee_id', $empId)
             ->where('month_year', $prevMonthYear)
             ->first();
 
-        // หากพบ record ในเดือนก่อน ให้ดึงค่า YTD จาก record นั้น
-        $prevYtdIncome        = $prevPayroll ? $prevPayroll->ytd_income         : 0;
-        $prevYtdTax           = $prevPayroll ? $prevPayroll->ytd_tax            : 0;
-        $prevYtdSocialFund    = $prevPayroll ? $prevPayroll->ytd_social_fund    : 0;
-        $prevYtdProvidentFund = $prevPayroll ? $prevPayroll->ytd_provident_fund : 0;
+        // ดึงค่า YTD จากเดือนก่อนหน้า (ถ้าไม่มีให้ใช้ 0)
+        $prevYtdIncome         = $prevPayroll ? $prevPayroll->ytd_income : 0;
+        $prevYtdTax            = $prevPayroll ? $prevPayroll->ytd_tax : 0;
+        $prevYtdSocialFund     = $prevPayroll ? $prevPayroll->ytd_social_fund : 0;
+        $prevYtdProvidentFund  = $prevPayroll ? $prevPayroll->ytd_provident_fund : 0;
 
-        // คำนวณ YTD ของเดือนนี้ โดยนำค่าของเดือนก่อนหน้ามาบวกกับค่าปัจจุบัน
-        $validated['ytd_income']         = $prevYtdIncome        + ($validated['total_income']  ?? 0);
-        $validated['ytd_tax']            = $prevYtdTax           + ($validated['tax']           ?? 0);
-        $validated['ytd_social_fund']    = $prevYtdSocialFund    + ($validated['social_fund']   ?? 0);
+        // คำนวณค่า YTD สำหรับเดือนนี้
+        $validated['ytd_income']         = $prevYtdIncome + ($validated['total_income'] ?? 0);
+        $validated['ytd_tax']            = $prevYtdTax + ($validated['tax'] ?? 0);
+        $validated['ytd_social_fund']    = $prevYtdSocialFund + ($validated['social_fund'] ?? 0);
         $validated['ytd_provident_fund'] = $prevYtdProvidentFund + ($validated['provident_fund'] ?? 0);
 
-        // สร้าง record ใหม่ในตาราง payrolls
+        // สร้าง record ในตาราง payrolls
         Payroll::create($validated);
 
         return redirect()->route('payroll.index')
@@ -191,9 +196,8 @@ class PayrollController extends Controller
     {
         $payroll = Payroll::with('employee')->findOrFail($id);
         $employee = $payroll->employee;
-
         $company = (object)[
-            'name' => 'TÜV SÜD (Thailand) Limited'
+            'name' => 'TÜV SÜD (Thailand) Limited',
         ];
 
         return view('payrolls.payroll-slip', compact('payroll', 'employee', 'company'));
@@ -206,9 +210,8 @@ class PayrollController extends Controller
     {
         $payroll = Payroll::with('employee')->findOrFail($id);
         $employee = $payroll->employee;
-
         $company = (object)[
-            'name' => 'TÜV SÜD (Thailand) Limited'
+            'name' => 'TÜV SÜD (Thailand) Limited',
         ];
 
         $pdf = Pdf::loadView('payrolls.payroll-slip', compact('payroll', 'employee', 'company'));
@@ -224,23 +227,20 @@ class PayrollController extends Controller
     {
         $payroll = Payroll::findOrFail($id);
         $employees = Employee::all();
-
-        // แยกเดือน/ปี
         $monthStr = substr($payroll->month_year, 5, 2);
         $yearStr  = substr($payroll->month_year, 0, 4);
 
         return view('payrolls.payroll-edit', [
-            'payroll' => $payroll,
+            'payroll'   => $payroll,
             'employees' => $employees,
-            'month' => $monthStr,
-            'year'  => $yearStr,
+            'month'     => $monthStr,
+            'year'      => $yearStr,
         ]);
     }
 
     /**
      * อัปเดตสลิปเงินเดือน
      */
-
     public function update(Request $request, $id)
     {
         $payroll = Payroll::findOrFail($id);
@@ -266,24 +266,16 @@ class PayrollController extends Controller
             'total_income'            => 'required|numeric',
             'total_deductions'        => 'required|numeric',
             'net_income'              => 'required|numeric',
-            // ฟิลด์ YTD ไม่ให้ผู้ใช้กรอก เพราะจะคำนวณอัตโนมัติ
-            'accumulate_provident_fund' => 'nullable|numeric',
-            'accumulate_social_fund'    => 'nullable|numeric',
-            'remarks'                 => 'nullable|string',
         ]);
 
-        // สร้าง month_year ในรูปแบบ "YYYY-MM"
+        // สร้าง month_year เป็น "YYYY-MM"
         $monthYear = $validated['year'] . '-' . $validated['month'];
         unset($validated['month'], $validated['year']);
         $validated['month_year'] = $monthYear;
 
-        // รับ employee_id ที่แก้ไข
         $empId = $validated['employee_id'];
 
-        // คำนวณหาเดือนก่อนหน้าสำหรับเดือนปัจจุบัน
-        $currentYear  = (int) substr($monthYear, 0, 4);
-        $currentMonth = (int) substr($monthYear, 5, 2);
-
+        list($currentYear, $currentMonth) = array_map('intval', explode('-', $monthYear));
         if ($currentMonth == 1) {
             $prevMonth = 12;
             $prevYear  = $currentYear - 1;
@@ -294,26 +286,20 @@ class PayrollController extends Controller
         $prevMonthStr  = str_pad($prevMonth, 2, '0', STR_PAD_LEFT);
         $prevMonthYear = $prevYear . '-' . $prevMonthStr;
 
-        // ค้นหา record ของเดือนก่อนหน้าสำหรับ employee เดียวกัน
         $prevPayroll = Payroll::where('employee_id', $empId)
             ->where('month_year', $prevMonthYear)
             ->first();
 
-        // ถ้ามี record ของเดือนก่อนหน้า ให้ดึงค่า YTD ที่คำนวณไว้แล้ว (ถ้าไม่มีให้ใช้ 0)
-        $prevYtdIncome         = $prevPayroll ? $prevPayroll->ytd_income         : 0;
-        $prevYtdTax            = $prevPayroll ? $prevPayroll->ytd_tax            : 0;
-        $prevYtdSocialFund     = $prevPayroll ? $prevPayroll->ytd_social_fund    : 0;
+        $prevYtdIncome         = $prevPayroll ? $prevPayroll->ytd_income : 0;
+        $prevYtdTax            = $prevPayroll ? $prevPayroll->ytd_tax : 0;
+        $prevYtdSocialFund     = $prevPayroll ? $prevPayroll->ytd_social_fund : 0;
         $prevYtdProvidentFund  = $prevPayroll ? $prevPayroll->ytd_provident_fund : 0;
 
-        // คำนวณค่า YTD สำหรับเดือนปัจจุบันโดยนำค่าของเดือนก่อนหน้ามาบวกกับค่าปัจจุบัน
-        $validated['ytd_income']         = $prevYtdIncome        + ($validated['total_income']  ?? 0);
-        $validated['ytd_tax']            = $prevYtdTax           + ($validated['tax']           ?? 0);
-        $validated['ytd_social_fund']    = $prevYtdSocialFund    + ($validated['social_fund']   ?? 0);
+        $validated['ytd_income']         = $prevYtdIncome + ($validated['total_income'] ?? 0);
+        $validated['ytd_tax']            = $prevYtdTax + ($validated['tax'] ?? 0);
+        $validated['ytd_social_fund']    = $prevYtdSocialFund + ($validated['social_fund'] ?? 0);
         $validated['ytd_provident_fund'] = $prevYtdProvidentFund + ($validated['provident_fund'] ?? 0);
 
-        // (หากต้องการคำนวณหรืออัปเดตฟิลด์ accumulate funds ให้ใส่ logic ที่นี่ด้วย)
-
-        // อัปเดต record ด้วยข้อมูลที่คำนวณแล้ว
         $payroll->update($validated);
 
         return redirect()->route('payroll.index')

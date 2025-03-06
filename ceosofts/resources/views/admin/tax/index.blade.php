@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container">
-    <h1>Tax Settings</h1>
+    <h1 class="mb-4">Tax Settings</h1>
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <a href="{{ route('admin.tax.create') }}" class="btn btn-success">
@@ -13,7 +13,9 @@
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
     @endif
 
     <table class="table table-striped table-hover">
@@ -35,10 +37,10 @@
                         <a href="{{ route('admin.tax.edit', $tax->id) }}" class="btn btn-warning btn-sm">
                             <i class="bi bi-pencil"></i> Edit
                         </a>
-                        <form action="{{ route('admin.tax.destroy', $tax->id) }}" method="POST" style="display:inline;">
+                        <form action="{{ route('admin.tax.destroy', $tax->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this tax setting?');">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">
+                            <button type="submit" class="btn btn-danger btn-sm">
                                 <i class="bi bi-trash"></i> Delete
                             </button>
                         </form>
@@ -51,5 +53,11 @@
             @endforelse
         </tbody>
     </table>
+
+    @if ($taxes->hasPages())
+        <div class="d-flex justify-content-center">
+            {{ $taxes->links() }}
+        </div>
+    @endif
 </div>
 @endsection
