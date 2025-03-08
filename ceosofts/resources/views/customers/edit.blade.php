@@ -18,16 +18,28 @@
                 <!-- Customer Code (Read-Only) -->
                 <div class="mb-3">
                     <label for="code" class="form-label">Customer Code</label>
-                    <input type="text" name="code" id="code" class="form-control" value="{{ old('code', $customer->code) }}" readonly>
+                    <input type="text" name="code" id="code" class="form-control" 
+                           value="{{ old('code', $customer->code) }}" readonly>
                 </div>
 
-                <!-- Name -->
+                <!-- Company Name -->
                 <div class="mb-3">
-                    <label for="name" class="form-label">Name</label>
-                    <input type="text" name="name" id="name"
-                           class="form-control @error('name') is-invalid @enderror"
-                           value="{{ old('name', $customer->name) }}" required>
-                    @error('name')
+                    <label for="companyname" class="form-label">Company Name</label>
+                    <input type="text" name="companyname" id="companyname"
+                           class="form-control @error('companyname') is-invalid @enderror"
+                           value="{{ old('companyname', $customer->companyname) }}" required>
+                    @error('companyname')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Contact Name -->
+                <div class="mb-3">
+                    <label for="contact_name" class="form-label">Contact Name</label>
+                    <input type="text" name="contact_name" id="contact_name"
+                           class="form-control @error('contact_name') is-invalid @enderror"
+                           value="{{ old('contact_name', $customer->contact_name) }}" required>
+                    @error('contact_name')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>

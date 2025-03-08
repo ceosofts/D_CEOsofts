@@ -18,13 +18,23 @@
 
     <form action="{{ route('customers.store') }}" method="POST">
         @csrf
-        <!-- Name -->
+        <!-- Company Name -->
         <div class="form-group mb-3">
-            <label for="name" class="form-label">Name</label>
-            <input type="text" name="name" id="name" 
-                   class="form-control @error('name') is-invalid @enderror" 
-                   value="{{ old('name') }}" required>
-            @error('name')
+            <label for="companyname" class="form-label">Company Name</label>
+            <input type="text" name="companyname" id="companyname" 
+                   class="form-control @error('companyname') is-invalid @enderror" 
+                   value="{{ old('companyname') }}" required>
+            @error('companyname')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+        <!-- Contact Name -->
+        <div class="form-group mb-3">
+            <label for="contact_name" class="form-label">Contact Name</label>
+            <input type="text" name="contact_name" id="contact_name" 
+                   class="form-control @error('contact_name') is-invalid @enderror" 
+                   value="{{ old('contact_name') }}" required>
+            @error('contact_name')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>

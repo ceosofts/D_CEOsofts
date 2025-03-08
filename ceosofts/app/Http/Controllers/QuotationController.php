@@ -1,0 +1,277 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Quotation;
+use App\Models\QuotationItem;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\Product;
+use App\Models\Company;
+use App\Models\Customer;
+use App\Models\Employee;
+use App\Models\PaymentStatus;
+use Carbon\Carbon;
+
+class QuotationController extends Controller
+{
+    /**
+     * แสดงรายการใบเสนอราคา (Quotation) ทั้งหมด
+     */
+    public function index()
+    {
+        $quotations = Quotation::orderBy('id', 'desc')->paginate(10);
+        return view('quotations.index', compact('quotations'));
+    }
+
+    /**
+     * แสดงฟอร์มสร้างใบเสนอราคาใหม่
+     */
+    public function create()
+    {
+        // ดึงข้อมูลสำหรับ dropdown ต่าง ๆ
+        $companies       = Company::all();
+        $customers       = Customer::all();
+        $products        = Product::all();
+        $sales_employees = Employee::where('department_id', 1)->get();
+        $payment_statuses = PaymentStatus::all();
+
+        return view('quotations.create', compact(
+            'companies',
+            'customers',
+            'products',
+            'sales_employees',
+            'payment_statuses'
+        ));
+    }
+
+    /**
+     * บันทึกใบเสนอราคาใหม่
+     */
+    public function store(Request $request)
+    {
+        // ตรวจสอบความถูกต้องของข้อมูลหลัก
+        $request->validate([
+            'seller_company' => 'required|string|max:255',
+            'quotation_date' => 'required|date',
+            'customer_id'    => 'required|exists:customers,id',
+            'payment'        => 'required|string|max:255',
+        ]);
+
+        DB::transaction(function () use ($request) {
+            // สร้างเลข Quotation Number ใหม่ (เช่น Q-000001)
+            $lastQ   = Quotation::orderBy('id', 'desc')->first();
+            $nextNum = $lastQ ? intval(substr($lastQ->quotation_number, 2)) + 1 : 1;
+            $quotNo  = 'Q-' . str_pad($nextNum, 6, '0', STR_PAD_LEFT);
+
+            // ดึงข้อมูลลูกค้าจาก customer_id
+            $customer = Customer::findOrFail($request->customer_id);
+
+            // สร้างใบเสนอราคาใหม่ โดยบันทึกข้อมูล Seller และข้อมูล Customer จาก customer
+            $quotation = Quotation::create([
+                // Seller Info
+                'seller_company'   => $request->seller_company,
+                'seller_address'   => $request->seller_address,
+                'seller_phone'     => $request->seller_phone,
+                'seller_fax'       => $request->seller_fax,
+                'seller_line'      => $request->seller_line,
+                'seller_email'     => $request->seller_email,
+                // Quotation Info
+                'quotation_number' => $quotNo,
+                'quotation_date'   => $request->quotation_date,
+                // Customer Info (ดึงจาก customer)
+                'customer_id'             => $request->customer_id,
+                'customer_company'        => $customer->companyname,
+                'customer_contact_name'   => $customer->contact_name,
+                'customer_address'        => $customer->address,
+                'customer_phone'          => $customer->phone,
+                'customer_fax'            => $customer->fax ?? '',
+                'customer_email'          => $customer->email,
+                // Ref
+                'your_ref' => $request->your_ref,
+                'our_ref'  => $request->our_ref,
+                // Conditions
+                'delivery' => $request->delivery,
+                'warranty' => $request->warranty,
+                'validity' => $request->validity,
+                'payment'  => $request->payment,
+                // Signature
+                'prepared_by'    => $request->prepared_by,
+                'sales_engineer' => $request->sales_engineer,
+                // Default values
+                'total_amount'    => 0,
+                'amount_in_words' => '',
+            ]);
+
+            // เพิ่มรายการสินค้า (QuotationItem) และคำนวณยอดรวม
+            $sum = 0;
+            if ($request->has('items')) {
+                foreach ($request->items as $i => $row) {
+                    $qty  = $row['quantity'] ?? 1;
+                    $unit = $row['unit_price'] ?? 0;
+                    $net  = $qty * $unit;
+                    $itemNo = $row['item_no'] ?? ($i + 1);
+
+                    QuotationItem::create([
+                        'quotation_id' => $quotation->id,
+                        'item_no'      => $itemNo,
+                        'product_id'   => !empty($row['product_id']) ? $row['product_id'] : null,
+                        'description'  => $row['description'] ?? '',
+                        'quantity'     => $qty,
+                        'unit_price'   => $unit,
+                        'net_price'    => $net,
+                    ]);
+                    $sum += $net;
+                }
+            }
+
+            // อัปเดตยอดรวมใบเสนอราคา และแปลงยอดเป็นคำ (amount in words)
+            $words = $this->numToWords($sum);
+            $quotation->update([
+                'total_amount'    => $sum,
+                'amount_in_words' => $words,
+            ]);
+        });
+
+        return redirect()->route('quotations.index')->with('success', 'Quotation created');
+    }
+
+    /**
+     * แสดงรายละเอียดใบเสนอราคา
+     */
+    public function show($id)
+    {
+        $quotation = Quotation::with('items')->findOrFail($id);
+        return view('quotations.show', compact('quotation'));
+    }
+
+    /**
+     * แสดงฟอร์มแก้ไขใบเสนอราคา
+     */
+    public function edit($id)
+    {
+        // โหลด Quotation ตาม id
+        $quotation = Quotation::with('items')->findOrFail($id);
+
+        // โหลดข้อมูลอื่น ๆ
+        $companies       = Company::all();
+        $customers       = Customer::all();
+        $products        = Product::all();
+        $sales_employees = Employee::where('department_id', 1)->get();
+        $payment_statuses = PaymentStatus::all();
+
+        // ส่งทุกตัวแปรไปยัง Blade
+        return view('quotations.edit', compact(
+            'quotation',
+            'companies',
+            'customers',
+            'products',
+            'sales_employees',
+            'payment_statuses'
+        ));
+    }
+
+    /**
+     * อัปเดตใบเสนอราคา
+     */
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'seller_company' => 'required|string|max:255',
+            'quotation_date' => 'required|date',
+            'customer_id'    => 'required|exists:customers,id',
+        ]);
+
+        DB::transaction(function () use ($request, $id) {
+            $quotation = Quotation::findOrFail($id);
+
+            // ดึงข้อมูลลูกค้าจาก customer_id
+            $customer = Customer::findOrFail($request->customer_id);
+
+            // อัปเดตใบเสนอราคา (Seller, Quotation Info, Customer, Conditions, Signatures)
+            $quotation->update([
+                // Seller Info
+                'seller_company' => $request->seller_company,
+                'seller_address' => $request->seller_address,
+                'seller_phone'   => $request->seller_phone,
+                'seller_fax'     => $request->seller_fax,
+                'seller_line'    => $request->seller_line,
+                'seller_email'   => $request->seller_email,
+                // Quotation Info
+                'quotation_date' => $request->quotation_date,
+                // Customer Info (ดึงจาก customer)
+                'customer_id'             => $request->customer_id,
+                'customer_company'        => $customer->companyname,
+                'customer_contact_name'   => $customer->contact_name,
+                'customer_address'        => $customer->address,
+                'customer_phone'          => $customer->phone,
+                'customer_fax'            => $customer->fax ?? '',
+                'customer_email'          => $customer->email,
+                // Ref
+                'your_ref' => $request->your_ref,
+                'our_ref'  => $request->our_ref,
+                // Conditions
+                'delivery' => $request->delivery,
+                'warranty' => $request->warranty,
+                'validity' => $request->validity,
+                'payment'  => $request->payment,
+                // Signatures
+                'prepared_by'    => $request->prepared_by,
+                'sales_engineer' => $request->sales_engineer,
+            ]);
+
+            // ลบรายการสินค้าเก่าออกทั้งหมด
+            QuotationItem::where('quotation_id', $quotation->id)->delete();
+
+            // เพิ่มรายการสินค้าใหม่และคำนวณยอดรวมใหม่
+            $sum = 0;
+            if ($request->has('items')) {
+                foreach ($request->items as $i => $row) {
+                    $qty  = $row['quantity'] ?? 1;
+                    $unit = $row['unit_price'] ?? 0;
+                    $net  = $qty * $unit;
+                    $itemNo = $row['item_no'] ?? ($i + 1);
+
+                    QuotationItem::create([
+                        'quotation_id' => $quotation->id,
+                        'item_no'      => $itemNo,
+                        'product_id'   => !empty($row['product_id']) ? $row['product_id'] : null,
+                        'description'  => $row['description'] ?? '',
+                        'quantity'     => $qty,
+                        'unit_price'   => $unit,
+                        'net_price'    => $net,
+                    ]);
+                    $sum += $net;
+                }
+            }
+
+            // อัปเดตยอดรวมและคำอ่านยอดเงินใหม่
+            $words = $this->numToWords($sum);
+            $quotation->update([
+                'total_amount'    => $sum,
+                'amount_in_words' => $words,
+            ]);
+        });
+
+        return redirect()->route('quotations.index')->with('success', 'Quotation updated');
+    }
+
+    /**
+     * ลบใบเสนอราคา
+     */
+    public function destroy($id)
+    {
+        $quotation = Quotation::findOrFail($id);
+        $quotation->delete();
+        return redirect()->route('quotations.index')->with('success', 'Quotation deleted');
+    }
+
+    /**
+     * ฟังก์ชันแปลงตัวเลขเป็นคำ (ภาษาอังกฤษ)
+     */
+    private function numToWords($num)
+    {
+        $formatter = new \NumberFormatter('en', \NumberFormatter::SPELLOUT);
+        return strtoupper($formatter->format($num)) . ' ONLY';
+    }
+}

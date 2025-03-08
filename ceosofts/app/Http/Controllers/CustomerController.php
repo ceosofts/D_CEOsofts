@@ -12,23 +12,24 @@ class CustomerController extends Controller
 {
     /**
      * แสดงรายการลูกค้าทั้งหมด
-     * ดึงข้อมูลลูกค้าจากฐานข้อมูล และส่งไปยัง view customers.index
      */
     public function index(Request $request)
     {
         $query = Customer::query();
 
+        // หากมีการค้นหา
         if ($request->has('search') && !empty($request->search)) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('code', 'LIKE', "%$search%")
-                    ->orWhere('name', 'LIKE', "%$search%")
-                    ->orWhere('email', 'LIKE', "%$search%");
+                $q->where('code', 'LIKE', "%{$search}%")
+                    ->orWhere('companyname', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%");
             });
         }
 
+        // แสดงผลแบบแบ่งหน้า
         $customers = $query->paginate(10);
-        return \view('customers.index', compact('customers'));
+        return view('customers.index', compact('customers'));
     }
 
     /**
@@ -36,7 +37,7 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        return \view('customers.create');
+        return view('customers.create');
     }
 
     /**
@@ -45,37 +46,40 @@ class CustomerController extends Controller
     public function store(StoreCustomerRequest $request)
     {
         try {
-            // ตรวจสอบว่า email นี้มีอยู่แล้วหรือไม่
+            // ตรวจสอบอีเมลซ้ำ
             if (Customer::where('email', $request->email)->exists()) {
-                return \redirect()->back()->withErrors(['error' => 'This email is already registered.']);
+                return redirect()->back()->withErrors(['error' => 'This email is already registered.']);
             }
 
-            // สร้างรหัสลูกค้าอัตโนมัติ เช่น C0001, C0002, ...
-            $lastCode = Customer::max('code');
-            $lastNumber = $lastCode ? intval(substr($lastCode, 1)) : 0;
-            $newCode = 'C' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+            // สร้างรหัสลูกค้าอัตโนมัติในรูปแบบ "CLSxxxx"
+            // ตัวอย่าง code เดิม: "CLS0001"
+            $lastCode = Customer::max('code'); // ดึง code สูงสุด เช่น "CLS0001"
+            $lastNumber = $lastCode ? intval(substr($lastCode, 3)) : 0;
+            $newCode = 'CLS' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
 
-            // รวมข้อมูลที่ validate แล้ว พร้อมกับรหัสลูกค้าใหม่
+            // รับข้อมูลที่ผ่านการ validate แล้วจาก StoreCustomerRequest
+            // ควร validate ฟิลด์: companyname, contact_name, email, phone, address, taxid
             $data = $request->validated();
             $data['code'] = $newCode;
 
+            // สร้างลูกค้า
             $customer = Customer::create($data);
 
-            return \redirect()->route('customers.index')
+            return redirect()->route('customers.index')
                 ->with('success', 'Customer created successfully.');
         } catch (\Exception $e) {
             Log::error('Failed to create customer: ' . $e->getMessage());
-            return \redirect()->back()->withErrors(['error' => 'Failed to create customer: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Failed to create customer: ' . $e->getMessage()]);
         }
     }
 
     /**
-     * แสดงรายละเอียดลูกค้า (View details)
+     * แสดงรายละเอียดลูกค้า
      */
     public function show(string $id)
     {
         $customer = Customer::findOrFail($id);
-        return \view('customers.show', compact('customer'));
+        return view('customers.show', compact('customer'));
     }
 
     /**
@@ -85,7 +89,7 @@ class CustomerController extends Controller
     {
         $customer = Customer::findOrFail($id);
         Log::info('Editing customer:', ['customer' => $customer->toArray()]);
-        return \view('customers.edit', compact('customer'));
+        return view('customers.edit', compact('customer'));
     }
 
     /**
@@ -98,21 +102,22 @@ class CustomerController extends Controller
         Log::info('Updating customer: ' . $id, ['data' => $request->all()]);
         Log::info('Current customer data:', ['customer' => $customer->toArray()]);
 
-        // ตรวจสอบว่ามีลูกค้ารายอื่นใช้ email นี้อยู่หรือไม่
+        // ตรวจสอบอีเมลซ้ำ
         $exists = Customer::where('email', $request->email)
             ->where('id', '!=', $id)
             ->exists();
 
         if ($exists) {
             Log::error('Email already in use by another customer.');
-            return \redirect()->back()->withErrors(['error' => 'This email is already registered by another customer.']);
+            return redirect()->back()->withErrors(['error' => 'This email is already registered by another customer.']);
         }
 
+        // อัปเดตข้อมูลลูกค้าโดยใช้ข้อมูลที่ validate แล้ว
         $customer->update($request->validated());
 
         Log::info('Customer updated successfully: ' . $id);
 
-        return \redirect()->route('customers.index')
+        return redirect()->route('customers.index')
             ->with('success', 'Customer updated successfully.');
     }
 
@@ -124,7 +129,7 @@ class CustomerController extends Controller
         $customer = Customer::findOrFail($id);
         $customer->delete();
 
-        return \redirect()->route('customers.index')
+        return redirect()->route('customers.index')
             ->with('success', 'Customer deleted successfully.');
     }
 }
