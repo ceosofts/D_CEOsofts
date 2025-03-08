@@ -7,7 +7,9 @@
     <h1 class="mb-4">Customer Details</h1>
     <div class="card mb-3">
         <div class="card-body">
-            <h5 class="card-title">{{ $customer->name }}</h5>
+            <!-- แสดงชื่อบริษัท -->
+            <h2 class="card-title">{{ $customer->companyname }}</h2>
+            <p class="card-text"><strong>Contact Name:</strong> {{ $customer->contact_name ?: '-' }}</p>
             <p class="card-text"><strong>Email:</strong> {{ $customer->email ?: '-' }}</p>
             <p class="card-text"><strong>Phone:</strong> {{ $customer->phone ?: '-' }}</p>
             <p class="card-text"><strong>Address:</strong> {{ $customer->address ?: '-' }}</p>

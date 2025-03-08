@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -69,7 +69,20 @@
                                     <i class="bi bi-basket"></i> {{ __('Orders') }}
                                 </a>
                             </li>
-                            
+                            <!-- Sale Dropdown Menu -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="saleDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-currency-dollar"></i> {{ __('Sale') }}
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="saleDropdown">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('quotations.index') }}">
+                                            {{ __('Quotations') }}
+                                        </a>
+                                    </li>
+                                    <!-- สามารถเพิ่มรายการอื่นๆ ใน dropdown ได้ที่นี่ -->
+                                </ul>
+                            </li>
                             <!-- Dropdown HR Menu -->
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarHRDropdown" role="button" 
@@ -94,7 +107,6 @@
                                     </a>
                                 </div>
                             </li>
-                            
                             <!-- Admin Settings Dropdown -->
                             @canany(['manage departments', 'manage users', 'manage companies', 'manage units'])
                                 <li class="nav-item dropdown">
@@ -198,7 +210,7 @@
         <!-- Footer -->
         <footer class="bg-light text-center py-3 mt-4">
             <div class="container">
-                <p class="mb-0">&copy; 2025 {{ config('app.name', 'Laravel') }}. All rights reserved.</p>
+                <p class="mb-0">&copy; {{ date('Y') }} {{ config('app.name', 'Laravel') }}. All rights reserved.</p>
             </div>
         </footer>
     </div>

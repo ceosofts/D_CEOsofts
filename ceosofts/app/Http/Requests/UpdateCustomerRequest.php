@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Log; // ✅ Import Log
+use Illuminate\Support\Facades\Log;
 
 class UpdateCustomerRequest extends FormRequest
 {
@@ -13,72 +13,67 @@ class UpdateCustomerRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // อนุญาตให้ดำเนินการ
+        // อนุญาตให้ดำเนินการ
+        return true;
     }
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-   
-//      public function rules(): array
-// {
-//     $customerId = $this->route('customer'); // ดึงค่า ID ของลูกค้า
+    public function rules(): array
+    {
+        // ดึงค่า ID ของลูกค้าที่กำลังอัปเดตจาก route
+        // โดยสมมุติว่า route('customers.update') มีพารามิเตอร์เป็น {customer}
+        // เช่น Route::put('customers/{customer}', [...])->name('customers.update');
+        $customerId = $this->route('customer');
 
-//     Log::info('Customer ID in UpdateCustomerRequest:', ['customerId' => $customerId]);
+        // Log เพื่อตรวจสอบค่า customerId
+        Log::info('Customer ID in UpdateCustomerRequest:', ['customerId' => $customerId]);
 
-//     return [
-//         'name' => 'required|string|max:255',
-
-//         // ✅ แก้ปัญหา email ซ้ำ แต่ยกเว้นตัวเอง
-//         'email' => [
-//             'required',
-//             'email',
-//             Rule::unique('customers', 'email')->ignore($customerId),
-//         ],
-
-//         'phone' => 'nullable|string|max:15',
-//         'address' => 'nullable|string|max:500',
-//         'taxid' => 'nullable|string|max:20',
-
-//         // ✅ แก้ปัญหา code ซ้ำ แต่ยกเว้นตัวเอง
-//         'code' => [
-//             'required',
-//             'string',
-//             'max:10',
-//             Rule::unique('customers', 'code')->ignore($customerId),
-//         ],
-//     ];
-// }
-
-
-
-public function rules(): array
-{
-    $customerId = $this->route('customer'); // ดึงค่า ID ของลูกค้าที่กำลังอัปเดต
-
-    // ✅ Log เพื่อตรวจสอบค่า customerId
-    Log::info('Customer ID in UpdateCustomerRequest:', ['customerId' => $customerId]);
-
-    return [
-        'name' => 'required|string|max:255',
-
-        // ✅ ตรวจสอบว่า email ซ้ำหรือไม่ แต่ยกเว้นตัวเอง
-        'email' => [
-            'required',
-            'email',
-            Rule::unique('customers', 'email')->ignore($customerId),
-        ],
-
-        'code' => [
-            'required',
-            'string',
-            'max:10',
-            Rule::unique('customers', 'code')->ignore($customerId),
-        ],
-    ];
-}
+        return [
+            // เปลี่ยนจาก name => companyname
+            'companyname' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            // เพิ่ม contact_name เป็น required
+            'contact_name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+            // ตรวจสอบว่า email ซ้ำหรือไม่ แต่ยกเว้นตัวเอง
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('customers', 'email')->ignore($customerId),
+            ],
+            // phone, address, taxid อาจจะไม่บังคับ
+            'phone' => [
+                'nullable',
+                'string',
+                'max:15',
+            ],
+            'address' => [
+                'nullable',
+                'string',
+                'max:500',
+            ],
+            'taxid' => [
+                'nullable',
+                'string',
+                'max:20',
+            ],
+            // code บังคับไม่ซ้ำ
+            'code' => [
+                'required',
+                'string',
+                'max:10',
+                Rule::unique('customers', 'code')->ignore($customerId),
+            ],
+        ];
+    }
 
     /**
      * Custom error messages for validation.
@@ -86,9 +81,11 @@ public function rules(): array
     public function messages(): array
     {
         return [
-            'name.required' => 'The name field is required.',
+            'companyname.required' => 'The company name field is required.',
+            'contact_name.required' => 'The contact name field is required.',
             'email.required' => 'The email field is required.',
             'email.unique' => 'This email is already in use.',
+            'code.required' => 'The customer code field is required.',
             'code.unique' => 'This code is already taken.',
         ];
     }

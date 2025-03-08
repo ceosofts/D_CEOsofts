@@ -11,38 +11,40 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * Class Customer
  *
  * @property int $id
- * @property string $name       ชื่อของลูกค้า
- * @property string $email      อีเมล
- * @property string $phone      เบอร์โทร (มีการปรับแต่ง 0 นำหน้า)
- * @property string $address    ที่อยู่
- * @property string $taxid      เลขประจำตัวผู้เสียภาษี (บันทึกใน DB โดยตัด 'TAX' ออก)
- * @property string $code       รหัสลูกค้า (ถ้ามี)
+ * @property string $companyname       ชื่อบริษัทลูกค้า
+ * @property string $contact_name      ชื่อผู้ติดต่อ
+ * @property string $email             อีเมล
+ * @property string $phone             เบอร์โทร (มีการปรับแต่ง 0 นำหน้า)
+ * @property string $address           ที่อยู่
+ * @property string $taxid             เลขประจำตัวผู้เสียภาษี (บันทึกใน DB โดยตัด 'TAX' ออก)
+ * @property string $code              รหัสลูกค้า (รูปแบบ "CUSxxxx1")
  * @property \Carbon\Carbon $created_at
  * @property \Carbon\Carbon $updated_at
  * @property \Carbon\Carbon|null $deleted_at
  *
  * @property-read bool $is_deleted
  * @property-read bool $is_not_deleted
- * @property-read string $full_name
+ * @property-read string $full_name      // full_name จะรวม companyname และ email
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Customer newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Customer newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Customer query()
- * @method static \Illuminate\Database\Eloquent\Builder|Customer onlyTrashed()    // ถ้าใช้ SoftDeletes
- * @method static \Illuminate\Database\Eloquent\Builder|Customer withTrashed()   // ถ้าใช้ SoftDeletes
- * @method static \Illuminate\Database\Eloquent\Builder|Customer withoutTrashed()// ถ้าใช้ SoftDeletes
+ * @method static \Illuminate\Database\Eloquent\Builder|Customer onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Customer withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Customer withoutTrashed()
  */
 class Customer extends Model
 {
     use HasFactory;
-    // ถ้าต้องการให้รองรับ Soft Delete → ใส่ SoftDeletes ด้วย
+    // หากต้องการใช้ SoftDeletes ให้ uncomment บรรทัดด้านล่าง
     // use SoftDeletes;
 
     /**
      * กำหนดฟิลด์ที่สามารถ Mass Assign ได้
      */
     protected $fillable = [
-        'name',
+        'companyname',     // ชื่อบริษัทลูกค้า (ใช้แทนฟิลด์ name)
+        'contact_name',    // ชื่อผู้ติดต่อ
         'email',
         'phone',
         'address',
@@ -51,9 +53,25 @@ class Customer extends Model
     ];
 
     /**
-     * (ตัวอย่าง) หากใช้ SoftDeletes → เพิ่มฟิลด์ 'deleted_at' ใน $dates หรือ $casts
+     * Boot method สำหรับ auto generate รหัสลูกค้า (Customer Code)
      */
-    // protected $dates = ['deleted_at'];
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($customer) {
+            // ถ้า code ยังไม่มี ให้สร้าง code ใหม่ในรูปแบบ "CUSxxxx1"
+            if (empty($customer->code)) {
+                // ดึงรหัสลูกค้าสูงสุดจากฐานข้อมูล
+                $lastCode = Customer::max('code');
+                // หากมีค่า ให้นำส่วนตัวเลขออกมา (คาดว่า code มีรูปแบบ "CUSxxxx1")
+                // เราจะตัดเอาตัวเลขจากตำแหน่งที่ 3 ถึง 6 (4 หลัก)
+                $lastNumber = $lastCode ? intval(substr($lastCode, 3, 4)) : 0;
+                // สร้าง code ใหม่
+                $customer->code = 'CUS' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT) . '1';
+            }
+        });
+    }
 
     /**
      * ความสัมพันธ์กับ Model Order (กรณีมีตาราง orders)
@@ -67,10 +85,6 @@ class Customer extends Model
     |--------------------------------------------------------------------------
     | Accessors & Mutators
     |--------------------------------------------------------------------------
-    |
-    | ส่วนนี้คือการปรับแต่ง (get/set) ฟิลด์ต่าง ๆ
-    | ช่วยให้เวลาอ่าน/เขียนค่าในฟิลด์เป็นไปตาม Logic ที่กำหนด
-    |
     */
 
     /**
@@ -93,11 +107,11 @@ class Customer extends Model
 
     /**
      * Accessor: getFullNameAttribute
-     * รวม name และ email ไว้ใช้งานสะดวก เช่น $customer->full_name
+     * รวม companyname และ email ไว้ใช้งานสะดวก เช่น $customer->full_name
      */
     public function getFullNameAttribute()
     {
-        return $this->name . ' (' . $this->email . ')';
+        return $this->companyname . ' (' . $this->email . ')';
     }
 
     /**
@@ -142,9 +156,7 @@ class Customer extends Model
      */
     public function getDeletedAtAttribute($value)
     {
-        return $value
-            ? Carbon::parse($value)->format('d/m/Y H:i:s')
-            : null;
+        return $value ? Carbon::parse($value)->format('d/m/Y H:i:s') : null;
     }
 
     /**

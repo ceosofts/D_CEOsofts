@@ -18,7 +18,7 @@
         <div class="col-md-6">
             <form method="GET" action="{{ route('customers.index') }}" class="d-flex">
                 <input type="text" name="search" class="form-control me-2"
-                       placeholder="Search by Code, Name, Email" value="{{ request('search') }}">
+                       placeholder="Search by Code, Company, Email" value="{{ request('search') }}">
                 <button type="submit" class="btn btn-primary btn-sm">
                     <i class="fas fa-search"></i> Search
                 </button>
@@ -32,11 +32,12 @@
             <thead class="table-dark">
                 <tr>
                     <th>Code</th>
-                    <th>Name</th>
+                    <th>Company</th>
+                    <th>Contact Name</th>
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Address</th>
-                    <th>Tax ID</th>
+                    {{-- <th>Tax ID</th> --}}
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -44,11 +45,13 @@
                 @forelse ($customers as $customer)
                     <tr>
                         <td>{{ $customer->code }}</td>
-                        <td>{{ $customer->name }}</td>
+                        <!-- เปลี่ยนจาก $customer->name เป็น $customer->companyname -->
+                        <td>{{ $customer->companyname }}</td>
+                        <td>{{ $customer->contact_name ?: '-' }}</td>
                         <td>{{ $customer->email ?: '-' }}</td>
                         <td>{{ $customer->phone ?: '-' }}</td>
                         <td>{{ $customer->address ?: '-' }}</td>
-                        <td>{{ $customer->taxid ?: '-' }}</td>
+                        {{-- <td>{{ $customer->taxid ?: '-' }}</td> --}}
                         <td>
                             <a href="{{ route('customers.show', $customer->id) }}" class="btn btn-info btn-sm">
                                 <i class="fas fa-eye"></i> View
