@@ -13,7 +13,7 @@
         <div class="form-group mb-3">
             <label for="code" class="form-label">Product Code</label>
             <input type="text" name="code" id="code" class="form-control"
-                value="{{ old('code', $generatedCode ?? '') }}" readonly>
+                value="{{ old('code', $newCode ?? '') }}" readonly>
         </div>
         
         <!-- Product Name -->
@@ -56,7 +56,7 @@
         <!-- SKU -->
         <div class="form-group mb-3">
             <label for="sku" class="form-label">SKU</label>
-            <input type="text" name="sku" id="sku" class="form-control" value="{{ old('sku') }}" required>
+            <input type="text" name="sku" id="sku" class="form-control" value="{{ old('sku', $newSKU) }}" readonly>
         </div>
 
         <button type="submit" class="btn btn-primary mt-3">Save Product</button>

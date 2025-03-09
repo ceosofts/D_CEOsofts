@@ -102,7 +102,7 @@ class Customer extends Model
      */
     public function getTaxidAttribute($value)
     {
-        return 'TAX' . $value;
+        return $value;
     }
 
     /**

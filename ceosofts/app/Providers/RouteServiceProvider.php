@@ -2,56 +2,31 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
     /**
-     * เส้นทางของหน้า "home" สำหรับแอปพลิเคชัน
-     * ซึ่งจะใช้สำหรับการ redirect หลังจากการเข้าสู่ระบบ
+     * The path to your application's "home" route.
      *
      * @var string
      */
-    public const HOME = '/dashboard';
+    public const HOME = '/home';
 
     /**
-     * กำหนดการ binding ของ route model และ pattern filters ต่าง ๆ
+     * Define your route model bindings, pattern filters, etc.
      */
     public function boot(): void
     {
-        // สามารถเพิ่ม route model bindings หรือ pattern filters ที่นี่ได้
+        $this->routes(function () {
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/api.php'));
 
-        parent::boot();
-    }
-
-    /**
-     * กำหนดเส้นทางทั้งหมดสำหรับแอปพลิเคชัน
-     */
-    public function map(): void
-    {
-        $this->mapWebRoutes();
-        $this->mapApiRoutes();
-    }
-
-    /**
-     * กำหนดเส้นทางเว็บ (Web Routes)
-     * เส้นทางเหล่านี้จะใช้ middleware 'web' เพื่อให้มี session, CSRF protection เป็นต้น
-     */
-    protected function mapWebRoutes(): void
-    {
-        Route::middleware('web')
-            ->group(base_path('routes/web.php'));
-    }
-
-    /**
-     * กำหนดเส้นทาง API (API Routes)
-     * เส้นทางเหล่านี้จะใช้ middleware 'api' ซึ่งโดยปกติแล้วจะเป็นแบบ stateless
-     */
-    protected function mapApiRoutes(): void
-    {
-        Route::prefix('api')
-            ->middleware('api')
-            ->group(base_path('routes/api.php'));
+            Route::middleware('web')
+                ->group(base_path('routes/web.php'));
+        });
     }
 }
