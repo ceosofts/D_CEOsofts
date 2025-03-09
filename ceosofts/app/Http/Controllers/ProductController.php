@@ -7,6 +7,7 @@ use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
@@ -43,13 +44,15 @@ class ProductController extends Controller
     {
         $units = Unit::all();
 
-        // ถ้าคุณมี method generateNewProductCode() ใน Model Product
-        // เพื่อสร้าง code อัตโนมัติ ก็เรียกใช้ได้
-        $generatedCode = Product::generateNewProductCode();
+        // สร้าง Code และ SKU ใหม่
+        $lastProduct = Product::orderBy('id', 'desc')->first();
+        $newCode = 'P' . str_pad($lastProduct ? $lastProduct->id + 1 : 1, 4, '0', STR_PAD_LEFT);
+        $newSKU = $newCode . '-' . strtoupper(Str::random(4));
 
         return view('products.create', [
             'units'         => $units,
-            'generatedCode' => $generatedCode,
+            'newCode'       => $newCode,
+            'newSKU'        => $newSKU,
         ]);
     }
 
@@ -76,7 +79,13 @@ class ProductController extends Controller
 
                 // ถ้าไม่ได้ส่ง code มา หรืออยากใช้ code auto
                 if (empty($validated['code'])) {
-                    $validated['code'] = Product::generateNewProductCode();
+                    $lastProduct = Product::orderBy('id', 'desc')->first();
+                    $validated['code'] = 'P' . str_pad($lastProduct ? $lastProduct->id + 1 : 1, 4, '0', STR_PAD_LEFT);
+                }
+
+                // ถ้าไม่ได้ส่ง sku มา หรืออยากใช้ sku auto
+                if (empty($validated['sku'])) {
+                    $validated['sku'] = $validated['code'] . '-' . strtoupper(Str::random(4));
                 }
 
                 // ถ้าไม่ได้ส่ง is_active มา default = true

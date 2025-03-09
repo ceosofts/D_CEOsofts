@@ -12,6 +12,7 @@ use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\PaymentStatus;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class QuotationController extends Controller
 {
@@ -141,8 +142,11 @@ class QuotationController extends Controller
      */
     public function show($id)
     {
-        $quotation = Quotation::with('items')->findOrFail($id);
-        return view('quotations.show', compact('quotation'));
+        $quotation = Quotation::with(['items.product', 'customer'])->findOrFail($id);
+        $seller = Company::where('company_name', $quotation->seller_company)->first(); // Assuming seller_company is the company name
+        $customer = Customer::find($quotation->customer_id);
+
+        return view('quotations.show', compact('quotation', 'seller', 'customer'));
     }
 
     /**
@@ -273,5 +277,61 @@ class QuotationController extends Controller
     {
         $formatter = new \NumberFormatter('en', \NumberFormatter::SPELLOUT);
         return strtoupper($formatter->format($num)) . ' ONLY';
+    }
+
+    /**
+     * ส่งออกใบเสนอราคาเป็น PDF
+     */
+    public function export($id)
+    {
+        $quotation = Quotation::with(['items.product', 'customer'])->findOrFail($id);
+        $seller = Company::where('company_name', $quotation->seller_company)->first(); // Assuming seller_company is the company name
+        $customer = Customer::find($quotation->customer_id);
+
+        $pdf = PDF::loadView('quotations.pdf', compact('quotation', 'seller', 'customer'));
+        return $pdf->stream("quotation-{$quotation->quotation_number}.pdf");
+    }
+
+    public function generatePdf(Quotation $quotation)
+    {
+        $seller = Company::first();
+        $customer = Customer::where('companyname', $quotation->customer_company)->first();
+
+        $defaultConfig = (new \Mpdf\Config\ConfigVariables())->getDefaults();
+        $fontDirs = $defaultConfig['fontDir'];
+
+        $defaultFontConfig = (new \Mpdf\Config\FontVariables())->getDefaults();
+        $fontData = $defaultFontConfig['fontdata'];
+
+        $mpdf = new \Mpdf\Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'default_font' => 'THSarabunNew',
+            'default_font_size' => 13,
+            'tempDir' => storage_path('temp'),
+            'fontDir' => array_merge($fontDirs, [
+                storage_path('fonts')
+            ]),
+            'fontdata' => [
+                'THSarabunNew' => [
+                    'R' => 'THSarabunNew.ttf',
+                    'B' => 'THSarabunNew-Bold.ttf',
+                    'useOTL' => 0x00
+                ]
+            ],
+            'margin_left' => 15,
+            'margin_right' => 15,
+            'margin_top' => 15,
+            'margin_bottom' => 15
+        ]);
+
+        $mpdf->autoScriptToLang = true;
+        $mpdf->autoLangToFont = true;
+        $mpdf->SetDisplayMode('fullpage');
+
+        $view = view('quotations.pdf', compact('quotation', 'seller', 'customer'))->render();
+        $mpdf->WriteHTML($view);
+
+        return $mpdf->Output('Quotation-' . $quotation->quotation_number . '.pdf', 'I');
     }
 }

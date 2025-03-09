@@ -9,6 +9,9 @@
         <div class="col-md-8">
             <h5>{{ $quotation->seller_company }}</h5>
             <p>{{ $quotation->seller_address }}</p>
+            @if($seller)
+                <p>Tax ID: {{ $seller->tax_id }}</p> <!-- เพิ่ม Tax ID ของผู้ขาย -->
+            @endif
             <p>Tel: {{ $quotation->seller_phone }} | Fax: {{ $quotation->seller_fax }} | LINE: {{ $quotation->seller_line }}</p>
             <p>Email: {{ $quotation->seller_email }}</p>
         </div>
@@ -25,9 +28,12 @@
         <div class="col-md-6">
             <strong>To:</strong> {{ $quotation->customer_company }}<br>
             <strong>Contact:</strong> {{ $quotation->customer_contact_name }}<br>
-            Address: {{ $quotation->customer_address }}<br>
-            Tel: {{ $quotation->customer_phone }} | Fax: {{ $quotation->customer_fax }}<br>
-            Email: {{ $quotation->customer_email }}
+            <strong>Address:</strong>  {{ $quotation->customer_address }}<br>
+            @if($customer)
+                <strong>Tax ID:</strong> {{ $customer->taxid }}</strong><br> <!-- เพิ่ม Tax ID ของลูกค้า -->
+            @endif
+            <strong>Tel:</strong>  {{ $quotation->customer_phone }} | Fax: {{ $quotation->customer_fax }}<br>
+            <strong>Email:</strong>  {{ $quotation->customer_email }}
         </div>
         <div class="col-md-6 text-end">
             <p><strong>Your Ref:</strong> {{ $quotation->your_ref }}</p>
@@ -120,6 +126,16 @@
         </div>
         <div class="col-md-4 text-end">
             <p><strong>Sales Engineer:</strong><br>{{ $quotation->sales_engineer }}</p>
+        </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <a href="{{ route('quotations.edit', $quotation->id) }}" class="btn btn-warning">Edit</a>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{{ route('quotations.export', $quotation->id) }}" class="btn btn-primary">Export to PDF</a>
         </div>
     </div>
 </div>

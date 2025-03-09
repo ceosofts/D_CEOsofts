@@ -27,6 +27,8 @@ use App\Http\Controllers\Admin\{
     PaymentStatusController,
     TaxSettingController
 };
+use Barryvdh\DomPDF\Facade\Pdf; // Add this line
+use App\Services\ThaiPdfService;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +40,49 @@ Route::get('/', fn() => view('welcome'))->name('welcome');
 
 // Authentication Routes
 Auth::routes();
+
+Route::get('/test-pdf', function () {
+    $html = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title>ทดสอบภาษาไทย</title>
+        <style>
+            @font-face {
+                font-family: "thsarabunnew";
+                src: url("' . storage_path('fonts/THSarabunNew.ttf') . '");
+                font-weight: normal;
+                font-style: normal;
+            }
+            * {
+                font-family: "thsarabunnew";
+            }
+            body {
+                font-size: 16pt;
+                line-height: 1.5;
+                margin: 0;
+                padding: 20px;
+            }
+            .thai-text {
+                margin: 20px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="thai-text">
+            <h1>ทดสอบการแสดงผลภาษาไทย</h1>
+            <p>ทดสอบภาษาไทยขนาดปกติ</p>
+            <p>Thai Language Test / ทดสอบ</p>
+            <p>1234567890 ๑๒๓๔๕๖๗๘๙๐</p>
+        </div>
+    </body>
+    </html>
+    ';
+
+    $pdfService = new ThaiPdfService();
+    return $pdfService->generatePdf($html);
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -114,6 +159,7 @@ Route::middleware('auth')->group(function () {
 
         // Quotations – สามารถใช้ Route::resource ได้โดยตรง
         Route::resource('quotations', QuotationController::class);
+        Route::get('quotations/{quotation}/export', [QuotationController::class, 'export'])->name('quotations.export');
 
         // Work Shifts
         Route::resource('work-shifts', WorkShiftController::class);
