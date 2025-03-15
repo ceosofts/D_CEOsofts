@@ -143,7 +143,7 @@ class QuotationController extends Controller
     public function show($id)
     {
         $quotation = Quotation::with(['items.product', 'customer'])->findOrFail($id);
-        $seller = Company::where('company_name', $quotation->seller_company)->first(); // Assuming seller_company is the company name
+        $seller = Company::where('company_name', $quotation->seller_company)->first();
         $customer = Customer::find($quotation->customer_id);
 
         return view('quotations.show', compact('quotation', 'seller', 'customer'));

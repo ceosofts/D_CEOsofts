@@ -21,15 +21,13 @@ class StoreCustomerRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // เปลี่ยนจาก name => companyname
             'companyname'   => 'required|string|max:255',
-            // เพิ่ม contact_name เป็น required
             'contact_name'  => 'required|string|max:255',
-            'email'         => 'required|email|unique:customers,email',
-            'phone'         => 'nullable|string|max:15',
-            'address'       => 'nullable|string|max:500',
-            'taxid'         => 'nullable|string|max:20',
-            // 'code'       => 'required|string|unique:customers,code', // ถ้าต้องการบังคับ unique code
+            'email'         => 'required|email|max:255',
+            'phone'         => 'required|string|max:20',
+            'address'       => 'required|string',
+            'taxid'         => 'required|string|size:13|regex:/^[0-9]+$/', // เพิ่มการตรวจสอบรูปแบบ Tax ID
+            'branch'        => 'nullable|string|max:255',
         ];
     }
 
@@ -44,6 +42,8 @@ class StoreCustomerRequest extends FormRequest
             'email.required'       => 'The email field is required.',
             'email.unique'         => 'This email is already in use.',
             'taxid.max'            => 'The tax ID must not exceed 20 characters.',
+            'branch.max'           => 'The branch name must not exceed 255 characters.',
+            'branch.string'        => 'The branch must be a text string.'
         ];
     }
 }

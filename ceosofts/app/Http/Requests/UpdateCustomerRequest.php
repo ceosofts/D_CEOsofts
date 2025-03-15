@@ -22,56 +22,14 @@ class UpdateCustomerRequest extends FormRequest
      */
     public function rules(): array
     {
-        // ดึงค่า ID ของลูกค้าที่กำลังอัปเดตจาก route
-        // โดยสมมุติว่า route('customers.update') มีพารามิเตอร์เป็น {customer}
-        // เช่น Route::put('customers/{customer}', [...])->name('customers.update');
-        $customerId = $this->route('customer');
-
-        // Log เพื่อตรวจสอบค่า customerId
-        Log::info('Customer ID in UpdateCustomerRequest:', ['customerId' => $customerId]);
-
         return [
-            // เปลี่ยนจาก name => companyname
-            'companyname' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-            // เพิ่ม contact_name เป็น required
-            'contact_name' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-            // ตรวจสอบว่า email ซ้ำหรือไม่ แต่ยกเว้นตัวเอง
-            'email' => [
-                'required',
-                'email',
-                Rule::unique('customers', 'email')->ignore($customerId),
-            ],
-            // phone, address, taxid อาจจะไม่บังคับ
-            'phone' => [
-                'nullable',
-                'string',
-                'max:15',
-            ],
-            'address' => [
-                'nullable',
-                'string',
-                'max:500',
-            ],
-            'taxid' => [
-                'nullable',
-                'string',
-                'max:20',
-            ],
-            // code บังคับไม่ซ้ำ
-            'code' => [
-                'required',
-                'string',
-                'max:10',
-                Rule::unique('customers', 'code')->ignore($customerId),
-            ],
+            'companyname' => 'required|string|max:255',
+            'contact_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string',
+            'taxid' => 'required|string|max:13',
+            'branch' => 'nullable|string|max:255', // เพิ่ม validation rule สำหรับ branch
         ];
     }
 

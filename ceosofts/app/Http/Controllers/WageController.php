@@ -16,7 +16,10 @@ class WageController extends Controller
      */
     public function index(Request $request)
     {
-        // รับค่า month, year จาก query หรือใช้ค่าปัจจุบันเป็น default
+        // 1) รับค่าค้นหาจาก input
+        $search = $request->input('search', '');
+
+        // 2) รับค่า month, year จาก query หรือใช้ค่าปัจจุบันเป็น default
         $month = $request->input('month', Carbon::now()->format('m'));
         $year  = $request->input('year',  Carbon::now()->format('Y'));
 
@@ -31,15 +34,28 @@ class WageController extends Controller
                 ->get()
                 ->keyBy('employee_id');
 
-            // ดึงพนักงานทั้งหมด พร้อม attendance ของเดือน/ปี นี้ (ถ้าต้องการใช้คำนวณใหม่)
-            $employees = Employee::with(['attendances' => function ($q) use ($month, $year) {
+            // ดึงพนักงานทั้งหมด
+            // หากต้องการ filter ด้วย $search สามารถเพิ่ม where() หรือ filter() ได้
+            // ตัวอย่าง filter ชื่อพนักงาน หรือ code
+            $employeesQuery = Employee::with(['attendances' => function ($q) use ($month, $year) {
                 $q->whereMonth('date', $month)->whereYear('date', $year);
-            }])->get();
+            }]);
+
+            if (!empty($search)) {
+                $employeesQuery->where(function ($q) use ($search) {
+                    $q->where('first_name', 'LIKE', "%{$search}%")
+                        ->orWhere('last_name', 'LIKE', "%{$search}%")
+                        ->orWhere('employee_code', 'LIKE', "%{$search}%");
+                });
+            }
+
+            $employees = $employeesQuery->get();
 
             // รวมข้อมูล wageSummaries
             $wageSummaries = $employees->map(function ($employee) use ($latestWages, $monthYear) {
                 // ถ้าใน wages มี record -> ใช้ record นั้น
                 if (isset($latestWages[$employee->id])) {
+                    // ดึง record จาก DB ที่มีอยู่
                     return $latestWages[$employee->id];
                 }
 
@@ -74,6 +90,7 @@ class WageController extends Controller
                 'wageSummaries' => $wageSummaries,
                 'month'         => $month,
                 'year'          => $year,
+                'search'        => $search,  // ส่งตัวแปร search ไปที่ Blade
             ]);
         } catch (\Exception $e) {
             Log::error('Error fetching wage summaries: ' . $e->getMessage(), [
@@ -93,12 +110,6 @@ class WageController extends Controller
         $month = $request->input('month', Carbon::now()->format('m'));
         $year  = $request->input('year',  Carbon::now()->format('Y'));
         $monthYear = $year . '-' . $month;
-
-        // (ถ้าต้องการ validate ค่าของ month, year ว่าเป็นตัวเลขหรืออยู่ในช่วงไหน สามารถทำได้)
-        // $request->validate([
-        //     'month' => 'digits:2', // etc.
-        //     'year'  => 'digits:4',
-        // ]);
 
         try {
             DB::transaction(function () use ($month, $year, $monthYear) {

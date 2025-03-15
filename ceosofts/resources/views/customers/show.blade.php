@@ -14,6 +14,7 @@
             <p class="card-text"><strong>Phone:</strong> {{ $customer->phone ?: '-' }}</p>
             <p class="card-text"><strong>Address:</strong> {{ $customer->address ?: '-' }}</p>
             <p class="card-text"><strong>Tax ID:</strong> {{ $customer->taxid ?: '-' }}</p>
+            <p class="card-text"><strong>Branch:</strong> {{ $customer->branch ?: '-' }}</p>
             <p class="card-text">
                 <strong>Created At:</strong> 
                 {{ \Carbon\Carbon::parse($customer->created_at)->format('d M Y, H:i:s') }}

@@ -23,7 +23,8 @@ class CustomerController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('code', 'LIKE', "%{$search}%")
                     ->orWhere('companyname', 'LIKE', "%{$search}%")
-                    ->orWhere('email', 'LIKE', "%{$search}%");
+                    ->orWhere('email', 'LIKE', "%{$search}%")
+                    ->orWhere('branch', 'LIKE', "%{$search}%"); // เพิ่มการค้นหาด้วย branch
             });
         }
 
@@ -99,7 +100,10 @@ class CustomerController extends Controller
     {
         $customer = Customer::findOrFail($id);
 
-        Log::info('Updating customer: ' . $id, ['data' => $request->all()]);
+        Log::info('Updating customer: ' . $id, [
+            'data' => $request->all(),
+            'branch' => $request->branch // เพิ่ม log สำหรับ branch
+        ]);
         Log::info('Current customer data:', ['customer' => $customer->toArray()]);
 
         // ตรวจสอบอีเมลซ้ำ
