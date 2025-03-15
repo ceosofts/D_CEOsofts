@@ -178,6 +178,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/payroll-slip/{id}', [PayrollController::class, 'showSlip'])->name('payroll.slip');
         Route::get('/payroll-slip/{id}/pdf', [PayrollController::class, 'downloadSlipPdf'])->name('payroll.slip.pdf');
         Route::get('/api/check-payroll', [PayrollController::class, 'checkPayroll'])->name('payroll.check');
+        Route::get('/payrolls/{id}/pdf', [PayrollController::class, 'generatePDF'])->name('payroll.pdf');
 
         // Customer lookup by code (custom routes)
         Route::prefix('customers/code/{code}')->name('customers.')->group(function () {

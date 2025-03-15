@@ -7,14 +7,29 @@
 <div class="container">
     <h1 class="mb-4">Edit Payroll Slip</h1>
 
-    @if($errors->any())
-      <div class="alert alert-danger">
-        <ul>
-          @foreach($errors->all() as $err)
-            <li>{{ $err }}</li>
-          @endforeach
-        </ul>
-      </div>
+    {{-- แสดง success message --}}
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    {{-- แสดง error message --}}
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    {{-- แสดง validation errors --}}
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
     @endif
 
     @php
@@ -23,9 +38,12 @@
         $monthStr = substr($payroll->month_year, 5, 2);
     @endphp
 
-    <form action="{{ route('payroll.update', $payroll->id) }}" method="POST">
+    <form action="{{ route('payroll.update', $payroll->id) }}" method="POST" onsubmit="return validateForm()">
         @csrf
         @method('PUT')
+        
+        {{-- Add hidden fields for tracking --}}
+        <input type="hidden" name="updated_by" value="{{ auth()->id() }}">
 
         <!-- Employee -->
         <div class="mb-3">
@@ -212,8 +230,28 @@
           <textarea name="remarks" id="remarks" class="form-control" rows="3">{{ old('remarks', $payroll->remarks) }}</textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">Update</button>
-        <a href="{{ route('payroll.index') }}" class="btn btn-secondary">Cancel</a>
+        {{-- Replace the creator and updater display section --}}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p class="text-muted">
+                    Created by: {{ $payroll->creator ? $payroll->creator->name : auth()->user()->name }}
+                    <br>
+                    Created at: {{ $payroll->created_at->format('d/m/Y H:i') }}
+                </p>
+            </div>
+            <div class="col-md-6">
+                <p class="text-muted">
+                    Last updated by: {{ auth()->user()->name }}
+                    <br>
+                    Last updated at: {{ now()->format('d/m/Y H:i') }}
+                </p>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary" id="submitBtn">Update</button>
+            <a href="{{ route('payroll.index') }}" class="btn btn-secondary">Cancel</a>
+        </div>
     </form>
 </div>
 
@@ -224,33 +262,82 @@ function getNum(id) {
 }
 
 function calcPayroll() {
-  // รายได้
-  let salary   = getNum('salary');
-  let overtime = getNum('overtime');
-  let bonus    = getNum('bonus');
-  let comm     = getNum('commission');
-  let trans    = getNum('transport');
-  let ssp      = getNum('special_severance_pay');
-  let otherInc = getNum('other_income');
+    // รายได้
+    let salary = getNum('salary');
+    let overtime = getNum('overtime');
+    let bonus = getNum('bonus');
+    let comm = getNum('commission');
+    let transport = getNum('transport');
+    let ssp = getNum('special_severance_pay');
+    let otherInc = getNum('other_income');
 
-  let totalIncome = salary + overtime + bonus + comm + trans + ssp + otherInc;
-  document.getElementById('total_income').value = totalIncome.toFixed(2);
+    let totalIncome = salary + overtime + bonus + comm + transport + ssp + otherInc;
+    document.getElementById('total_income').value = totalIncome.toFixed(2);
 
-  // รายการหัก
-  let tax  = getNum('tax');
-  let sf   = getNum('social_fund');
-  let pf   = getNum('provident_fund');
-  let tel  = getNum('telephone_bill');
-  let hr   = getNum('house_rental');
-  let npl  = getNum('no_pay_leave');
-  let od   = getNum('other_deductions');
+    // รายการหัก
+    let tax = getNum('tax');
+    let sf = getNum('social_fund');
+    let pf = getNum('provident_fund');
+    let tel = getNum('telephone_bill');
+    let house = getNum('house_rental');
+    let npl = getNum('no_pay_leave');
+    let otherDed = getNum('other_deductions');
 
-  let totalDeduc = tax + sf + pf + tel + hr + npl + od;
-  document.getElementById('total_deductions').value = totalDeduc.toFixed(2);
+    let totalDeductions = tax + sf + pf + tel + house + npl + otherDed;
+    document.getElementById('total_deductions').value = totalDeductions.toFixed(2);
 
-  // Net Income
-  let net = totalIncome - totalDeduc;
-  document.getElementById('net_income').value = net.toFixed(2);
+    // Net Income = Total Income - Total Deductions
+    let netIncome = totalIncome - totalDeductions;
+    document.getElementById('net_income').value = netIncome.toFixed(2);
 }
+
+function validateForm() {
+    // Validate required fields
+    let required = ['employee_id', 'month', 'year', 'salary'];
+    for (let field of required) {
+        let value = document.getElementById(field).value.trim();
+        if (!value) {
+            alert('Please fill in all required fields');
+            return false;
+        }
+    }
+
+    // Validate numbers
+    let numbers = ['salary', 'overtime', 'bonus', 'commission', 'transport', 
+                   'special_severance_pay', 'other_income', 'tax', 'social_fund',
+                   'provident_fund', 'telephone_bill', 'house_rental', 
+                   'no_pay_leave', 'other_deductions'];
+    
+    for (let field of numbers) {
+        let value = getNum(field);
+        if (value < 0) {
+            alert('Negative values are not allowed');
+            return false;
+        }
+    }
+
+    // Disable submit button to prevent double submission
+    document.getElementById('submitBtn').disabled = true;
+    document.body.style.cursor = 'wait';
+    
+    return true;
+}
+
+// Calculate initial values when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    calcPayroll();
+});
+
+// Add event listeners for all input fields that affect calculations
+document.querySelectorAll('input[type="number"]').forEach(input => {
+    input.addEventListener('input', calcPayroll);
+});
 </script>
+
+<style>
+/* Add loading cursor while form is submitting */
+form.submitting {
+    cursor: wait;
+}
+</style>
 @endsection

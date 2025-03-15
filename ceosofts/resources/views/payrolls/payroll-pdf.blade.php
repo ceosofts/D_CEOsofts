@@ -1,73 +1,134 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <style>
+        @font-face {
+            font-family: 'THSarabunNew';
+            src: url({{ storage_path('fonts/THSarabunNew.ttf') }}) format('truetype');
+        }
 
-@section('title', 'Payroll Slip')
+        body {
+            font-family: 'THSarabunNew', sans-serif;
+            font-size: 13px;
+            line-height: 1.2;
+            margin: 0;
+            padding: 10px;
+        }
 
-@section('content')
-<div class="container my-4">
-    {{-- Action Buttons --}}
-    <div class="mb-3 d-flex justify-content-between">
-        <div>
-            <a href="{{ route('payroll.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back
-            </a>
-        </div>
-        <div>
-            <a href="{{ route('payroll.edit', $payroll->id) }}" class="btn btn-warning me-2">
-                <i class="fas fa-edit"></i> Edit
-            </a>
-            <a href="{{ route('payroll.pdf', $payroll->id) }}" class="btn btn-danger" target="_blank">
-                <i class="fas fa-file-pdf"></i> Export PDF
-            </a>
-        </div>
-    </div>
+        .container { 
+            width: 100%; 
+            max-width: 800px;
+            margin: 0 auto;
+        }
 
-    <div class="card">
-        <div class="card-header text-center">
-            <h3>PAYROLL SLIP</h3>
-            @php
-                $displayMonthYear = $payroll->month_year;
-                if (preg_match('/^\d{4}-\d{2}$/', $payroll->month_year)) {
-                    try {
-                        $displayMonthYear = \Carbon\Carbon::createFromFormat('Y-m', $payroll->month_year)
-                                            ->format('F Y');
-                    } catch(\Exception $e) {
-                        $displayMonthYear = $payroll->month_year;
-                    }
-                }
-            @endphp
-            <p class="mb-0">{{ $displayMonthYear }}</p>
-        </div>
+        .card { 
+            border: 1px solid #ddd; 
+            padding: 10px;
+            background-color: #fff;
+        }
 
-        <div class="card-body">
+        /* Header Styles */
+        .header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Layout Helpers */
+        .text-center { text-align: center; }
+        .text-end { text-align: right; }
+        .clear { clear: both; }
+
+        /* Grid System */
+        .row { 
+            clear: both; 
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .col-6 { 
+            width: 48%;
+            float: left; 
+            margin-right: 2%;
+        }
+        .col-6:last-child { margin-right: 0; }
+
+        /* Table Styles */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 4px 6px;
+            font-size: 12px;
+        }
+        .table-primary { 
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            width: 48%;
+            float: left;
+            margin-right: 2%;
+            margin-bottom: 10px;
+        }
+        .summary-section:last-child { margin-right: 0; }
+        
+        /* Footer Section */
+        .footer-section {
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+            margin-top: 15px;
+            font-size: 11px;
+        }
+
+        /* Net Income Highlight */
+        .net-income {
+            background-color: #f8f9fa;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        /* Signature Section */
+        .signature {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px dotted #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header text-center">
+                <h3 style="margin: 0;">PAYROLL SLIP</h3>
+                <p>{{ \Carbon\Carbon::createFromFormat('Y-m', $payroll->month_year)->format('F Y') }}</p>
+            </div>
+
             {{-- Employee & Company Information --}}
             <div class="row mb-3">
-                <div class="col-md-6">
-                    <strong>Employee Name:</strong> 
-                        {{ $payroll->employee->first_name }} {{ $payroll->employee->last_name }}<br>
-                    <strong>Join Date:</strong> 
-                        {{ $payroll->employee->hire_date ? \Carbon\Carbon::parse($payroll->employee->hire_date)->format('d/m/Y') : '-' }}<br>
-                    <strong>Employee Code:</strong> 
-                        {{ $payroll->employee->employee_code }}<br>
-                    <strong>Department:</strong> 
-                        {{ $payroll->employee->department->name ?? '-' }}<br>
-                    <strong>Position:</strong>
-                        {{ $payroll->employee->position->name ?? '-' }}
+                <div class="col-6">
+                    <p><strong>Employee Name:</strong> {{ $payroll->employee->first_name }} {{ $payroll->employee->last_name }}</p>
+                    <p><strong>Employee Code:</strong> {{ $payroll->employee->employee_code }}</p>
+                    <p><strong>Department:</strong> {{ $payroll->employee->department->name ?? '-' }}</p>
                 </div>
-                <div class="col-md-6 text-end">
-                    <strong>Company:</strong> {{ $company->name }}<br>
-                    <strong>Tax ID:</strong> {{ $company->tax_id ?? '-' }}<br>
-                    <strong>Address:</strong> {{ $company->address ?? '-' }}<br>
-                    <strong>Phone:</strong> {{ $company->phone ?? '-' }}
+                <div class="col-6 text-end">
+                    <p><strong>Company:</strong> {{ $company->name }}</p>
                 </div>
             </div>
 
-            <hr>
-
-            {{-- Income Section --}}
+            {{-- Income & Deductions --}}
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-6">
                     <h5>DESCRIPTION INCOME (THB)</h5>
-                    <table class="table table-bordered table-sm">
+                    <table class="table">
                         <tr>
                             <td>Salary</td>
                             <td class="text-end">{{ number_format($payroll->salary, 2) }}</td>
@@ -107,10 +168,9 @@
                     </table>
                 </div>
 
-                {{-- Deductions Section --}}
-                <div class="col-md-6">
+                <div class="col-6">
                     <h5>DESCRIPTION DEDUCTIONS (THB)</h5>
-                    <table class="table table-bordered table-sm">
+                    <table class="table">
                         <tr>
                             <td>Tax</td>
                             <td class="text-end">{{ number_format($payroll->tax, 2) }}</td>
@@ -148,17 +208,15 @@
             </div>
 
             {{-- Net Income --}}
-            <div class="row mb-3">
-                <div class="col-md-12 text-end">
-                    <h4>Net Income: {{ number_format($payroll->net_income, 2) }} THB</h4>
-                </div>
+            <div class="text-end net-income">
+                <h4 style="font-size: 12px;">Net Income: {{ number_format($payroll->net_income, 2) }} THB</h4>
             </div>
 
-            {{-- YTD Section --}}
-            <div class="row mb-3">
-                <div class="col-md-12">
+            {{-- ปรับโครงสร้าง YTD และ Accumulate Funds ให้อยู่ในแถวเดียวกัน --}}
+            <div class="row">
+                <div class="summary-section">
                     <h5>YTD (THB)</h5>
-                    <table class="table table-bordered table-sm">
+                    <table class="table">
                         <tr>
                             <td>YTD Income</td>
                             <td class="text-end">{{ number_format($payroll->ytd_income, 2) }}</td>
@@ -177,13 +235,10 @@
                         </tr>
                     </table>
                 </div>
-            </div>
 
-            {{-- Accumulate Funds Section --}}
-            <div class="row mb-3">
-                <div class="col-md-12">
+                <div class="summary-section">
                     <h5>Accumulate Funds (THB)</h5>
-                    <table class="table table-bordered table-sm">
+                    <table class="table">
                         <tr>
                             <td>Accumulate Provident Fund</td>
                             <td class="text-end">{{ number_format($payroll->accumulate_provident_fund ?? 0, 2) }}</td>
@@ -196,44 +251,27 @@
                 </div>
             </div>
 
-            {{-- Remarks --}}
-            <div class="row mb-3">
-                <div class="col-md-12">
-                    <strong>Remarks:</strong>
-                    <p>{{ $payroll->remarks }}</p>
-                </div>
-            </div>
+            <div class="clear"></div>
 
-            {{-- Update Prepared By Section --}}
-            <div class="row mt-4">
-                <div class="col-md-6">
-                    <p class="text-muted mb-0">
-                        Created by: {{ $payroll->creator ? $payroll->creator->name : auth()->user()->name }}<br>
-                        Date: {{ $payroll->created_at->format('d/m/Y H:i') }}
-                    </p>
+            {{-- Updated Footer Section --}}
+            <div class="footer-section">
+                @if($payroll->remarks)
+                <div class="remarks">
+                    <strong>Remarks:</strong> {{ $payroll->remarks }}
                 </div>
-                <div class="col-md-6 text-end">
-                    <p class="text-muted mb-0">
-                        Last updated by: {{ $payroll->updater ? $payroll->updater->name : ($payroll->updated_at != $payroll->created_at ? auth()->user()->name : '-') }}<br>
-                        Date: {{ $payroll->updated_at != $payroll->created_at ? $payroll->updated_at->format('d/m/Y H:i') : '-' }}
-                    </p>
+                @endif
+                
+                <div class="signature">
+                    <div class="text-end">
+                        <p>
+                            Prepared by: {{ $payroll->creator ? $payroll->creator->name : ($payroll->prepared_by ?? auth()->user()->name) }}
+                            <br>
+                            Date: {{ $payroll->created_at->format('d/m/Y H:i') }}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-@push('styles')
-<style>
-    .table-sm td, .table-sm th {
-        padding: 0.3rem;
-    }
-    .card-header h3 {
-        margin-bottom: 0.5rem;
-    }
-    .text-end {
-        text-align: right;
-    }
-</style>
-@endpush
-@endsection
+</body>
+</html>

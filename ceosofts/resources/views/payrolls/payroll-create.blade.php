@@ -16,8 +16,18 @@
       </div>
     @endif
 
-    <form action="{{ route('payroll.store') }}" method="POST">
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <form action="{{ route('payroll.store') }}" method="POST" onsubmit="return validateForm()">
         @csrf
+        
+        {{-- Add hidden fields for tracking --}}
+        <input type="hidden" name="created_by" value="{{ auth()->id() }}">
+        <input type="hidden" name="updated_by" value="{{ auth()->id() }}">
 
         <!-- เลือก Employee -->
         <div class="mb-3">
@@ -195,6 +205,17 @@
           <textarea name="remarks" id="remarks" class="form-control" rows="3">{{ old('remarks', $autoFill['remarks'] ?? '') }}</textarea>
         </div>
 
+        {{-- Add creator info display --}}
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p class="text-muted">
+                    Creating by: {{ auth()->user()->name }}
+                    <br>
+                    Date: {{ now()->format('d/m/Y H:i') }}
+                </p>
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-primary">Save</button>
         <a href="{{ route('payroll.index') }}" class="btn btn-secondary">Cancel</a>
     </form>
@@ -209,33 +230,33 @@ function getNum(id) {
 
 // คำนวณเมื่อแก้ไขตัวเลข
 function calcPayroll() {
-  // รายได้
-  let salary    = getNum('salary');
-  let overtime  = getNum('overtime');
-  let bonus     = getNum('bonus');
-  let comm      = getNum('commission');
-  let transport = getNum('transport');
-  let ssp       = getNum('special_severance_pay');
-  let otherInc  = getNum('other_income');
+    // รายได้
+    let salary = getNum('salary');
+    let overtime = getNum('overtime');
+    let bonus = getNum('bonus');
+    let comm = getNum('commission');
+    let transport = getNum('transport');
+    let ssp = getNum('special_severance_pay');
+    let otherInc = getNum('other_income');
 
-  let totalIncome = salary + overtime + bonus + comm + transport + ssp + otherInc;
-  document.getElementById('total_income').value = totalIncome.toFixed(2);
+    let totalIncome = salary + overtime + bonus + comm + transport + ssp + otherInc;
+    document.getElementById('total_income').value = totalIncome.toFixed(2);
 
-  // รายการหัก
-  let tax        = getNum('tax');
-  let sf         = getNum('social_fund');
-  let pf         = getNum('provident_fund');
-  let tel        = getNum('telephone_bill');
-  let house      = getNum('house_rental');
-  let npl        = getNum('no_pay_leave');
-  let otherDed   = getNum('other_deductions');
+    // รายการหัก
+    let tax = getNum('tax');
+    let sf = getNum('social_fund');
+    let pf = getNum('provident_fund');
+    let tel = getNum('telephone_bill');
+    let house = getNum('house_rental');
+    let npl = getNum('no_pay_leave');
+    let otherDed = getNum('other_deductions');
 
-  let totalDeductions = tax + sf + pf + tel + house + npl + otherDed;
-  document.getElementById('total_deductions').value = totalDeductions.toFixed(2);
+    let totalDeductions = tax + sf + pf + tel + house + npl + otherDed;
+    document.getElementById('total_deductions').value = totalDeductions.toFixed(2);
 
-  // Net Income = Total Income - Total Deductions
-  let netIncome = totalIncome - totalDeductions;
-  document.getElementById('net_income').value = netIncome.toFixed(2);
+    // Net Income = Total Income - Total Deductions
+    let netIncome = totalIncome - totalDeductions;
+    document.getElementById('net_income').value = netIncome.toFixed(2);
 }
 
 function autoRedirect() {
@@ -245,12 +266,123 @@ function autoRedirect() {
     let y = document.getElementById('year').value;
 
     if(empId && m && y) {
+        // เพิ่ม loading indicator
+        document.body.style.cursor = 'wait';
+        
         let url = "{{ route('payroll.create') }}"
                 + "?employee_id=" + empId
                 + "&month=" + m
                 + "&year=" + y;
-        window.location = url;
+        
+        // ตรวจสอบว่ามี payroll อยู่แล้วหรือไม่
+        fetch("{{ route('payroll.check') }}?employee_id=" + empId + "&month=" + m + "&year=" + y)
+            .then(response => response.json())
+            .then(data => {
+                if (data.found) {
+                    if (confirm('Payroll slip already exists for this period. Do you want to view it?')) {
+                        window.location = "{{ url('payroll-slip') }}/" + data.payroll.id;
+                    }
+                } else {
+                    window.location = url;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                window.location = url;
+            })
+            .finally(() => {
+                document.body.style.cursor = 'default';
+            });
     }
 }
+
+// Add form validation before submit
+document.querySelector('form').onsubmit = function(e) {
+    return validateForm();
+};
+
+// Calculate initial values
+calcPayroll();
+
+// เพิ่มฟังก์ชันตรวจสอบข้อมูลก่อน submit
+function validateForm() {
+    let empId = document.getElementById('employee_id').value;
+    let month = document.getElementById('month').value;
+    let year = document.getElementById('year').value;
+    let salary = document.getElementById('salary').value;
+
+    if (!empId || !month || !year) {
+        alert('Please select Employee, Month and Year');
+        return false;
+    }
+
+    if (!salary || parseFloat(salary) <= 0) {
+        alert('Please enter valid salary amount');
+        return false;
+    }
+
+    return true;
+}
+
+// อัพเดทฟังก์ชัน validateForm
+function validateForm() {
+    let empId = document.getElementById('employee_id').value;
+    let month = document.getElementById('month').value;
+    let year = document.getElementById('year').value;
+    let salary = document.getElementById('salary').value;
+
+    if (!empId || !month || !year) {
+        alert('กรุณาเลือกพนักงาน เดือน และปี');
+        return false;
+    }
+
+    if (!salary || parseFloat(salary) <= 0) {
+        alert('กรุณาใส่เงินเดือนให้ถูกต้อง');
+        return false;
+    }
+
+    // แสดง loading
+    document.body.style.cursor = 'wait';
+    document.querySelector('button[type="submit"]').disabled = true;
+    
+    return true;
+}
+
+// เพิ่มการตรวจจับ error จาก fetch
+function handleFetchError(error) {
+    console.error('Error:', error);
+    document.body.style.cursor = 'default';
+    alert('เกิดข้อผิดพลาดในการตรวจสอบข้อมูล กรุณาลองใหม่อีกครั้ง');
+}
+
+// อัพเดทฟังก์ชัน autoRedirect
+function autoRedirect() {
+    let empId = document.getElementById('employee_id').value;
+    let m = document.getElementById('month').value;
+    let y = document.getElementById('year').value;
+
+    if(empId && m && y) {
+        document.body.style.cursor = 'wait';
+        
+        fetch(`{{ route('payroll.check') }}?employee_id=${empId}&month=${m}&year=${y}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.found) {
+                    if (confirm('พบข้อมูล Payroll ในช่วงเวลานี้แล้ว ต้องการดูข้อมูลหรือไม่?')) {
+                        window.location = "{{ url('payroll-slip') }}/" + data.payroll.id;
+                    }
+                } else {
+                    window.location = `{{ route('payroll.create') }}?employee_id=${empId}&month=${m}&year=${y}`;
+                }
+            })
+            .catch(handleFetchError)
+            .finally(() => {
+                document.body.style.cursor = 'default';
+            });
+    }
+}
+
+// Calculate initial values
+calcPayroll();
 </script>
 @endsection
