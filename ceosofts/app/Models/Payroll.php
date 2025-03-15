@@ -41,7 +41,8 @@ class Payroll extends Model
         'accumulate_provident_fund',
         'accumulate_social_fund',
         'remarks',
-        'prepared_by',
+        'created_by',
+        'updated_by'
     ];
 
     /**
@@ -53,5 +54,17 @@ class Payroll extends Model
     {
         return $this->belongsTo(Employee::class);
         // ในกรณีที่ชื่อ foreign key เป็น employee_id และ primary key เป็น id สามารถเรียกใช้งานแบบนี้ได้เลย
+    }
+
+    // relationship กับ User สำหรับ created_by
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    // relationship กับ User สำหรับ updated_by
+    public function updater()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
     }
 }

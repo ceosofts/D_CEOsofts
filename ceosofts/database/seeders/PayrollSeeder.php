@@ -5,11 +5,19 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Payroll;
 use App\Models\Employee;
+use App\Models\User;
 
 class PayrollSeeder extends Seeder
 {
     public function run()
     {
+        // ดึง user คนแรกมาเป็นผู้สร้าง payroll
+        $creator = User::first();
+        if (!$creator) {
+            // ถ้าไม่มี user ให้สร้างใหม่
+            $creator = User::factory()->create();
+        }
+
         $employees = Employee::all();
 
         foreach ($employees as $employee) {
@@ -19,6 +27,7 @@ class PayrollSeeder extends Seeder
                     'month_year'  => 'February-2025',
                 ],
                 [
+                    'created_by'            => $creator->id, // เพิ่ม created_by
                     'salary'                => $salary = rand(40000, 80000),
                     'allowance'             => $allowance = rand(0, 5000),
                     'bonus'                 => $bonus = rand(0, 5000),
