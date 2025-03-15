@@ -43,13 +43,14 @@ class Customer extends Model
      * กำหนดฟิลด์ที่สามารถ Mass Assign ได้
      */
     protected $fillable = [
+        'code',
         'companyname',     // ชื่อบริษัทลูกค้า (ใช้แทนฟิลด์ name)
         'contact_name',    // ชื่อผู้ติดต่อ
         'email',
         'phone',
         'address',
         'taxid',
-        'code',
+        'branch', // เพิ่ม branch
     ];
 
     /**

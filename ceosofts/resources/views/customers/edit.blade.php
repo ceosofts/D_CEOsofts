@@ -88,6 +88,17 @@
                     @enderror
                 </div>
 
+                <!-- Branch -->
+                <div class="mb-3">
+                    <label for="branch" class="form-label">Branch</label>
+                    <input type="text" name="branch" id="branch"
+                           class="form-control @error('branch') is-invalid @enderror"
+                           value="{{ old('branch', $customer->branch) }}">
+                    @error('branch')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <button type="submit" class="btn btn-primary">Update</button>
                 <a href="{{ route('customers.index') }}" class="btn btn-secondary">Cancel</a>
             </form>

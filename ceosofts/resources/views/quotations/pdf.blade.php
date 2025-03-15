@@ -143,18 +143,13 @@
 <body>
     <div class="header">
         <div class="col-left">
-            {{-- <h5 class="thai">{{ $quotation->seller_company }}</h5> --}}
-            {{-- <h5 class="thai">{{ mb_convert_encoding($quotation->seller_company, 'UTF-8', 'auto') }}</h5> --}}
-            {{-- <p class="thai" style="font-size: 16pt; font-weight: bold;">{{ $quotation->seller_company }}</p> --}}
-            {{-- <p class="thai" style="font-size: 16pt; font-weight: bold;">{{ mb_convert_encoding($quotation->seller_company, 'UTF-8', 'auto') }}</p> --}}
             <p class="thai" style="font-size: 19pt;">{{ mb_convert_encoding($quotation->seller_company, 'UTF-8', 'auto') }}</p>
-            {{-- <p class="thai">{{ mb_convert_encoding($quotation->seller_company, 'UTF-8', 'auto') }}</p> --}}
             <p>{{ $quotation->seller_address }}</p>
             @if($seller)
-                <p>Tax ID: {{ $seller->tax_id }}</p>
+                <p>Tax ID: {{ $seller->tax_id }} | Branch: {{ $seller->branch_description }}</p>  <!-- รวม Tax ID และ Branch ไว้ในบรรทัดเดียวกัน -->
             @endif
-            <p>Tel: {{ $quotation->seller_phone }} | Fax: {{ $quotation->seller_fax }} | LINE: {{ $quotation->seller_line }}</p>
-            <p>Email: {{ $quotation->seller_email }}</p>
+            <p>Tel: {{ $quotation->seller_phone }} | Fax: {{ $quotation->seller_fax }} </p>
+            <p>Email: {{ $quotation->seller_email }} | LINE: {{ $quotation->seller_line }}</p>
         </div>
         <div class="col-right">
             <h4>Quotation</h4>
@@ -172,10 +167,10 @@
             Contact: {{ $quotation->customer_contact_name }}<br>
             Address: {{ $quotation->customer_address }}<br>
             @if($customer)
-                Tax ID: {{ $customer->taxid }}<br>
+                Tax ID: {{ $customer->taxid }} | Branch: {{ $customer->branch }}<br>
             @endif
             Tel: {{ $quotation->customer_phone }} | Fax: {{ $quotation->customer_fax }}<br>
-            Email:  {{ $quotation->customer_email }}
+            Email: {{ $quotation->customer_email }}
             <p>Thank you for the opportunity to provide you a quotation for the following product(s).</p>
         </div>
         <div class="col-right text-end">

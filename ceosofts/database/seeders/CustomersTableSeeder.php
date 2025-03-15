@@ -27,6 +27,7 @@ class CustomersTableSeeder extends Seeder
                 'phone'         => '123456789',
                 'address'       => '123 Main Street',
                 'taxid'         => '1234567890123',
+                'branch'        => 'Head Office', // เพิ่มข้อมูลสาขา
                 'code'          => $newCode,
                 'created_at'    => Carbon::now(),
                 'updated_at'    => Carbon::now(),
@@ -38,11 +39,24 @@ class CustomersTableSeeder extends Seeder
                 'phone'         => '987654321',
                 'address'       => '456 Secondary Street',
                 'taxid'         => '9876543210987',
+                'branch'        => 'Branch 001', // เพิ่มข้อมูลสาขา
                 'code'          => 'CUS' . str_pad($lastNumber + 2, 4, '0', STR_PAD_LEFT),
                 'created_at'    => Carbon::now(),
                 'updated_at'    => Carbon::now(),
             ],
-            // เพิ่มข้อมูลลูกค้าอื่น ๆ ตามต้องการ
+            // เพิ่มข้อมูลลูกค้าตัวอย่างเพิ่มเติม
+            [
+                'companyname'   => 'Gamma Solutions',
+                'contact_name'  => 'Bob Wilson',
+                'email'         => 'bob@example.com',
+                'phone'         => '555666777',
+                'address'       => '789 Tech Park',
+                'taxid'         => '5556667770001',
+                'branch'        => 'R&D Center', // เพิ่มข้อมูลสาขา
+                'code'          => 'CUS' . str_pad($lastNumber + 3, 4, '0', STR_PAD_LEFT),
+                'created_at'    => Carbon::now(),
+                'updated_at'    => Carbon::now(),
+            ],
         ];
 
         // ใช้ insertOrIgnore() เพื่อป้องกันข้อมูลซ้ำ

@@ -14,7 +14,9 @@
     @endif
 
     {{-- Filter Form --}}
-    <form method="GET" action="{{ route('payroll.index') }}" class="row gy-3 gx-3 mb-4">
+    <form method="GET" action="{{ route('wages.summary') }}" class="row gy-3 gx-3 mb-4">
+    {{-- <form method="GET" action="{{ route('payroll.index') }}" class="row gy-3 gx-3 mb-4"> --}}
+
         {{-- Month Filter --}}
         <div class="col-md-4">
             <label for="month" class="form-label">เลือกเดือน</label>
@@ -48,7 +50,8 @@
             <label for="search" class="form-label">ค้นหา</label>
             <div class="input-group">
                 <input type="text" name="search" id="search" class="form-control"
-                       placeholder="Search by Employee, Code, or Month" value="{{ old('search', $search) }}">
+                       placeholder="Search by Employee, Code, or Month"
+                       value="{{ old('search', $search) }}">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-filter"></i> Filter
                 </button>
