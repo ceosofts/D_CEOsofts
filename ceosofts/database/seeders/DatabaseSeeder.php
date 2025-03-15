@@ -60,8 +60,11 @@ class DatabaseSeeder extends Seeder
             // 17️⃣ ข้อมูลการลงเวลาทำงาน
             AttendanceSeeder::class,
 
-            // 18️⃣ (ตัวอย่าง) ข้อมูลสลิปเงินเดือน
-            // PayrollSeeder::class, // ← หากคุณมี Seeder สำหรับ Payroll ให้ uncomment
+            // 18️⃣ ข้อมูลสถานะงาน
+            JobStatusSeeder::class,
+
+            // 19️⃣ (ตัวอย่าง) ข้อมูลสลิปเงินเดือน
+            // PayrollSeeder::class,
         ]);
     }
 }

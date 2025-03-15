@@ -11,6 +11,7 @@ use App\Models\Company;
 use App\Models\Customer;
 use App\Models\Employee;
 use App\Models\PaymentStatus;
+use App\Models\JobStatus;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
@@ -21,7 +22,7 @@ class QuotationController extends Controller
      */
     public function index()
     {
-        $quotations = Quotation::orderBy('id', 'desc')->paginate(10);
+        $quotations = Quotation::with(['status'])->latest()->paginate(10);
         return view('quotations.index', compact('quotations'));
     }
 
@@ -36,13 +37,17 @@ class QuotationController extends Controller
         $products        = Product::all();
         $sales_employees = Employee::where('department_id', 1)->get();
         $payment_statuses = PaymentStatus::all();
+        $jobStatuses = JobStatus::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
 
         return view('quotations.create', compact(
             'companies',
             'customers',
             'products',
             'sales_employees',
-            'payment_statuses'
+            'payment_statuses',
+            'jobStatuses'
         ));
     }
 
@@ -57,6 +62,7 @@ class QuotationController extends Controller
             'quotation_date' => 'required|date',
             'customer_id'    => 'required|exists:customers,id',
             'payment'        => 'required|string|max:255',
+            'status_id' => 'nullable|exists:job_statuses,id',
         ]);
 
         DB::transaction(function () use ($request) {
@@ -96,6 +102,8 @@ class QuotationController extends Controller
                 'warranty' => $request->warranty,
                 'validity' => $request->validity,
                 'payment'  => $request->payment,
+                // เพิ่ม status_id
+                'status_id' => $request->status_id,
                 // Signature
                 'prepared_by'    => $request->prepared_by,
                 'sales_engineer' => $request->sales_engineer,
@@ -132,6 +140,12 @@ class QuotationController extends Controller
                 'total_amount'    => $sum,
                 'amount_in_words' => $words,
             ]);
+
+            // Log for debugging
+            \Log::info('Creating quotation with status:', [
+                'quotation_id' => $quotation->id,
+                'status_id' => $request->status_id
+            ]);
         });
 
         return redirect()->route('quotations.index')->with('success', 'Quotation created');
@@ -163,6 +177,9 @@ class QuotationController extends Controller
         $products        = Product::all();
         $sales_employees = Employee::where('department_id', 1)->get();
         $payment_statuses = PaymentStatus::all();
+        $jobStatuses = JobStatus::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
 
         // ส่งทุกตัวแปรไปยัง Blade
         return view('quotations.edit', compact(
@@ -171,93 +188,45 @@ class QuotationController extends Controller
             'customers',
             'products',
             'sales_employees',
-            'payment_statuses'
+            'payment_statuses',
+            'jobStatuses'
         ));
     }
 
     /**
      * อัปเดตใบเสนอราคา
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Quotation $quotation)
     {
-        $request->validate([
-            'seller_company' => 'required|string|max:255',
-            'quotation_date' => 'required|date',
-            'customer_id'    => 'required|exists:customers,id',
-        ]);
-
-        DB::transaction(function () use ($request, $id) {
-            $quotation = Quotation::findOrFail($id);
-
-            // ดึงข้อมูลลูกค้าจาก customer_id
-            $customer = Customer::findOrFail($request->customer_id);
-
-            // อัปเดตใบเสนอราคา (Seller, Quotation Info, Customer, Conditions, Signatures)
-            $quotation->update([
-                // Seller Info
-                'seller_company' => $request->seller_company,
-                'seller_address' => $request->seller_address,
-                'seller_phone'   => $request->seller_phone,
-                'seller_fax'     => $request->seller_fax,
-                'seller_line'    => $request->seller_line,
-                'seller_email'   => $request->seller_email,
-                // Quotation Info
-                'quotation_date' => $request->quotation_date,
-                // Customer Info (ดึงจาก customer)
-                'customer_id'             => $request->customer_id,
-                'customer_company'        => $customer->companyname,
-                'customer_contact_name'   => $customer->contact_name,
-                'customer_address'        => $customer->address,
-                'customer_phone'          => $customer->phone,
-                'customer_fax'            => $customer->fax ?? '',
-                'customer_email'          => $customer->email,
-                // Ref
-                'your_ref' => $request->your_ref,
-                'our_ref'  => $request->our_ref,
-                // Conditions
-                'delivery' => $request->delivery,
-                'warranty' => $request->warranty,
-                'validity' => $request->validity,
-                'payment'  => $request->payment,
-                // Signatures
-                'prepared_by'    => $request->prepared_by,
-                'sales_engineer' => $request->sales_engineer,
+        try {
+            $validated = $request->validate([
+                'seller_company' => 'required|string|max:255',
+                'quotation_date' => 'required|date',
+                'customer_id'    => 'required|exists:customers,id',
+                'status_id' => 'nullable|exists:job_statuses,id',
             ]);
 
-            // ลบรายการสินค้าเก่าออกทั้งหมด
-            QuotationItem::where('quotation_id', $quotation->id)->delete();
+            \DB::beginTransaction();
 
-            // เพิ่มรายการสินค้าใหม่และคำนวณยอดรวมใหม่
-            $sum = 0;
-            if ($request->has('items')) {
-                foreach ($request->items as $i => $row) {
-                    $qty  = $row['quantity'] ?? 1;
-                    $unit = $row['unit_price'] ?? 0;
-                    $net  = $qty * $unit;
-                    $itemNo = $row['item_no'] ?? ($i + 1);
-
-                    QuotationItem::create([
-                        'quotation_id' => $quotation->id,
-                        'item_no'      => $itemNo,
-                        'product_id'   => !empty($row['product_id']) ? $row['product_id'] : null,
-                        'description'  => $row['description'] ?? '',
-                        'quantity'     => $qty,
-                        'unit_price'   => $unit,
-                        'net_price'    => $net,
-                    ]);
-                    $sum += $net;
-                }
-            }
-
-            // อัปเดตยอดรวมและคำอ่านยอดเงินใหม่
-            $words = $this->numToWords($sum);
-            $quotation->update([
-                'total_amount'    => $sum,
-                'amount_in_words' => $words,
+            // Log before update
+            \Log::info('Updating quotation status:', [
+                'quotation_id' => $quotation->id,
+                'old_status' => $quotation->status_id,
+                'new_status' => $request->status_id
             ]);
-        });
 
-        return redirect()->route('quotations.index')->with('success', 'Quotation updated');
+            $quotation->update($validated);
+
+            \DB::commit();
+
+            return redirect()->route('quotations.index')
+                ->with('success', 'Quotation updated successfully');
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('Error updating quotation: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Failed to update quotation: ' . $e->getMessage()]);
+        }
     }
 
     /**

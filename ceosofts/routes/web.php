@@ -25,7 +25,8 @@ use App\Http\Controllers\Admin\{
     PrefixController,
     ItemStatusController,
     PaymentStatusController,
-    TaxSettingController
+    TaxSettingController,
+    JobStatusController
 };
 use Barryvdh\DomPDF\Facade\Pdf; // Add this line
 use App\Services\ThaiPdfService;
@@ -128,6 +129,10 @@ Route::middleware('auth')->group(function () {
             'payment_statuses' => PaymentStatusController::class,
             'tax'              => TaxSettingController::class,
         ]);
+    });
+
+    Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function () {
+        Route::resource('job-statuses', JobStatusController::class);
     });
 
     /*
