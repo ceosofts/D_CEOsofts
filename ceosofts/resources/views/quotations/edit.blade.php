@@ -19,6 +19,13 @@
     <form action="{{ route('quotations.update', $quotation->id) }}" method="POST">
         @csrf
         @method('PUT')
+        
+        {{-- Add debug output --}}
+        @if(app()->environment('local'))
+            <div class="alert alert-info">
+                Current Status ID: {{ $quotation->status_id }}
+            </div>
+        @endif
 
         <!-- Seller (Company Info) -->
         <h4>Seller (Company Info)</h4>
@@ -135,6 +142,24 @@
                 <input type="text" name="our_ref" class="form-control"
                        value="{{ old('our_ref', $quotation->our_ref) }}">
             </div>
+        </div>
+
+        <hr>
+
+        <!-- Status -->
+        <h4>Status</h4>
+        <div class="mb-3">
+            <label for="status_id" class="form-label">Job Status</label>
+            <select name="status_id" id="status_id" class="form-control">
+                <option value="">-- Select Status --</option>
+                @foreach($jobStatuses as $status)
+                    <option value="{{ $status->id }}"
+                            {{ old('status_id', $quotation->status_id) == $status->id ? 'selected' : '' }}
+                            style="background-color: {{ $status->color }}; color: #fff;">
+                        {{ $status->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
 
         <hr>

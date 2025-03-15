@@ -20,6 +20,7 @@
                     <th>Quotation No.</th>
                     <th>Date</th>
                     <th>Customer</th>
+                    <th>Status</th>  <!-- เพิ่มคอลัมน์ Status -->
                     <th class="text-end">Total (THB)</th>
                     <th>Actions</th>
                 </tr>
@@ -35,6 +36,16 @@
                             {{ $q->customer_company }}
                             @if(!empty($q->customer_contact_name))
                                 <br><small>{{ $q->customer_contact_name }}</small>
+                            @endif
+                        </td>
+
+                        <td>
+                            @if($q->status)
+                                <span class="badge" style="background-color: {{ $q->status->color }}">
+                                    {{ $q->status->name }}
+                                </span>
+                            @else
+                                <span class="badge bg-secondary">No Status</span>
                             @endif
                         </td>
 
@@ -54,7 +65,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center">No data</td>
+                        <td colspan="6" class="text-center">No data</td>
                     </tr>
                 @endforelse
             </tbody>

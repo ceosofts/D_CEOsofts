@@ -108,7 +108,7 @@
                                 </div>
                             </li>
                             <!-- Admin Settings Dropdown -->
-                            @canany(['manage departments', 'manage users', 'manage companies', 'manage units'])
+                            @canany(['manage departments', 'manage users', 'manage companies', 'manage units', 'manage job statuses'])
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button"
                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -158,6 +158,11 @@
                                         @can('manage tax settings')
                                             <a class="dropdown-item" href="{{ route('admin.tax.index') }}">
                                                 <i class="bi bi-list"></i> Tax Settings
+                                            </a>
+                                        @endcan
+                                        @can('manage job statuses')
+                                            <a class="dropdown-item" href="{{ route('admin.job-statuses.index') }}">
+                                                <i class="bi bi-tag-fill"></i> Job Statuses
                                             </a>
                                         @endcan
                                     </div>

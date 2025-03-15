@@ -47,7 +47,8 @@ class Quotation extends Model
 
         // Signature
         'prepared_by',
-        'sales_engineer'
+        'sales_engineer',
+        'status_id'
     ];
 
     /**
@@ -64,5 +65,10 @@ class Quotation extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class, 'customer_id');
+    }
+
+    public function status()
+    {
+        return $this->belongsTo(JobStatus::class, 'status_id');
     }
 }

@@ -47,8 +47,8 @@ SELECT * FROM table_name;             # ดูข้อมูลในตาร�
 🔹 4. คำสั่งเกี่ยวกับ Model, Controller, และ Migration
 ใช้เมื่อต้องการสร้างหรืออัปเดตโครงสร้างฐานข้อมูล
 
-php artisan make:model Transaction -m                           # สร้าง Model และ Migration พร้อมกัน
-php artisan make:controller TransactionController --resource    # สร้าง Controller พร้อม CRUD
+php artisan make:model xxx -m                           # สร้าง Model และ Migration พร้อมกัน
+php artisan make:controller xxx --resource    # สร้าง Controller พร้อม CRUD
 php artisan make:migration create_orders_table                  # สร้างไฟล์ Migration
 php artisan migrate                                             # รัน Migration
 php artisan migrate:rollback                                    # Rollback Migration

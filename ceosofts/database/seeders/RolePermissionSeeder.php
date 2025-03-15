@@ -40,6 +40,8 @@ class RolePermissionSeeder extends Seeder
             );
         }
 
+        Permission::create(['name' => 'manage job statuses']);
+
         // ✅ ให้ Role มีสิทธิ์ที่กำหนด
         $rolePermissions = [
             'user' => ['view dashboard', 'view company holidays'],
@@ -55,6 +57,11 @@ class RolePermissionSeeder extends Seeder
             if ($role) {
                 $role->syncPermissions($perms);
             }
+        }
+
+        $adminRole = Role::where('name', 'admin')->first();
+        if ($adminRole) {
+            $adminRole->givePermissionTo('manage job statuses');
         }
     }
 }

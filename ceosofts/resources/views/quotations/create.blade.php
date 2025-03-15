@@ -124,6 +124,24 @@
 
         <hr>
 
+        <!-- Status -->
+        <h4>Status</h4>
+        <div class="mb-3">
+            <label for="status_id" class="form-label">Job Status</label>
+            <select name="status_id" id="status_id" class="form-control">
+                <option value="">-- Select Status --</option>
+                @foreach($jobStatuses as $status)
+                    <option value="{{ $status->id }}" 
+                            {{ old('status_id') == $status->id ? 'selected' : '' }}
+                            style="background-color: {{ $status->color }}; color: #fff;">
+                        {{ $status->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+
+        <hr>
+
         <!-- Items -->
         <h4>Items</h4>
         <div id="items-wrapper">
