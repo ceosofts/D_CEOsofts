@@ -71,17 +71,38 @@
                             </li>
                             <!-- Sale Dropdown Menu -->
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="saleDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-currency-dollar"></i> {{ __('Sale') }}
+                                <a class="nav-link dropdown-toggle" href="#" id="saleDropdown" role="button" 
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-currency-dollar"></i> {{ __('Sales Management') }}
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="saleDropdown">
-                                    <li>
+                                <div class="dropdown-menu" aria-labelledby="saleDropdown">
+                                    <h6 class="dropdown-header">Documents</h6>
+                                    @can('view quotations')
                                         <a class="dropdown-item" href="{{ route('quotations.index') }}">
-                                            {{ __('Quotations') }}
+                                            <i class="bi bi-file-earmark-text"></i> {{ __('Quotations') }}
                                         </a>
-                                    </li>
-                                    <!-- สามารถเพิ่มรายการอื่นๆ ใน dropdown ได้ที่นี่ -->
-                                </ul>
+                                    @endcan
+                                    
+                                    @can('view invoices')
+                                        <a class="dropdown-item" href="{{ route('invoices.index') }}">
+                                            <i class="bi bi-receipt"></i> {{ __('Invoices') }}
+                                        </a>
+                                    @endcan
+
+                                    <div class="dropdown-divider"></div>
+                                    
+                                    @can('view reports')
+                                        <a class="dropdown-item" href="{{ route('reports.sales') }}">
+                                            <i class="bi bi-graph-up"></i> {{ __('Sales Report') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('reports.quotations') }}">
+                                            <i class="bi bi-pie-chart"></i> {{ __('Quotation Analysis') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('reports.invoices') }}">
+                                            <i class="bi bi-bar-chart"></i> {{ __('Invoice Analysis') }}
+                                        </a>
+                                    @endcan
+                                </div>
                             </li>
                             <!-- Dropdown HR Menu -->
                             <li class="nav-item dropdown">
