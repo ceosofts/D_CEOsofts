@@ -14,7 +14,9 @@ use App\Http\Controllers\{
     WorkShiftController,
     PayrollController,
     WageController,
-    QuotationController
+    QuotationController,
+    InvoiceController,
+    ReportController // Add this with other use statements at the top
 };
 use App\Http\Controllers\Admin\{
     UserController,
@@ -162,9 +164,29 @@ Route::middleware('auth')->group(function () {
         Route::resource('attendances', AttendanceController::class)
             ->middleware('role:admin');
 
-        // Quotations – สามารถใช้ Route::resource ได้โดยตรง
+        // Quotations and Invoices
         Route::resource('quotations', QuotationController::class);
-        Route::get('quotations/{quotation}/export', [QuotationController::class, 'export'])->name('quotations.export');
+        Route::get('quotations/{quotation}/export', [QuotationController::class, 'export'])
+            ->name('quotations.export');
+
+        // Invoice related routes
+        Route::resource('invoices', InvoiceController::class);
+        Route::prefix('invoices')->name('invoices.')->group(function () {
+            Route::get('/{invoice}/pdf', [InvoiceController::class, 'generatePDF'])->name('pdf');
+            Route::post('/{invoice}/mark-paid', [InvoiceController::class, 'markAsPaid'])->name('mark-paid');
+        });
+
+        // Create invoice from quotation
+        Route::get('quotations/{quotation}/create-invoice', [InvoiceController::class, 'createFromQuotation'])
+            ->name('quotations.create-invoice')
+            ->middleware('can:create invoice');
+
+        // Report routes
+        Route::prefix('reports')->name('reports.')->middleware(['auth', 'can:view reports'])->group(function () {
+            Route::get('/sales', [ReportController::class, 'sales'])->name('sales');
+            Route::get('/quotations', [ReportController::class, 'quotations'])->name('quotations');
+            Route::get('/invoices', [ReportController::class, 'invoices'])->name('invoices');
+        });
 
         // Work Shifts
         Route::resource('work-shifts', WorkShiftController::class);

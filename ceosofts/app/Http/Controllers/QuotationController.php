@@ -14,6 +14,7 @@ use App\Models\PaymentStatus;
 use App\Models\JobStatus;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf as PDF;
+use App\Models\Invoice;
 
 class QuotationController extends Controller
 {
@@ -202,28 +203,53 @@ class QuotationController extends Controller
             $validated = $request->validate([
                 'seller_company' => 'required|string|max:255',
                 'quotation_date' => 'required|date',
-                'customer_id'    => 'required|exists:customers,id',
+                'customer_id' => 'required|exists:customers,id',
                 'status_id' => 'nullable|exists:job_statuses,id',
+                'payment' => 'required|string|max:255',
+                // Add other validation rules as needed
             ]);
 
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
-            // Log before update
-            \Log::info('Updating quotation status:', [
-                'quotation_id' => $quotation->id,
-                'old_status' => $quotation->status_id,
-                'new_status' => $request->status_id
-            ]);
-
+            // Update basic quotation information
             $quotation->update($validated);
 
-            \DB::commit();
+            // Update items if present
+            if ($request->has('items')) {
+                // Delete existing items
+                $quotation->items()->delete();
 
-            return redirect()->route('quotations.index')
+                $sum = 0;
+                foreach ($request->items as $item) {
+                    $qty = $item['quantity'] ?? 1;
+                    $unit = $item['unit_price'] ?? 0;
+                    $net = $qty * $unit;
+
+                    $quotation->items()->create([
+                        'product_id' => $item['product_id'] ?? null,
+                        'description' => $item['description'] ?? '',
+                        'quantity' => $qty,
+                        'unit_price' => $unit,
+                        'net_price' => $net
+                    ]);
+
+                    $sum += $net;
+                }
+
+                // Update totals - Fixed the syntax error here
+                $quotation->update([
+                    'total_amount' => $sum,
+                    'amount_in_words' => $this->numToWords($sum)  // Removed the extra dot
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('quotations.show', $quotation)
                 ->with('success', 'Quotation updated successfully');
 
         } catch (\Exception $e) {
-            \DB::rollBack();
+            DB::rollBack();
             \Log::error('Error updating quotation: ' . $e->getMessage());
             return back()->withErrors(['error' => 'Failed to update quotation: ' . $e->getMessage()]);
         }
@@ -302,5 +328,69 @@ class QuotationController extends Controller
         $mpdf->WriteHTML($view);
 
         return $mpdf->Output('Quotation-' . $quotation->quotation_number . '.pdf', 'I');
+    }
+
+    /**
+     * Update quotation status and create invoice if approved
+     */
+    public function updateStatus(Request $request, Quotation $quotation)
+    {
+        try {
+            DB::beginTransaction();
+
+            $validated = $request->validate([
+                'status_id' => 'required|exists:job_statuses,id'
+            ]);
+
+            // Log before update
+            \Log::info('Updating quotation status:', [
+                'quotation_id' => $quotation->id,
+                'old_status' => $quotation->status_id,
+                'new_status' => $request->status_id
+            ]);
+
+            $quotation->update($validated);
+
+            // Check if status is "ลูกค้าอนุมัติใบเสนอราคา"
+            $approvedStatus = JobStatus::where('name', 'ลูกค้าอนุมัติใบเสนอราคา')->first();
+            if ($approvedStatus && $request->status_id == $approvedStatus->id) {
+                // Create invoice number
+                $lastInvoice = Invoice::orderBy('id', 'desc')->first();
+                $nextNum = $lastInvoice ? intval(substr($lastInvoice->invoice_number, 2)) + 1 : 1;
+                $invoiceNumber = 'IV' . str_pad($nextNum, 6, '0', STR_PAD_LEFT);
+
+                // Create invoice
+                $invoice = Invoice::create([
+                    'invoice_number' => $invoiceNumber,
+                    'quotation_id' => $quotation->id,
+                    'invoice_date' => now(),
+                    'due_date' => now()->addDays(30), // Default 30 days
+                    'total_amount' => $quotation->total_amount,
+                    'payment_amount' => 0, // Will be set when creating invoice
+                    'remaining_balance' => $quotation->total_amount,
+                    'payment_percentage' => 0, // Will be set when creating invoice
+                    'amount_in_words' => $quotation->amount_in_words,
+                    'your_ref' => $quotation->your_ref,
+                    'our_ref' => $quotation->our_ref,
+                    'payment_terms' => $quotation->payment,
+                    'created_by' => auth()->id()
+                ]);
+
+                \Log::info('Created invoice from approved quotation:', [
+                    'quotation_id' => $quotation->id,
+                    'invoice_id' => $invoice->id
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('quotations.show', $quotation)
+                ->with('success', 'Quotation status updated successfully');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error updating quotation status: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Failed to update status: ' . $e->getMessage()]);
+        }
     }
 }

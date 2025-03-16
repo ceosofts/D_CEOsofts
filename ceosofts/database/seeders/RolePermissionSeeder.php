@@ -30,7 +30,17 @@ class RolePermissionSeeder extends Seeder
             'audit system', 'full access', 'manage employees', 'manage attendance',
             'manage holidays', 'manage salaries', 'manage deductions',
             'view company holidays', 'create company holidays', 'edit company holidays', 'delete company holidays',
-            'view attendance', 'create attendance', 'edit attendance', 'delete attendance', 'Wage', 'WorkShift'
+            'view attendance', 'create attendance', 'edit attendance', 'delete attendance', 'Wage', 'WorkShift',
+            // Add new permissions here
+            'manage job statuses',
+            'view invoices',
+            'create invoice',
+            'edit invoice',
+            'delete invoice',
+            'view quotations',
+            'create quotation',
+            'edit quotation',
+            'delete quotation'
         ];
 
         foreach ($permissions as $permission) {
@@ -39,8 +49,6 @@ class RolePermissionSeeder extends Seeder
                 ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]
             );
         }
-
-        Permission::create(['name' => 'manage job statuses']);
 
         // ✅ ให้ Role มีสิทธิ์ที่กำหนด
         $rolePermissions = [
@@ -59,9 +67,15 @@ class RolePermissionSeeder extends Seeder
             }
         }
 
+        // ให้สิทธิ์กับ admin role
         $adminRole = Role::where('name', 'admin')->first();
-        if ($adminRole) {
-            $adminRole->givePermissionTo('manage job statuses');
-        }
+        $adminRole->givePermissionTo([
+            'view quotations',
+            'create quotation',
+            'edit quotation',
+            'delete quotation'
+        ]);
+
+        // No need for additional givePermissionTo calls since admin already has all permissions
     }
 }

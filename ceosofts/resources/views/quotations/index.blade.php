@@ -61,6 +61,12 @@
                                 @method('DELETE')
                                 <button class="btn btn-danger btn-sm">Del</button>
                             </form>
+                            @if($q->status && $q->status->name === 'ลูกค้าอนุมัติใบเสนอราคา')
+                                <a href="{{ route('quotations.create-invoice', $q) }}" 
+                                   class="btn btn-success">
+                                    <i class="bi bi-file-earmark-text"></i> Create Invoice
+                                </a>
+                            @endif
                         </td>
                     </tr>
                 @empty
