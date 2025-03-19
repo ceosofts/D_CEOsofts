@@ -5,30 +5,39 @@
 
 @section('content')
 <div class="container">
-    <h1 class="mb-3">Dashboard</h1>
-    <p>Welcome, {{ Auth::user()->name }}!</p>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">{{ __('Dashboard') }}</div>
 
-    {{-- Display admin controls if the user has the admin role --}}
-    @if(Auth::check() && Auth::user()->hasRole('admin'))
-        <div class="mb-3">
-            <a href="{{ route('admin.users.index') }}" class="btn btn-primary">
-                <i class="bi bi-people-fill"></i> Manage Users
-            </a>
+                <div class="card-body">
+                    <h4>Welcome, {{ Auth::user()->name }}!</h4>
+                    
+                    @if (session('status'))
+                        <div class="alert alert-success" role="alert">
+                            {{ session('status') }}
+                        </div>
+                    @endif
+
+                    <p>{{ __('You are logged in!') }}</p>
+                    
+                    <div class="mt-4">
+                        <h5>Quick Links</h5>
+                        <div class="list-group">
+                            <a href="{{ route('customers.index') }}" class="list-group-item list-group-item-action">
+                                <i class="bi bi-people"></i> Manage Customers
+                            </a>
+                            <a href="{{ route('products.index') }}" class="list-group-item list-group-item-action">
+                                <i class="bi bi-box"></i> Manage Products
+                            </a>
+                            <a href="{{ route('orders.index') }}" class="list-group-item list-group-item-action">
+                                <i class="bi bi-cart"></i> Manage Orders
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    @endif
-
-    {{-- Additional dashboard widgets can be added here --}}
-    <div class="card mt-4">
-        <div class="card-body">
-            <h5 class="card-title">Dashboard Widgets</h5>
-            <p class="card-text">Add your custom widgets or statistics here to provide useful insights.</p>
-        </div>
-    </div>
-
-    <div class="mt-3">
-        <a href="{{ route('home') }}" class="btn btn-secondary">
-            <i class="bi bi-house"></i> Back to Home
-        </a>
     </div>
 </div>
 @endsection

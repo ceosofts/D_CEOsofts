@@ -54,14 +54,14 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', env('LOG_STACK', 'single')),
+            'channels' => ['single'],
             'ignore_exceptions' => false,
         ],
 
         'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level' => env('LOG_LEVEL', 'debug') ?: 'debug', // Add null coalescing operator
             'replace_placeholders' => true,
         ],
 
@@ -125,6 +125,13 @@ return [
 
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
+        ],
+
+        'queries' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/database-queries.log'),
+            'level' => 'debug',
+            'days' => 14,
         ],
 
     ],

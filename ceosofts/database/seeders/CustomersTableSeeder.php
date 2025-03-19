@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Schema;
 
 class CustomersTableSeeder extends Seeder
 {
@@ -13,53 +13,69 @@ class CustomersTableSeeder extends Seeder
      */
     public function run(): void
     {
-        // สร้างรหัสลูกค้าใหม่ในรูปแบบ "CUSxxxx"
-        // ตัวอย่าง code เดิม: "CUS0001"
-        $lastCode = DB::table('customers')->max('code'); // ดึง code สูงสุด
-        $lastNumber = $lastCode ? intval(substr($lastCode, 3)) : 0;
-        $newCode = 'CUS' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+        // ตรวจสอบการมีอยู่ของตาราง
+        if (!Schema::hasTable('customers')) {
+            $this->command->error("Table 'customers' does not exist, skipping seeder.");
+            return;
+        }
 
-        $customers = [
-            [
-                'companyname'   => 'Acme Corporation',
-                'contact_name'  => 'John Doe',
-                'email'         => 'john@example.com',
-                'phone'         => '123456789',
-                'address'       => '123 Main Street',
-                'taxid'         => '1234567890123',
-                'branch'        => 'Head Office', // เพิ่มข้อมูลสาขา
-                'code'          => $newCode,
-                'created_at'    => Carbon::now(),
-                'updated_at'    => Carbon::now(),
-            ],
-            [
-                'companyname'   => 'Beta Industries',
-                'contact_name'  => 'Jane Smith',
-                'email'         => 'jane@example.com',
-                'phone'         => '987654321',
-                'address'       => '456 Secondary Street',
-                'taxid'         => '9876543210987',
-                'branch'        => 'Branch 001', // เพิ่มข้อมูลสาขา
-                'code'          => 'CUS' . str_pad($lastNumber + 2, 4, '0', STR_PAD_LEFT),
-                'created_at'    => Carbon::now(),
-                'updated_at'    => Carbon::now(),
-            ],
-            // เพิ่มข้อมูลลูกค้าตัวอย่างเพิ่มเติม
-            [
-                'companyname'   => 'Gamma Solutions',
-                'contact_name'  => 'Bob Wilson',
-                'email'         => 'bob@example.com',
-                'phone'         => '555666777',
-                'address'       => '789 Tech Park',
-                'taxid'         => '5556667770001',
-                'branch'        => 'R&D Center', // เพิ่มข้อมูลสาขา
-                'code'          => 'CUS' . str_pad($lastNumber + 3, 4, '0', STR_PAD_LEFT),
-                'created_at'    => Carbon::now(),
-                'updated_at'    => Carbon::now(),
-            ],
-        ];
+        try {
+            // ตรวจสอบคอลัมน์ที่จำเป็น
+            $columns = Schema::getColumnListing('customers');
+            $requiredColumns = ['companyname', 'email', 'phone', 'address'];
+            $missingColumns = array_diff($requiredColumns, $columns);
+            
+            if (!empty($missingColumns)) {
+                $this->command->error("Missing columns in customers table: " . implode(', ', $missingColumns));
+                return;
+            }
+            
+            // ลูกค้าตัวอย่าง
+            $customers = [
+                [
+                    'companyname' => 'บริษัท ตัวอย่าง จำกัด',
+                    'email' => 'contact@example.com',
+                    'phone' => '02-123-4567',
+                    'address' => 'กรุงเทพมหานคร',
+                    'taxid' => '1234567890123',
+                    'branch' => 'สำนักงานใหญ่',
+                    'code' => 'C001',
+                    'contact_name' => 'คุณสมชาย'
+                ],
+                [
+                    'companyname' => 'ห้างหุ้นส่วนจำกัด ตัวอย่าง',
+                    'email' => 'info@example.co.th',
+                    'phone' => '02-765-4321',
+                    'address' => 'เชียงใหม่',
+                    'taxid' => '9876543210123',
+                    'branch' => 'สาขาเชียงใหม่',
+                    'code' => 'C002',
+                    'contact_name' => 'คุณสมหญิง'
+                ]
+            ];
 
-        // ใช้ insertOrIgnore() เพื่อป้องกันข้อมูลซ้ำ
-        DB::table('customers')->insertOrIgnore($customers);
+            $count = 0;
+            foreach ($customers as $customer) {
+                DB::table('customers')->updateOrInsert(
+                    ['email' => $customer['email']],
+                    [
+                        'companyname' => $customer['companyname'],
+                        'phone' => $customer['phone'],
+                        'address' => $customer['address'],
+                        'taxid' => $customer['taxid'],
+                        'branch' => $customer['branch'],
+                        'code' => $customer['code'],
+                        'contact_name' => $customer['contact_name'],
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]
+                );
+                $count++;
+            }
+
+            $this->command->info("Successfully seeded {$count} customers");
+        } catch (\Exception $e) {
+            $this->command->error("Error running " . get_class($this) . ": " . $e->getMessage());
+        }
     }
 }

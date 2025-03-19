@@ -3,74 +3,92 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
-use App\Models\Department;
-use App\Models\Position;
-use Carbon\Carbon;
 
 class UserSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        // ✅ ค้นหา department และ position ให้แน่ใจว่ามีอยู่
-        $itDepartment = Department::firstOrCreate(['name' => 'ไอที'], ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-        $adminPosition = Position::firstOrCreate(['name' => 'admin'], ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-
-        // ✅ ตรวจสอบว่า User มีอยู่หรือไม่ก่อนสร้างใหม่
-        $adminUser = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'name'              => 'Admin User',
-                'password'          => Hash::make('password123'),
-                'email_verified_at' => Carbon::now(),
-                'remember_token'    => Str::random(10),
-                'department_id'     => $itDepartment->id,
-                'position_id'       => $adminPosition->id,
-                'created_at'        => Carbon::now(),
-                'updated_at'        => Carbon::now(),
-            ]
-        );
-
-        // ✅ ตรวจสอบ role: admin
-        $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web'], ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+        // ตรวจสอบการมีอยู่ของตาราง
+        if (!Schema::hasTable('users')) {
+            $this->command->error("Table 'users' does not exist, skipping seeder.");
+            return;
+        }
         
-        // ✅ กำหนด role ให้แน่ใจว่ามีแค่ "admin" เท่านั้น
-        $adminUser->syncRoles([$adminRole]);
+        if (!Schema::hasTable('roles')) {
+            $this->command->error("Table 'roles' does not exist, skipping seeder.");
+            return;
+        }
 
+        try {
+            // ตรวจสอบคอลัมน์ที่จำเป็น
+            $columns = Schema::getColumnListing('users');
+            $requiredColumns = ['name', 'email', 'password', 'role'];
+            $missingColumns = array_diff($requiredColumns, $columns);
+            
+            if (!empty($missingColumns)) {
+                $this->command->error("Missing columns in users table: " . implode(', ', $missingColumns));
+                return;
+            }
+            
+            // ผู้ใช้ตัวอย่าง
+            $users = [
+                [
+                    'name' => 'Admin User',
+                    'email' => 'admin@example.com',
+                    'password' => Hash::make('password123'),
+                    'role' => 'admin',
+                    'email_verified_at' => now(),
+                ],
+                [
+                    'name' => 'Manager User',
+                    'email' => 'manager@example.com',
+                    'password' => Hash::make('password123'),
+                    'role' => 'manager',
+                    'email_verified_at' => now(),
+                ],
+                [
+                    'name' => 'Regular User',
+                    'email' => 'user@example.com',
+                    'password' => Hash::make('password123'),
+                    'role' => 'user',
+                    'email_verified_at' => now(),
+                ],
+            ];
 
-        // ✅ สร้าง Manager User
-        $managerUser = User::firstOrCreate(
-            ['email' => 'manager@example.com'],
-            [
-                'name'              => 'Manager User',
-                'password'          => Hash::make('password123'),
-                'email_verified_at' => Carbon::now(),
-                'remember_token'    => Str::random(10),
-                'department_id'     => 1,
-                'position_id'       => 3,
-                'created_at'        => Carbon::now(),
-                'updated_at'        => Carbon::now(),
-            ]
-        );
-        $managerUser->syncRoles(['manager']);
+            $count = 0;
+            foreach ($users as $userData) {
+                $user = User::updateOrCreate(
+                    ['email' => $userData['email']],
+                    [
+                        'name' => $userData['name'],
+                        'password' => $userData['password'],
+                        'role' => $userData['role'],
+                        'email_verified_at' => $userData['email_verified_at'],
+                    ]
+                );
+                
+                // กำหนดบทบาท (role)
+                if (isset($userData['role']) && !empty($userData['role'])) {
+                    $role = Role::where('name', $userData['role'])->first();
+                    if ($role) {
+                        $user->assignRole($role);
+                    }
+                }
+                
+                $count++;
+            }
 
-        // ✅ สร้าง User ทั่วไป
-        $regularUser = User::firstOrCreate(
-            ['email' => 'user@example.com'],
-            [
-                'name'              => 'Regular User',
-                'password'          => Hash::make('password123'),
-                'email_verified_at' => Carbon::now(),
-                'remember_token'    => Str::random(10),
-                'department_id'     => 1,
-                'position_id'       => 1,
-                'created_at'        => Carbon::now(),
-                'updated_at'        => Carbon::now(),
-            ]
-        );
-        $regularUser->syncRoles(['user']);
+            $this->command->info("Successfully seeded {$count} users");
+        } catch (\Exception $e) {
+            $this->command->error("Error running " . get_class($this) . ": " . $e->getMessage());
+        }
     }
 }

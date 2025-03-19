@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\PaymentStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class PaymentStatusController extends Controller
 {
@@ -14,9 +16,8 @@ class PaymentStatusController extends Controller
      */
     public function index()
     {
-        // สามารถใช้ paginate ถ้าต้องการแบ่งหน้า
-        $statuses = PaymentStatus::paginate(10);
-        return \view('admin.payment_statuses.index', compact('statuses'));
+        $payment_statuses = PaymentStatus::all();
+        return view('admin.payment_statuses.index', compact('payment_statuses'));
     }
 
     /**
@@ -24,7 +25,7 @@ class PaymentStatusController extends Controller
      */
     public function create()
     {
-        return \view('admin.payment_statuses.create');
+        return view('admin.payment_statuses.create');
     }
 
     /**
@@ -33,65 +34,89 @@ class PaymentStatusController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|unique:payment_statuses,name|max:255'
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50',
+            'description' => 'nullable|string',
+            'color' => 'nullable|string|max:50',
+            'is_active' => 'nullable|boolean',
         ]);
 
-        try {
-            $paymentStatus = new PaymentStatus();
-            $paymentStatus->fill($validated);
-            $paymentStatus->save();
-
-            return \redirect()->route('admin.payment_statuses.index')
-                ->with('success', 'เพิ่มข้อมูลสำเร็จ');
-        } catch (\Exception $e) {
-            Log::error('Error storing payment status: ' . $e->getMessage());
-            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])
-                ->withInput();
+        // Handle color field from color picker
+        if ($request->has('color_text')) {
+            $validated['color'] = $request->color_text;
         }
+
+        // Default is_active to true if not provided
+        if (!isset($validated['is_active'])) {
+            $validated['is_active'] = false;
+        }
+
+        PaymentStatus::create($validated);
+
+        return redirect('/admin/payment_statuses')
+            ->with('flash_message', 'สร้างสถานะการจ่ายเงินใหม่สำเร็จแล้ว!');
+    }
+
+    /**
+     * แสดงข้อมูลสถานะการจ่ายเงิน
+     */
+    public function show(string $id)
+    {
+        $payment_status = PaymentStatus::findOrFail($id);
+        return view('admin.payment_statuses.show', compact('payment_status'));
     }
 
     /**
      * แสดงฟอร์มแก้ไขข้อมูลสถานะการจ่ายเงิน
+     * 
+     * @param int $payment_status รหัสสถานะการจ่ายเงิน
+     * @return \Illuminate\View\View
      */
-    public function edit(PaymentStatus $paymentStatus)
+    public function edit(string $id)
     {
-        return \view('admin.payment_statuses.edit', compact('paymentStatus'));
+        $payment_status = PaymentStatus::findOrFail($id);
+        return view('admin.payment_statuses.edit', compact('payment_status'));
     }
 
     /**
      * อัปเดตข้อมูลสถานะการจ่ายเงิน
      */
-    public function update(Request $request, PaymentStatus $paymentStatus)
+    public function update(Request $request, string $id)
     {
         $validated = $request->validate([
-            'name' => 'required|max:255|unique:payment_statuses,name,' . $paymentStatus->id,
+            'name' => 'required|string|max:255',
+            'code' => 'nullable|string|max:50',
+            'description' => 'nullable|string',
+            'color' => 'nullable|string|max:50',
+            'is_active' => 'nullable|boolean',
         ]);
 
-        try {
-            $paymentStatus->forceFill($validated);
-            $paymentStatus->save();
-
-            return \redirect()->route('admin.payment_statuses.index')
-                ->with('success', 'แก้ไขข้อมูลสำเร็จ');
-        } catch (\Exception $e) {
-            Log::error('Error updating payment status: ' . $e->getMessage());
-            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])
-                ->withInput();
+        // Handle color field from color picker
+        if ($request->has('color_text')) {
+            $validated['color'] = $request->color_text;
         }
+
+        // Default is_active to false if not provided
+        if (!isset($validated['is_active'])) {
+            $validated['is_active'] = false;
+        }
+
+        $payment_status = PaymentStatus::findOrFail($id);
+        $payment_status->update($validated);
+
+        return redirect('/admin/payment_statuses')
+            ->with('flash_message', 'อัปเดตสถานะการจ่ายเงินสำเร็จแล้ว!');
     }
 
     /**
      * ลบข้อมูลสถานะการจ่ายเงิน
      */
-    public function destroy(PaymentStatus $paymentStatus)
+    public function destroy(string $id)
     {
-        try {
-            $paymentStatus->delete();
-            return \redirect()->route('admin.payment_statuses.index')
-                ->with('success', 'ลบข้อมูลสำเร็จ');
-        } catch (\Exception $e) {
-            Log::error('Error deleting payment status: ' . $e->getMessage());
-            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
-        }
+        $payment_status = PaymentStatus::findOrFail($id);
+        $payment_status->delete();
+
+        return redirect('/admin/payment_statuses')
+            ->with('flash_message', 'ลบสถานะการจ่ายเงินสำเร็จแล้ว!');
     }
 }

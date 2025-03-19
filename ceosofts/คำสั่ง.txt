@@ -1,122 +1,167 @@
-หมวดหมู่คำสั่งสำหรับ Laravel, SQLite, และการจัดการโปรเจกต์
+# 📘 คำสั่งที่จำเป็นสำหรับโปรเจกต์ Laravel CEOsofts
+# ปรับปรุงล่าสุด: มีนาคม 2025
 
-🔹 1. คำสั่งที่ใช้บ่อยที่สุด
-ใช้ทุกวัน หรือใช้บ่อยในการทำงานกับโปรเจกต์ Laravel
+#==============================================================================
+# 🚀 คำสั่งที่ใช้บ่อยที่สุดในการพัฒนา
+#==============================================================================
 
-cd ceosofts                         # เข้าตำแหน่งโปรเจกต์
-wsl                                 # เปิด WSL (ถ้าใช้ Windows Subsystem for Linux)
-php artisan serve                   # เริ่มเซิร์ฟเวอร์ท้องถิ่น
-npm run dev                         # คอมไพล์ Assets (Development Mode)
-npm run build                       # Build Production Mode
-php artisan migrate:fresh --seed
+# เริ่มการทำงานและรันเซิร์ฟเวอร์ (Development)
+cd /Users/iwasbornforthis/MyProject/D_CEOsofts/ceosofts  # เข้าตำแหน่งโปรเจกต์
+php artisan serve                                        # เริ่มเซิร์ฟเวอร์ที่ http://127.0.0.1:8000
+php artisan serve --host=0.0.0.0 --port=8080             # เริ่มเซิร์ฟเวอร์พร้อมระบุ IP และ Port
 
-admin@example.com
-password123
+# บัญชีผู้ใช้สำเร็จรูป (จาก UserSeeder)
+# Admin: admin@example.com / password123
+# Manager: manager@example.com / password123
+# User: user@example.com / password123
 
-🔹 2. คำสั่งสำหรับการจัดการ Cache และ Logs
-ใช้เมื่อต้องการแก้ปัญหาหรือเคลียร์ข้อมูลเก่า
+# การทำงานกับ Frontend
+npm run dev                           # คอมไพล์ Assets แบบ Development Mode (มี Hot-reload)
+npm run build                         # Build Frontend สำหรับ Production
+npm run watch                         # คอมไพล์อัตโนมัติเมื่อไฟล์เปลี่ยน
 
-php artisan config:clear        # เคลียร์ค่า config cache
-php artisan route:clear         # เคลียร์ route cache
-php artisan cache:clear         # เคลียร์ cache ทั้งหมด
-php artisan view:clear          # เคลียร์ view cache
-php artisan optimize            # เพิ่มประสิทธิภาพ Laravel
-composer dump-autoload -o       # โหลด autoload ใหม่
+# Database และ Migration
+php artisan migrate:fresh --seed      # รีเซ็ต Database และเพิ่มข้อมูลตัวอย่าง
+php artisan migrate:status            # ตรวจสอบสถานะของ migration
+php artisan db:seed --class=UnitSeeder  # รัน Seeder เฉพาะ UnitSeeder
 
-เคลียร์ Log ของ Laravel
+#==============================================================================
+# 🧹 ล้าง Cache และ แก้ปัญหาทั่วไป
+#==============================================================================
 
+# ล้าง cache ทั้งหมดในคราวเดียว
+php artisan optimize:clear            # ล้าง cache ทั้งหมด (route, view, config, compiled)
+
+# ล้าง cache แต่ละประเภท
+php artisan config:clear              # ล้าง config cache
+php artisan route:clear               # ล้าง route cache
+php artisan cache:clear               # ล้าง application cache
+php artisan view:clear                # ล้าง compiled view
+
+# สร้าง cache เพื่อเพิ่มประสิทธิภาพ
+php artisan optimize                  # สร้าง cache ทั้งหมด
+php artisan config:cache              # สร้าง cache สำหรับ config
+php artisan route:cache               # สร้าง cache สำหรับ routes
+
+# Composer และ autoload
+composer dump-autoload -o             # โหลด autoload ใหม่ (แบบ optimized)
+composer clear-cache                  # ล้าง composer cache
+
+# การจัดการกับ Log files
 echo "" > storage/logs/laravel.log    # ล้าง Log Laravel
-rm storage/logs/laravel.log           # ลบไฟล์ Log (Laravel สร้างใหม่ให้อัตโนมัติ)
+tail -f storage/logs/laravel.log      # ดู Log แบบ real-time
+cat storage/logs/laravel.log | grep "error"  # ค้นหาข้อผิดพลาด
 
-เช็ค Log Laravel
+#==============================================================================
+# 📊 ฐานข้อมูลและการจัดการ
+#==============================================================================
 
-cat storage/logs/laravel.log           # ดู Log ล่าสุด
-tail -f storage/logs/laravel.log       # ดู Log แบบ real-time
+# คำสั่งเกี่ยวกับ Migration และ Database
+php artisan make:migration create_new_table_name  # สร้างไฟล์ migration ใหม่
+php artisan migrate                              # รัน migration ที่ยังไม่ได้รัน
+php artisan migrate:rollback                     # ถอยกลับ migration ล่าสุด
+php artisan migrate:rollback --step=2            # ถอยกลับ migration 2 ครั้ง
 
-🔹 3. คำสั่งสำหรับจัดการฐานข้อมูล SQLite
-ใช้เมื่อทำงานกับฐานข้อมูลของ Laravel (SQLite)
+# SQLite CLI Commands (ถ้าใช้ SQLite)
+sqlite3 database/database.sqlite                 # เปิด SQLite CLI
+.tables                                          # แสดงตารางทั้งหมด
+.schema table_name                               # แสดงโครงสร้างของตาราง
+SELECT * FROM table_name LIMIT 10;               # ดูข้อมูล 10 แถวแรกในตาราง
+.exit                                            # ออกจาก SQLite CLI
 
-touch database/database.sqlite       # สร้างไฟล์ฐานข้อมูล SQLite
-sqlite3 database/database.sqlite     # เปิด SQLite CLI
+# การใช้งาน Tinker เพื่อตรวจสอบข้อมูล
+php artisan tinker                               # เริ่ม Laravel Tinker
 
-.tables                               # แสดงตารางทั้งหมด
-.schema table_name                    # แสดงโครงสร้างของตาราง
-SELECT * FROM table_name;             # ดูข้อมูลในตาราง
-.exit                                 # ออกจาก SQLite CLI
+# ตัวอย่างคำสั่งใน Tinker
+\App\Models\User::all();                         # ดึงผู้ใช้ทั้งหมด
+\App\Models\Product::find(1);                    # ดึงสินค้า ID 1
+DB::table('units')->get();                       # ดึงข้อมูลจากตาราง units
+\App\Models\Customer::where('email', 'like', '%example.com')->get();  # ค้นหาลูกค้า
 
-🔹 4. คำสั่งเกี่ยวกับ Model, Controller, และ Migration
-ใช้เมื่อต้องการสร้างหรืออัปเดตโครงสร้างฐานข้อมูล
+#==============================================================================
+# 🧰 การสร้างไฟล์ Laravel Components
+#==============================================================================
 
-php artisan make:model xxx -m                           # สร้าง Model และ Migration พร้อมกัน
-php artisan make:controller xxx --resource    # สร้าง Controller พร้อม CRUD
-php artisan make:migration create_orders_table                  # สร้างไฟล์ Migration
-php artisan migrate                                             # รัน Migration
-php artisan migrate:rollback                                    # Rollback Migration
-php artisan migrate:status                                      # เช็คสถานะ Migration
+# สร้าง Model, Controller, Migration พร้อมกัน
+php artisan make:model Product -mcr              # สร้าง Model + Migration + Controller (resource)
+php artisan make:model Customer -mfs             # สร้าง Model + Migration + Factory + Seeder
 
-Seed ข้อมูล
+# สร้าง Controller
+php artisan make:controller ProductController --resource  # สร้าง Controller แบบ CRUD
+php artisan make:controller API/ProductController --api   # สร้าง API Controller
 
-php artisan db:seed --class=SeederClassName   # Seed ข้อมูลเข้า Database
+# สร้าง Service, Repository, Request
+php artisan make:request StoreProductRequest     # สร้าง Form Request Validation
+php artisan make:middleware CheckRole            # สร้าง Middleware
+php artisan make:seeder ProductSeeder           # สร้าง Seeder
+php artisan make:factory ProductFactory         # สร้าง Factory
 
-🔹 5. คำสั่งที่ใช้ตรวจสอบข้อมูลใน Database ผ่าน Laravel
-ใช้เมื่อต้องการดูข้อมูลในตารางโดยไม่ต้องเปิด SQLite
+#==============================================================================
+# 🔍 ตรวจสอบ Routes และ API
+#==============================================================================
 
-php artisan tinker                     # เปิด Tinker เพื่อเช็คข้อมูล
+# แสดงรายการ routes
+php artisan route:list                          # แสดง routes ทั้งหมด
+php artisan route:list --path=product           # แสดงเฉพาะ routes ที่มี 'product' ในเส้นทาง
+php artisan route:list --method=POST            # แสดงเฉพาะ routes แบบ POST
+php artisan route:list --name=product           # แสดงเฉพาะ routes ที่มีชื่อเกี่ยวกับ product
+php artisan route:list --json                   # แสดงผลในรูปแบบ JSON
 
-ตรวจสอบข้อมูลในตาราง
+# ทดสอบ API ด้วย curl
+curl http://localhost:8000/api/products           # ดึงข้อมูล API แบบ GET
+curl -X POST http://localhost:8000/api/products -H "Content-Type: application/json" -d '{"name":"New Product"}' # POST request
 
-DB::table('customers')->get();         # ดูข้อมูลจาก customers
-DB::table('companies')->get();         # ดูข้อมูลจาก companies
-\App\Models\Product::all();            # ดึงข้อมูลทั้งหมดจาก Products
-\App\Models\Product::count();          # นับจำนวนข้อมูลใน Products
-\App\Models\Product::where('name', 'Product 1')->get();  # ค้นหาข้อมูล
+#==============================================================================
+# 🏗️ การสร้างโปรเจกต์ใหม่ (อ้างอิง)
+#==============================================================================
 
-🔹 6. คำสั่งเกี่ยวกับ Routing ใน Laravel
-ใช้เมื่อต้องการตรวจสอบเส้นทาง API หรือเว็บ
+laravel new project-name                        # สร้างโปรเจกต์ Laravel ใหม่
+composer create-project laravel/laravel project-name "10.*"   # สร้างโปรเจกต์ด้วย composer (ระบุเวอร์ชัน)
+cd project-name                                 # เข้าสู่โฟลเดอร์โปรเจกต์
+composer require laravel/breeze --dev           # เพิ่ม Laravel Breeze (Authentication)
+php artisan breeze:install blade                # ติดตั้ง Breeze กับ Blade
 
-php artisan route:list                  # แสดงเส้นทางทั้งหมด
-php artisan route:list | grep products   # ค้นหาเฉพาะ route ที่เกี่ยวข้องกับ products
-php artisan route:list | grep customers  # ค้นหาเฉพาะ route ที่เกี่ยวข้องกับ customers
-php artisan route:list | grep companies  # ค้นหาเฉพาะ route ที่เกี่ยวข้องกับ companies
+#==============================================================================
+# 🔒 Authentication และ Authorization
+#==============================================================================
 
-🔹 7. คำสั่งสำหรับติดตั้งและจัดการ Dependencies
-ใช้เมื่อมีการเพิ่ม/อัปเดตแพ็กเกจ
+# Sanctum (API Authentication)
+composer require laravel/sanctum               # ติดตั้ง Laravel Sanctum
+php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+php artisan migrate
 
-Composer (PHP)
+# Spatie Permission (ที่ใช้ในโปรเจกต์)
+php artisan permission:create-role admin        # สร้างบทบาท admin
+php artisan permission:create-permission "manage products"  # สร้าง permission
+php artisan permission:show                     # แสดงรายการ roles และ permissions ทั้งหมด
 
-composer install               # ติดตั้ง Dependencies
-composer update                # อัปเดต Dependencies
-composer require package/name   # เพิ่มแพ็กเกจใหม่
-composer remove package/name    # ลบแพ็กเกจออก
+#==============================================================================
+# 📦 Maintenance และ Deployment
+#==============================================================================
 
-NPM (Frontend)
+# เปิด/ปิดโหมดบำรุงรักษา
+php artisan down                               # เปิดโหมดบำรุงรักษา
+php artisan down --secret="1630542a-246b-4b66" # เปิดพร้อมรหัสลับเพื่อเข้าถึง
+php artisan up                                 # ปิดโหมดบำรุงรักษา
 
-npm install                 # ติดตั้ง Dependencies
-npm update                  # อัปเดต Dependencies
-npm install package-name    # ติดตั้งแพ็กเกจใหม่
-npm uninstall package-name  # ลบแพ็กเกจออก
+# คำสั่งที่ควรรันหลัง Deploy บน Production
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+php artisan optimize
 
-🔹 8. คำสั่งที่ใช้ในการจัดการ Git
-ใช้เมื่อทำงานกับ Git และ Version Control
+# Scheduler และ Queue
+php artisan schedule:list                      # แสดงรายการ scheduled tasks
+php artisan queue:work                         # รัน queue worker
+php artisan queue:restart                      # รีสตาร์ท queue workers
 
-git status                         # ตรวจสอบสถานะไฟล์
-git add .                           # เพิ่มไฟล์ทั้งหมดสำหรับ Commit
-git commit -m "ข้อความ commit"       # บันทึกการเปลี่ยนแปลง
-git pull origin branch-name         # ดึงข้อมูลจาก Repository
-git push origin branch-name         # ส่งข้อมูลไปยัง Repository
+#==============================================================================
+# 🔄 Git Commands (อ้างอิง)
+#==============================================================================
 
-🔹 9. คำสั่งที่เกี่ยวกับการพัฒนาโปรเจกต์ใหม่
-ใช้เมื่อต้องการสร้างโปรเจกต์ Laravel ใหม่
-
-laravel new project-name            # สร้างโปรเจกต์ Laravel ใหม่
-composer create-project --prefer-dist laravel/laravel project-name  # อีกวิธีในการสร้างโปรเจกต์
-php artisan make:model ModelName -m  # สร้าง Model พร้อม Migration
-php artisan make:controller ControllerName --resource  # สร้าง Controller แบบ CRUD
-
-🔹 10. คำสั่งสำหรับตรวจสอบเวอร์ชัน
-ใช้เพื่อตรวจสอบเวอร์ชันของเครื่องมือที่ใช้
-
-php -v              # เช็คเวอร์ชัน PHP
-composer -v         # เช็คเวอร์ชัน Composer
-node -v             # เช็คเวอร์ชัน Node.js
-php artisan --version  # เช็คเวอร์ชัน Laravel
+git status                                     # ตรวจสอบสถานะการเปลี่ยนแปลง
+git add .                                      # เพิ่มไฟล์ที่เปลี่ยนแปลงทั้งหมด
+git commit -m "Add new features"               # commit การเปลี่ยนแปลง
+git pull origin main                          # ดึงโค้ดล่าสุดจาก main branch
+git push origin main                          # ส่งการเปลี่ยนแปลงไป main branch
+git checkout -b feature/new-feature           # สร้างและสลับไปยัง branch ใหม่

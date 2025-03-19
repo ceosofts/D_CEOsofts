@@ -4,33 +4,73 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 
-/**
- * Class Unit
- *
- * This model represents a unit used to measure or describe products.
- *
- * @property int $id
- * @property string $name
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- */
 class Unit extends Model
 {
     use HasFactory;
 
     /**
-     * The attributes that are mass assignable.
+     * The table associated with the model.
      *
-     * @var array<int, string>
+     * @var string
      */
-    protected $fillable = ['name'];
+    protected $table = 'units';
 
     /**
-     * Indicates if the model should be timestamped.
-     * By default, this is true.
+     * The primary key associated with the table.
      *
-     * @var bool
+     * @var string
      */
-    public $timestamps = true;
+    protected $primaryKey = 'id';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'unit_name_th',
+        'unit_name_en',
+        'description',
+        'is_active',
+        'unit_code',
+        // ชื่อสำรองหากมีการตั้งชื่อคอลัมน์ต่างไป
+        'unit_name',
+        'name',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    /**
+     * ชื่อหน่วยนับในภาษาไทย หรือชื่อหลัก
+     * อ้างอิงตาม field ที่มีในฐานข้อมูล
+     */
+    public function getNameAttribute()
+    {
+        if (Schema::hasColumn('units', 'unit_name_th')) {
+            return $this->unit_name_th;
+        } elseif (Schema::hasColumn('units', 'unit_name')) {
+            return $this->unit_name;
+        } elseif (Schema::hasColumn('units', 'name')) {
+            return $this->name;
+        }
+        
+        return null;
+    }
+
+    /**
+     * ความสัมพันธ์กับตาราง Products
+     */
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'unit_id', 'id');
+    }
 }

@@ -1,62 +1,227 @@
 @extends('layouts.app')
 
-@section('title', 'Departments')
+@section('title', 'จัดการแผนก')
+
+@push('styles')
+<link href="{{ asset('css/admin.css') }}" rel="stylesheet">
+@endpush
 
 @section('content')
-<div class="container">
-    <h1 class="mb-4">Department List</h1>
-    
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ route('admin.departments.create') }}" class="btn btn-success">
-            <i class="bi bi-plus-lg"></i> Add Department
-        </a>
+<div class="container fade-in">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <h1 class="mb-1">จัดการแผนก</h1>
+            <p class="text-muted">บริหารจัดการแผนกต่างๆ ภายในองค์กร</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <a href="{{ route('admin.departments.create') }}" class="btn btn-success add-department-btn">
+                <i class="bi bi-plus-circle-fill"></i> เพิ่มแผนกใหม่
+            </a>
+        </div>
     </div>
 
+    <!-- Flash Message -->
     @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i> {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse ($departments as $department)
-                    <tr>
-                        <td>{{ $loop->iteration + ($departments->currentPage() - 1) * $departments->perPage() }}</td>
-                        <td>{{ $department->name }}</td>
-                        <td>
-                            <a href="{{ route('admin.departments.edit', $department->id) }}" class="btn btn-warning btn-sm">
-                                <i class="bi bi-pencil"></i> Edit
-                            </a>
-                            <form action="{{ route('admin.departments.destroy', $department->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this department?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="bi bi-trash"></i> Delete
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="3" class="text-center">No departments found.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i> {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
 
-    <!-- Pagination Links -->
-    <div class="d-flex justify-content-center">
-        {{ $departments->links() }}
+    <!-- Department Stats -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card stat-card bg-primary text-white department-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">จำนวนแผนกทั้งหมด</h5>
+                            <h2 class="display-6">{{ count($departments) }}</h2>
+                        </div>
+                        <i class="bi bi-diagram-3 icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card stat-card bg-success text-white department-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">จำนวนพนักงานทั้งหมด</h5>
+                            <h2 class="display-6">{{ \App\Models\User::count() }}</h2>
+                        </div>
+                        <i class="bi bi-people icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card stat-card bg-info text-white department-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title">จำนวนตำแหน่งทั้งหมด</h5>
+                            <h2 class="display-6">{{ \App\Models\Position::count() }}</h2>
+                        </div>
+                        <i class="bi bi-briefcase icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">รายชื่อแผนกทั้งหมด</h5>
+            <span class="department-count">{{ count($departments) }} รายการ</span>
+        </div>
+        
+        <div class="card-body">
+            <!-- Search Box -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="search-box">
+                        <i class="bi bi-search search-icon"></i>
+                        <input type="text" class="form-control" id="searchInput" placeholder="ค้นหาแผนก...">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                @if(count($departments) > 0)
+                    <table class="table table-hover align-middle">
+                        <thead class="table-header">
+                            <tr>
+                                <th style="width: 5%;" class="text-center">#</th>
+                                <th style="width: 65%;">ชื่อแผนก</th>
+                                <th style="width: 15%;" class="text-center">จำนวนพนักงาน</th>
+                                <th style="width: 15%;" class="text-center">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($departments as $key => $department)
+                                <tr>
+                                    <td class="text-center">{{ $key + 1 }}</td>
+                                    <td>
+                                        <div class="department-name">{{ $department->name }}</div>
+                                        <div class="department-meta">
+                                            <span><i class="bi bi-calendar"></i> สร้างเมื่อ: {{ $department->created_at->format('d/m/Y') }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark">
+                                            {{ $department->users_count ?? \App\Models\User::where('department_id', $department->id)->count() }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center action-buttons">
+                                        <a href="{{ route('admin.departments.edit', $department->id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                data-bs-toggle="modal" data-bs-target="#deleteDepartmentModal{{ $department->id }}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteDepartmentModal{{ $department->id }}" tabindex="-1" aria-labelledby="deleteDepartmentModalLabel{{ $department->id }}" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="deleteDepartmentModalLabel{{ $department->id }}">ยืนยันการลบข้อมูล</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body text-start">
+                                                        <p>คุณต้องการลบแผนก <strong>{{ $department->name }}</strong> ใช่หรือไม่?</p>
+                                                        
+                                                        @if($department->users_count ?? \App\Models\User::where('department_id', $department->id)->count() > 0)
+                                                            <div class="alert alert-warning">
+                                                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                                                <strong>คำเตือน:</strong> แผนกนี้มีพนักงานสังกัดอยู่ {{ $department->users_count ?? \App\Models\User::where('department_id', $department->id)->count() }} คน หากลบแผนกนี้ จะส่งผลต่อข้อมูลพนักงานดังกล่าว
+                                                            </div>
+                                                        @endif
+                                                        
+                                                        <p class="text-danger mt-3"><small>การดำเนินการนี้ไม่สามารถย้อนกลับได้</small></p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                                                        <form action="{{ route('admin.departments.destroy', $department->id) }}" method="POST">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger">ยืนยันการลบ</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    
+                    <!-- แสดงจำนวนรายการทั้งหมด -->
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div class="text-muted small">
+                            แสดงรายการทั้งหมด {{ count($departments) }} รายการ
+                        </div>
+                    </div>
+                @else
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="bi bi-diagram-3"></i>
+                        </div>
+                        <h4>ยังไม่มีข้อมูลแผนก</h4>
+                        <p class="text-muted">คลิกปุ่ม "เพิ่มแผนกใหม่" เพื่อเริ่มต้นสร้างแผนกในระบบ</p>
+                        <a href="{{ route('admin.departments.create') }}" class="btn btn-primary mt-3">
+                            <i class="bi bi-plus-circle me-2"></i> เพิ่มแผนกใหม่
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Search function
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                const searchText = this.value.toLowerCase();
+                const tableRows = document.querySelectorAll('tbody tr');
+                
+                tableRows.forEach(row => {
+                    const departmentName = row.querySelector('.department-name').textContent.toLowerCase();
+                    if (departmentName.includes(searchText)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // Auto-hide alert after 5 seconds
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000);
+        });
+    });
+</script>
+@endpush

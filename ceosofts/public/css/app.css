@@ -1,6 +1,35 @@
+/* 
+ * Main Application CSS
+ * รวมและปรับปรุงจาก css_backup
+ */
+
+/* ========== CORE VARIABLES ========== */
+:root {
+  /* Base Colors */
+  --primary-color: #0d6efd;
+  --primary-dark: #0a58ca;
+  --secondary-color: #6c757d;
+  --success-color: #198754;
+  --info-color: #0dcaf0;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+  --white-color: #ffffff;
+  --body-bg: #f5f8fa;
+  
+  /* UI Elements */
+  --card-border-radius: 0.5rem;
+  --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  --border-color: #e5e7eb;
+}
+
+/* ========== RESET & BASE STYLES ========== */
 *, ::before, ::after {
-  --tw-border-spacing-x: 0;
-  --tw-border-spacing-y: 0;
+  box-sizing: border-box;
+  border-width: 0;
+  border-style: solid;
+  border-color: var(--border-color);
   --tw-translate-x: 0;
   --tw-translate-y: 0;
   --tw-rotate: 0;
@@ -154,7 +183,7 @@ html,
   -o-tab-size: 4;
      tab-size: 4;
   /* 3 */
-  font-family: Figtree, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   /* 4 */
   font-feature-settings: normal;
   /* 5 */
@@ -174,6 +203,9 @@ body {
   /* 1 */
   line-height: inherit;
   /* 2 */
+  background-color: var(--body-bg);
+  color: var(--dark-color);
+  line-height: 1.6;
 }
 
 /*
@@ -212,6 +244,10 @@ h5,
 h6 {
   font-size: inherit;
   font-weight: inherit;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--dark-color);
+  margin: 0;
 }
 
 /*
@@ -970,3 +1006,1043 @@ video {
     color: rgb(209 213 219 / var(--tw-text-opacity, 1));
   }
 }
+
+/* Global app styling */
+
+/* Base Variables */
+:root {
+  --primary-color: #0d6efd;
+  --primary-dark: #0a58ca;
+  --secondary-color: #6c757d;
+  --success-color: #198754;
+  --info-color: #0dcaf0;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+  --white-color: #ffffff;
+  --body-bg: #f5f8fa;
+  --card-border-radius: 0.5rem;
+  --box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+/* Base Styles */
+body {
+  background-color: var(--body-bg);
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--dark-color);
+  line-height: 1.6;
+}
+
+/* Typography Improvements */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--dark-color);
+}
+
+.text-muted {
+  color: var(--secondary-color) !important;
+}
+
+/* Card Styling */
+.card {
+  border: none;
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--box-shadow);
+  transition: box-shadow 0.3s;
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  background-color: var(--white-color);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+}
+
+.card-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: var(--white-color);
+}
+
+/* Button Styling */
+.btn {
+  font-weight: 600;
+  border-radius: 0.375rem;
+  padding: 0.5rem 1.25rem;
+  letter-spacing: 0.25px;
+  transition: all 0.3s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.btn-outline-primary {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Form Controls */
+.form-control {
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Table Styling */
+.table {
+  vertical-align: middle;
+}
+
+.table thead th {
+  font-weight: 600;
+  color: var(--secondary-color);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.5px;
+  padding: 0.75rem;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+  background-color: var(--light-color);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Badges */
+.badge {
+  font-weight: 600;
+  padding: 0.5em 0.75em;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 
+ * Code from table-fix.css 
+ */
+
+/**
+ * Table Row Height Consistency Fix - Simplified version
+ */
+
+/* Core fixes for table cells */
+.table th,
+.table td {
+    vertical-align: middle !important;
+}
+
+/* Fix for action buttons column */
+.action-buttons {
+    white-space: nowrap !important;
+}
+
+/* Standardize action buttons */
+.action-buttons .btn {
+    padding: 0 !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Ensure icons are properly centered */
+.action-buttons .btn i {
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+/* Remove any margin between rows */
+.table tr {
+    margin: 0 !important;
+}
+
+/* 
+ * Code from navbar.css 
+ */
+
+/* Enhanced Navbar Styling */
+
+/* Main Navbar Styling */
+.navbar {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 0.75rem 1rem;
+  background-color: var(--white-color);
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--primary-color);
+}
+
+.navbar-brand:hover {
+  color: var(--primary-dark);
+}
+
+/* Navbar Link Styling */
+.navbar .nav-link {
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  transition: all 0.3s;
+  margin: 0 0.1rem;
+}
+
+.navbar .nav-link:hover {
+  color: var(--primary-color);
+  background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Active Link Styling */
+.navbar .nav-link.active {
+  color: var(--primary-color) !important;
+  background-color: rgba(13, 110, 253, 0.1);
+  font-weight: 700;
+}
+
+/* Dropdown Styling */
+.dropdown-menu {
+  border: none;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  min-width: 14rem;
+  margin-top: 0.5rem;
+}
+
+.dropdown-menu.show {
+  display: block !important;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.dropdown-header {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.5rem 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.dropdown-divider {
+  margin: 0.25rem 0.5rem;
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Dropdown Item Styling */
+.dropdown-item {
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  border-radius: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.dropdown-item:hover, .dropdown-item:focus {
+  background-color: rgba(13, 110, 253, 0.05);
+  color: var(--primary-color);
+  transform: translateX(3px);
+}
+
+.dropdown-item.active, .dropdown-item:active {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* Dropdown Icon Styling */
+.dropdown-item i {
+  font-size: 1rem;
+  width: 1.5rem;
+  color: var(--secondary-color);
+  transition: color 0.2s;
+}
+
+.dropdown-item:hover i {
+  color: var(--primary-color);
+}
+
+.dropdown-item.active i, .dropdown-item:active i {
+  color: white;
+}
+
+/* Dropdown Toggle Styling */
+.dropdown-toggle::after {
+  vertical-align: middle;
+  margin-left: 0.5rem;
+}
+
+/* Navbar Toggler Styling */
+.navbar-toggler {
+  border: none;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s;
+}
+
+.navbar-toggler:focus {
+  box-shadow: none;
+  outline: none;
+}
+
+.navbar-toggler:hover {
+  background-color: rgba(13, 110, 253, 0.05);
+}
+
+/* Navbar User Dropdown */
+#userDropdown {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+#userDropdown i.bi-person-circle {
+  font-size: 1.25rem;
+}
+
+/* Mobile Styling */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    padding: 1rem 0;
+  }
+  
+  .navbar .nav-link {
+    padding: 0.75rem 1rem;
+  }
+  
+  .dropdown-menu {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 0 0 0 1rem;
+    margin-top: 0;
+  }
+  
+  .dropdown-item {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .dropdown-divider {
+    margin: 0.5rem 0;
+    border-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .navbar-nav .dropdown-menu .dropdown-header {
+    padding: 0.5rem 0.75rem;
+    color: var(--secondary-color);
+  }
+}
+
+/* 
+ * Code from modal-fix.css 
+ */
+
+/* 
+ * Modal Fix CSS - แก้ไขปัญหา Modal Backdrop และ z-index
+ */
+
+/* ปรับ z-index ของ Modal ให้สูงขึ้น */
+.modal {
+  z-index: 1050 !important;
+}
+
+/* ปรับ z-index ของ backdrop ให้ต่ำกว่า modal */
+.modal-backdrop {
+  z-index: 1040 !important;
+}
+
+/* แก้ไขปัญหาที่ปุ่มถูกบังไม่สามารถกดได้ */
+.delete-modal .modal-dialog {
+  z-index: 1055 !important;
+  position: relative;
+}
+
+/* ปรับความทึบของพื้นหลัง backdrop */
+.modal-backdrop.show {
+  opacity: 0.5;
+}
+
+/* แก้ไขปัญหาปุ่มไม่สามารถกดได้เนื่องจาก pointer-events */
+.modal-footer button, 
+.modal-footer .btn, 
+.modal-footer form,
+.modal-footer .delete-confirm-btn {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1060 !important;
+}
+
+/* เพิ่มเอฟเฟคสำหรับปุ่มยืนยันการลบเพื่อให้เห็นชัดว่าสามารถกดได้ */
+.delete-confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* แก้ไขปัญหา modal ซ้อนทับกัน */
+.modal.fade.show {
+  padding-right: 0 !important;
+}
+
+/* กำหนดขนาดของคอลัมน์ "จัดการ" */
+.table th.action-column, .table td.action-column {
+    width: 100px; /* กำหนดขนาดตามที่ต้องการ */
+    text-align: center; /* จัดการข้อความให้อยู่ตรงกลาง */
+}
+
+/* กำหนดขนาดของคอลัมน์อื่น ๆ */
+.table th, .table td {
+    padding: 8px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+/* กำหนดความสูงของบรรทัดในตาราง */
+.table tr {
+    height: 50px; /* กำหนดความสูงตามที่ต้องการ */
+}
+
+/* ปรับขนาดของไอคอนในปุ่มยกเลิก/ยืนยัน */
+.btn .bi {
+    font-size: 1rem; /* ปรับขนาดไอคอน */
+}
+
+/* 
+ * Code from admin.css 
+ */
+
+/* General Admin Styling Improvements */
+.admin-panel {
+    font-family: 'Roboto', Arial, sans-serif;
+    color: #333;
+    background-color: #f9f9f9;
+}
+
+.admin-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 15px 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Payment Status Page Specific Styling */
+.payment-statuses-container {
+    padding: 20px;
+    background: white;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    margin: 20px;
+}
+
+.payment-statuses-container h1 {
+    color: #2c3e50;
+    font-size: 24px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #eee;
+}
+
+/* Admin Toolbar */
+.admin-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.search-container {
+    flex-grow: 1;
+    max-width: 400px;
+}
+
+.search-container .input-group {
+    display: flex;
+}
+
+.search-container input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+    flex-grow: 1;
+}
+
+.btn-search {
+    background-color: #3498db;
+    color: white;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.action-container {
+    display: flex;
+    gap: 10px;
+}
+
+/* Alert Styling */
+.alert {
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.close-alert {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.5;
+}
+
+.close-alert:hover {
+    opacity: 1;
+}
+
+/* Table Responsive */
+.table-responsive {
+    overflow-x: auto;
+}
+
+/* Payment Status Table Styling */
+.payment-status-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.payment-status-table th {
+    background-color: #f5f5f5;
+    color: #555;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 15px;
+    border-bottom: 2px solid #ddd;
+}
+
+.sort-link {
+    color: inherit;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sort-link:hover {
+    color: #3498db;
+}
+
+.payment-status-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.payment-status-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+.text-center {
+    text-align: center;
+}
+
+/* Status indicators */
+.status-active {
+    background-color: #27ae60;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-inactive {
+    background-color: #e74c3c;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn {
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: #7f8c8d;
+    color: white;
+}
+
+.btn-view {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-edit {
+    background-color: #f39c12;
+    color: white;
+}
+
+.btn-delete {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+}
+
+/* Form Styling */
+.payment-status-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 15px;
+}
+
+.form-control:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    gap: 5px;
+}
+
+.pagination a {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    color: #333;
+    text-decoration: none;
+}
+
+.pagination a.active {
+    background-color: #2c3e50;
+    color: white;
+    border-color: #2c3e50;
+}
+
+.pagination a:hover:not(.active) {
+    background-color: #f5f5f5;
+}
+
+.pagination-info {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Modal Styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 5px;
+    max-width: 500px;
+    position: relative;
+    animation: modalFade 0.3s ease;
+}
+
+@keyframes modalFade {
+    from {opacity: 0; transform: translateY(-30px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.close-modal {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal h2 {
+    margin-top: 0;
+    color: #2c3e50;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .admin-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-container {
+        max-width: 100%;
+    }
+    
+    .payment-statuses-container {
+        padding: 15px;
+        margin: 10px;
+    }
+    
+    .payment-status-table {
+        font-size: 14px;
+    }
+    
+    .payment-status-table th,
+    .payment-status-table td {
+        padding: 8px 10px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    
+    .modal-content {
+        margin: 20% auto;
+        width: 90%;
+    }
+}
+
+/* 
+ * Code from admin-forms.css 
+ */
+
+/* Admin Forms Styling */
+
+.form-section {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.5rem;
+    background-color: #fff;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.form-section-title {
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+.input-icon-group {
+    position: relative;
+}
+
+.input-icon-group i {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    z-index: 4;
+}
+
+.input-icon-group .form-control {
+    padding-left: 2.5rem;
+}
+
+.form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.form-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.form-control {
+    border-radius: 0.375rem;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-select {
+    border-radius: 0.5rem;
+    border: 1px solid #dee2e6;
+    padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.form-check-input {
+    width: 1.2em;
+    height: 1.2em;
+    margin-top: 0.15em;
+    border: 1px solid #adb5bd;
+    border-radius: 0.25em;
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.form-check-input:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.input-group-text {
+    border-radius: 0.375rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+
+.invalid-feedback {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #dc3545;
+}
+
+/* Password strength meter */
+.password-strength-meter {
+    height: 4px;
+    background-color: #e9ecef;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.password-strength-meter-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease-in-out;
+}
+
+.password-strength-weak .password-strength-meter-fill {
+    background-color: #dc3545;
+    width: 25%;
+}
+
+.password-strength-fair .password-strength-meter-fill {
+    background-color: #ffc107;
+    width: 50%;
+}
+
+.password-strength-good .password-strength-meter-fill {
+    background-color: #0dcaf0;
+    width: 75%;
+}
+
+.password-strength-strong .password-strength-meter-fill {
+    background-color: #198754;
+    width: 100%;
+}
+
+/* Two column form layout */
+@media (min-width: 768px) {
+    .form-layout-2col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+}
+
+/* Animated form validation */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.animate-shake {
+    animation: shake 0.6s ease-in-out;
+}
+
+/* 
+ * Code from admin-departments.css 
+ */
+
+/* === Animation Effects === */
+.fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-shake {
+    animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+/* === Card Styles === */
+.card {
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    background: linear-gradient(to right, #f8f9fa, #ffffff);
+    border-bottom: 2px solid #e9ecef;
+    padding: 1rem 1.5rem;
+}
+
+.department-card {
+    transition: transform 0.2s,
