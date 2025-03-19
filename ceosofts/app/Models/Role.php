@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Class Role
@@ -22,7 +23,7 @@ class Role extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<int, string>
+     * @var array<string>
      */
     protected $fillable = ['name', 'guard_name'];
 
@@ -36,11 +37,11 @@ class Role extends Model
      */
     public $timestamps = true;
 
-    // You can add any relationships or custom methods here if needed.
-    // For example, if you want to associate roles with users, you might add:
-    //
-    // public function users()
-    // {
-    //     return $this->belongsToMany(User::class);
-    // }
+    /**
+     * The users that belong to the role.
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class);
+    }
 }

@@ -3,68 +3,44 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Log;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
         $this->call([
-            // 1️⃣ กำหนด Role และ Permission
+            // 1. System & Authentication
             RolePermissionSeeder::class,
-
-            // 2️⃣ ข้อมูลแผนก
+            
+            // 2. Organization structure
             DepartmentSeeder::class,
-
-            // 3️⃣ ข้อมูลตำแหน่ง
             PositionSeeder::class,
-
-            // 4️⃣ ข้อมูลคำนำหน้าชื่อ
+            
+            // 3. Master data
             PrefixSeeder::class,
-
-            // 5️⃣ ข้อมูลบริษัท
             CompanySeeder::class,
-
-            // 6️⃣ ข้อมูลหน่วยนับสินค้า
             UnitSeeder::class,
-
-            // 7️⃣ ข้อมูลสถานะสินค้า
             ItemStatusSeeder::class,
-
-            // 8️⃣ สร้าง Admin User และกำหนด Role
+            
+            // 4. Users & Employees
             UserSeeder::class,
-
-            // 9️⃣ ข้อมูลสินค้า
-            ProductsTableSeeder::class,
-
-            // 🔟 ข้อมูลลูกค้า
-            CustomersTableSeeder::class,
-
-            // 11️⃣ ข้อมูลคำสั่งซื้อ
-            OrdersTableSeeder::class,
-
-            // 12️⃣ ข้อมูลรายการคำสั่งซื้อ
-            OrderItemsTableSeeder::class,
-
-            // 13️⃣ ข้อมูลสถานะการชำระเงิน
-            PaymentStatusSeeder::class,
-
-            // 14️⃣ ข้อมูลการตั้งค่าภาษี
-            TaxSettingSeeder::class,
-
-            // 15️⃣ ข้อมูลพนักงาน
             EmployeeSeeder::class,
-
-            // 16️⃣ ข้อมูลวันหยุดของบริษัท
+            
+            // 5. Business data
+            ProductsTableSeeder::class, // อาจเปลี่ยนเป็น ProductSeeder
+            CustomersTableSeeder::class, // อาจเปลี่ยนเป็น CustomerSeeder
+            OrdersTableSeeder::class, // อาจเปลี่ยนเป็น OrderSeeder
+            OrderItemsTableSeeder::class, // อาจเปลี่ยนเป็น OrderItemSeeder
+            
+            // 6. Settings
+            PaymentStatusSeeder::class,
+            TaxSettingSeeder::class,
+            
+            // 7. HR & Attendance
             CompanyHolidaySeeder::class,
-
-            // 17️⃣ ข้อมูลการลงเวลาทำงาน
             AttendanceSeeder::class,
-
-            // 18️⃣ ข้อมูลสถานะงาน
             JobStatusSeeder::class,
-
-            // 19️⃣ (ตัวอย่าง) ข้อมูลสลิปเงินเดือน
-            // PayrollSeeder::class,
         ]);
     }
 }

@@ -1,15 +1,53 @@
 import 'bootstrap';
 
 /**
- * We'll load the axios HTTP library which allows us to easily issue requests
- * to our Laravel back-end. This library automatically handles sending the
- * CSRF token as a header based on the value of the "XSRF" token cookie.
+ * Load the axios HTTP library for API requests with automatic CSRF handling
  */
-
 import axios from 'axios';
 window.axios = axios;
 
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+// Add CSRF token from meta tag
+const token = document.head.querySelector('meta[name="csrf-token"]');
+if (token) {
+    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+} else {
+    console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+}
+
+// Global error handling for Axios
+window.axios.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response) {
+            // Server responded with error status (4xx, 5xx)
+            console.error('API Error:', error.response.status, error.response.data);
+            
+            // Handle specific HTTP error codes
+            if (error.response.status === 401) {
+                console.warn('Unauthorized access. Please login again.');
+                // Could redirect to login page here
+            }
+            
+            if (error.response.status === 403) {
+                console.warn('Access forbidden.');
+            }
+            
+            if (error.response.status === 422) {
+                console.warn('Validation error.');
+            }
+        } else if (error.request) {
+            // Request made but no response received
+            console.error('No response received:', error.request);
+        } else {
+            // Something else caused the error
+            console.error('Error during request setup:', error.message);
+        }
+        
+        return Promise.reject(error);
+    }
+);
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

@@ -1,0 +1,35 @@
+/**
+ * Table Row Height Consistency Fix - Simplified version
+ */
+
+/* Core fixes for table cells */
+.table th,
+.table td {
+    vertical-align: middle !important;
+}
+
+/* Fix for action buttons column */
+.action-buttons {
+    white-space: nowrap !important;
+}
+
+/* Standardize action buttons */
+.action-buttons .btn {
+    padding: 0 !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Ensure icons are properly centered */
+.action-buttons .btn i {
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+/* Remove any margin between rows */
+.table tr {
+    margin: 0 !important;
+}

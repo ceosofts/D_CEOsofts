@@ -1,0 +1,68 @@
+/* 
+ * Modal Fix CSS - แก้ไขปัญหา Modal Backdrop และ z-index
+ */
+
+/* ปรับ z-index ของ Modal ให้สูงขึ้น */
+.modal {
+  z-index: 1050 !important;
+}
+
+/* ปรับ z-index ของ backdrop ให้ต่ำกว่า modal */
+.modal-backdrop {
+  z-index: 1040 !important;
+}
+
+/* แก้ไขปัญหาที่ปุ่มถูกบังไม่สามารถกดได้ */
+.delete-modal .modal-dialog {
+  z-index: 1055 !important;
+  position: relative;
+}
+
+/* ปรับความทึบของพื้นหลัง backdrop */
+.modal-backdrop.show {
+  opacity: 0.5;
+}
+
+/* แก้ไขปัญหาปุ่มไม่สามารถกดได้เนื่องจาก pointer-events */
+.modal-footer button, 
+.modal-footer .btn, 
+.modal-footer form,
+.modal-footer .delete-confirm-btn {
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 1060 !important;
+}
+
+/* เพิ่มเอฟเฟคสำหรับปุ่มยืนยันการลบเพื่อให้เห็นชัดว่าสามารถกดได้ */
+.delete-confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+/* แก้ไขปัญหา modal ซ้อนทับกัน */
+.modal.fade.show {
+  padding-right: 0 !important;
+}
+
+/* กำหนดขนาดของคอลัมน์ "จัดการ" */
+.table th.action-column, .table td.action-column {
+    width: 100px; /* กำหนดขนาดตามที่ต้องการ */
+    text-align: center; /* จัดการข้อความให้อยู่ตรงกลาง */
+}
+
+/* กำหนดขนาดของคอลัมน์อื่น ๆ */
+.table th, .table td {
+    padding: 8px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+/* กำหนดความสูงของบรรทัดในตาราง */
+.table tr {
+    height: 50px; /* กำหนดความสูงตามที่ต้องการ */
+}
+
+/* ปรับขนาดของไอคอนในปุ่มยกเลิก/ยืนยัน */
+.btn .bi {
+    font-size: 1rem; /* ปรับขนาดไอคอน */
+}

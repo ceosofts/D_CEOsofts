@@ -1,0 +1,29 @@
+// Import Bootstrap
+@import '~bootstrap/scss/bootstrap';
+
+// Variables and mixins
+@import 'abstracts/variables';
+@import 'abstracts/mixins';
+
+// Base styles
+@import 'base/reset';
+@import 'base/typography';
+
+// Components
+@import 'components/buttons';
+@import 'components/cards';
+@import 'components/forms';
+@import 'components/tables';
+@import 'components/alerts';
+
+// Layouts
+@import 'layouts/header';
+@import 'layouts/footer';
+@import 'layouts/sidebar';
+
+// Pages
+@import 'pages/dashboard';
+@import 'pages/invoice';
+
+// Custom theme overrides
+@import 'themes/custom';

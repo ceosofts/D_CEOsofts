@@ -21,6 +21,7 @@ class CompanyHoliday extends Model
     protected $fillable = [
         'date',
         'name',
+        'description',
     ];
 
     /**

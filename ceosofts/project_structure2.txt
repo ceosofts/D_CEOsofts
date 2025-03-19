@@ -1,0 +1,165 @@
+/Users/iwasbornforthis/MyProject/D_CEOsofts/ceosofts/
+├── app/
+│   ├── Console/
+│   │   ├── Commands/
+│   │   └── Kernel.php
+│   ├── Exceptions/
+│   ├── Helpers/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── API/
+│   │   │   ├── Admin/
+│   │   │   └── Auth/
+│   │   ├── Middleware/
+│   │   └── Requests/
+│   ├── Models/
+│   ├── Policies/
+│   ├── Providers/
+│   ├── Repositories/
+│   ├── Services/
+│   ├── Support/
+│   └── Traits/
+├── bootstrap/
+├── config/
+├── database/
+│   ├── factories/
+│   ├── migrations/
+│   └── seeders/
+├── public/
+├── resources/
+│   ├── views/
+│   │   ├── admin/
+│   │   ├── auth/
+│   │   ├── components/
+│   │   ├── layouts/
+│   │   └── vendor/
+├── routes/
+├── storage/
+├── tests/
+│   ├── Feature/
+│   └── Unit/
+└── vendor/
+
+
+MacBookAirI:ceosofts iwasbornforthis$ php artisan migrate:fresh --seed
+
+  Dropping all tables ......................................................................... 98.41ms DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table ..................................................................... 8.96ms DONE
+
+   INFO  Running migrations.  
+
+  2023_12_01_000001_create_users_table ........................................................ 11.40ms DONE
+  2023_12_01_000002_create_cache_tables ........................................................ 5.89ms DONE
+  2023_12_01_000003_create_jobs_tables ........................................................ 20.24ms DONE
+  2023_12_01_000004_create_departments_table .................................................. 24.53ms DONE
+  2023_12_01_000005_create_positions_table .................................................... 25.64ms DONE
+  2023_12_01_000006_create_roles_tables ....................................................... 31.00ms DONE
+  2023_12_01_000007_create_permissions_tables ................................................. 38.43ms DONE
+  2023_12_01_000008_create_companies_table ..................................................... 8.13ms DONE
+  2023_12_01_000009_create_prefixes_table ...................................................... 5.97ms DONE
+  2023_12_01_000010_create_employees_table .................................................... 46.31ms DONE
+  2023_12_01_000011_create_units_table ........................................................ 11.66ms DONE
+  2023_12_01_000012_create_products_table .................................................... 121.61ms DONE
+  2023_12_01_000013_create_customers_table ..................................................... 9.16ms DONE
+  2023_12_01_000014_create_personal_access_tokens_table ....................................... 14.56ms DONE
+  2023_12_01_000015_create_item_statuses_table ................................................. 3.85ms DONE
+  2023_12_01_000016_create_payment_statuses_table ............................................. 10.35ms DONE
+  2023_12_01_000017_create_tax_settings_table .................................................. 3.37ms DONE
+  2023_12_01_000018_create_orders_table ....................................................... 21.52ms DONE
+  2023_12_01_000019_create_order_items_table .................................................. 20.02ms DONE
+  2023_12_01_000020_create_attendances_table .................................................. 18.01ms DONE
+  2023_12_01_000021_create_job_statuses_table .................................................. 2.71ms DONE
+  2023_12_01_000022_create_company_holidays_table .............................................. 6.37ms DONE
+
+
+   INFO  Seeding database.  
+
+  Database\Seeders\RolePermissionSeeder ............................................................ RUNNING  
+Roles, permissions and relationships created successfully
+  Database\Seeders\RolePermissionSeeder ........................................................ 109 ms DONE  
+
+  Database\Seeders\DepartmentSeeder ................................................................ RUNNING  
+Successfully seeded 9 departments
+  Database\Seeders\DepartmentSeeder .............................................................. 5 ms DONE  
+
+  Database\Seeders\PositionSeeder .................................................................. RUNNING  
+Successfully seeded 4 positions
+  Database\Seeders\PositionSeeder ................................................................ 4 ms DONE  
+
+  Database\Seeders\PrefixSeeder .................................................................... RUNNING  
+Table structure check: prefix_th column exists: YES
+Seeded prefix: นาย
+Seeded prefix: นาง
+Seeded prefix: นางสาว
+Seeded prefix: ดร.
+Seeded prefix: อาจารย์
+Successfully seeded 5 prefixes
+  Database\Seeders\PrefixSeeder .................................................................. 4 ms DONE  
+
+  Database\Seeders\CompanySeeder ................................................................... RUNNING  
+Successfully seeded company information
+  Database\Seeders\CompanySeeder ................................................................. 2 ms DONE  
+
+  Database\Seeders\UnitSeeder ...................................................................... RUNNING  
+Columns found in units table: id, unit_name_th, unit_name_en, description, is_active, unit_code, created_at, updated_at
+Seeding units with proper column structure...
+Successfully seeded 7 new units
+  Database\Seeders\UnitSeeder .................................................................... 5 ms DONE  
+
+  Database\Seeders\ItemStatusSeeder ................................................................ RUNNING  
+Seeding item statuses...
+Created status: พร้อมจำหน่าย
+Created status: สินค้าหมด
+Created status: กำลังนำเข้า
+Created status: สั่งจองล่วงหน้า
+Created status: หยุดจำหน่าย
+Created status: ใกล้หมด
+Item statuses seeded successfully!
+  Database\Seeders\ItemStatusSeeder .............................................................. 6 ms DONE  
+
+  Database\Seeders\UserSeeder ...................................................................... RUNNING  
+Successfully seeded 3 users
+  Database\Seeders\UserSeeder .................................................................. 727 ms DONE  
+
+  Database\Seeders\EmployeeSeeder .................................................................. RUNNING  
+Successfully seeded employees table
+  Database\Seeders\EmployeeSeeder ................................................................ 5 ms DONE  
+
+  Database\Seeders\ProductsTableSeeder ............................................................. RUNNING  
+Successfully seeded 3 products
+  Database\Seeders\ProductsTableSeeder ........................................................... 4 ms DONE  
+
+  Database\Seeders\CustomersTableSeeder ............................................................ RUNNING  
+Successfully seeded 2 customers
+  Database\Seeders\CustomersTableSeeder .......................................................... 3 ms DONE  
+
+  Database\Seeders\OrdersTableSeeder ............................................................... RUNNING  
+Successfully seeded 2 orders
+  Database\Seeders\OrdersTableSeeder ............................................................. 3 ms DONE  
+
+  Database\Seeders\OrderItemsTableSeeder ........................................................... RUNNING  
+Successfully seeded 2 order items
+  Database\Seeders\OrderItemsTableSeeder ......................................................... 7 ms DONE  
+
+  Database\Seeders\PaymentStatusSeeder ............................................................. RUNNING  
+  Database\Seeders\PaymentStatusSeeder ........................................................... 2 ms DONE  
+
+  Database\Seeders\TaxSettingSeeder ................................................................ RUNNING  
+  Database\Seeders\TaxSettingSeeder .............................................................. 2 ms DONE  
+
+  Database\Seeders\CompanyHolidaySeeder ............................................................ RUNNING  
+Successfully seeded company holidays.
+  Database\Seeders\CompanyHolidaySeeder .......................................................... 7 ms DONE  
+
+  Database\Seeders\AttendanceSeeder ................................................................ RUNNING  
+Successfully seeded attendance records
+  Database\Seeders\AttendanceSeeder .............................................................. 2 ms DONE  
+
+  Database\Seeders\JobStatusSeeder ................................................................. RUNNING  
+Successfully seeded job statuses
+  Database\Seeders\JobStatusSeeder ............................................................... 4 ms DONE  
+
+MacBookAirI:ceosofts iwasbornforthis$ 

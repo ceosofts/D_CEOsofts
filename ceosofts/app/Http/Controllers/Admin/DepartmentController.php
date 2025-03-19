@@ -14,8 +14,8 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        // ใช้ paginate เพื่อแบ่งหน้าการแสดงผล (สามารถเปลี่ยนเป็น all() หากต้องการแสดงทั้งหมด)
-        $departments = Department::paginate(10);
+        // ใช้ get() แทน paginate() เพื่อดึงข้อมูลทั้งหมด
+        $departments = Department::get();
         return \view('admin.departments.index', compact('departments'));
     }
 
@@ -55,7 +55,11 @@ class DepartmentController extends Controller
      */
     public function edit(Department $department)
     {
-        return \view('admin.departments.edit', compact('department'));
+        // เพิ่มการดึงข้อมูลพนักงานในแผนก
+        $departmentUsers = \App\Models\User::where('department_id', $department->id)->get();
+        $departmentUserCount = $departmentUsers->count();
+        
+        return view('admin.departments.edit', compact('department', 'departmentUsers', 'departmentUserCount'));
     }
 
     /**

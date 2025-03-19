@@ -2,16 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 
 class Invoice extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasFactory;
 
     protected $fillable = [
+        'user_id',
         'invoice_number',
+        'customer_name',
         'quotation_id',
         'invoice_date',
         'your_ref',
@@ -23,18 +26,23 @@ class Invoice extends Model
         'amount_in_words',
         'payment_terms',
         'due_date',
+        'is_public',
         'status_id',
+        'status',
         'created_by',
         'updated_by'
     ];
 
     protected $casts = [
         'invoice_date' => 'datetime',
+        'issue_date' => 'date',
         'due_date' => 'date',
         'payment_percentage' => 'decimal:2',
         'payment_amount' => 'decimal:2',
         'remaining_balance' => 'decimal:2',
         'total_amount' => 'decimal:2',
+        'amount' => 'decimal:2',
+        'is_public' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime'
@@ -61,6 +69,14 @@ class Invoice extends Model
     public function updater()
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * Get the user that owns the invoice.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     // Scopes

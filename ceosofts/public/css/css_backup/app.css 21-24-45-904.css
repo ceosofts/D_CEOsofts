@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+.input-group > input,
+.input-group > .form-control {
+    @apply h-10 !important; /* Using Tailwind height utility */
+}
+
+/* ============================================
+   PAGINATION STYLES
+   ============================================ */
+.pagination {
+    @apply text-sm py-1 px-1;
+}
+
+.pagination .page-item {
+    @apply m-0.5;
+}
+
+.pagination .page-link {
+    @apply py-1 px-2.5;
+}
+
+/* ============================================
+   STATUS STYLES
+   ============================================ */
+/* Job Status Select Options */
+#status_id option {
+    @apply p-2 m-0.5 rounded;
+}
+
+#status_id option:checked {
+    @apply font-bold;
+}
+
+/* Status Badge Component */
+.status-badge {
+    @apply px-2 py-1 rounded text-sm font-medium inline-block;
+}
+
+/* Status Select Component */
+.status-select {
+    @apply border border-gray-300 py-1.5 px-3 rounded w-full;
+}
+
+.status-select option {
+    @apply p-2 m-0.5;
+}
+
+/* กำหนดขนาดของคอลัมน์ "จัดการ" */
+.table th.action-column, .table td.action-column {
+    width: 100px; /* กำหนดขนาดตามที่ต้องการ */
+    text-align: center; /* จัดการข้อความให้อยู่ตรงกลาง */
+}
+
+/* กำหนดขนาดของคอลัมน์อื่น ๆ */
+.table th, .table td {
+    padding: 8px;
+    text-align: left;
+    vertical-align: middle;
+}

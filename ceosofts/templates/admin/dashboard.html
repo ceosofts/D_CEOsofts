@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}{% trans 'Dashboard' %} | {% trans 'Admin' %}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+    <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+    &rsaquo; {% trans 'Dashboard' %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>{% trans 'Admin Dashboard' %}</h1>
+    
+    <div class="module">
+        <h2>{% trans 'Quick statistics' %}</h2>
+        <div class="dashboard-stats">
+            <!-- Add your dashboard stats and widgets here -->
+            <p>Welcome to your custom admin dashboard. Add your statistics and shortcuts here.</p>
+        </div>
+    </div>
+    
+    <!-- You can add more modules/sections as needed -->
+</div>
+{% endblock %}

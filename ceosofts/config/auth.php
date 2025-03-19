@@ -20,6 +20,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Redirect Paths
+    |--------------------------------------------------------------------------
+    |
+    | These options control where users are redirected after
+    | various authentication actions.
+    |
+    */
+    
+    'login_redirect' => env('AUTH_LOGIN_REDIRECT', '/dashboard'),
+    'logout_redirect' => env('AUTH_LOGOUT_REDIRECT', '/'),
+    'register_redirect' => env('AUTH_REGISTER_REDIRECT', '/dashboard'),
+    'password_confirm_redirect' => env('AUTH_PASSWORD_CONFIRM_REDIRECT', '/dashboard'),
+    'password_reset_redirect' => env('AUTH_PASSWORD_RESET_REDIRECT', '/dashboard'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Authentication Guards
     |--------------------------------------------------------------------------
     |

@@ -5,141 +5,168 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Department;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
     /**
-     * แสดงรายการผู้ใช้พร้อม Role และ Department
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\View\View
      */
     public function index()
     {
-        // ใช้ paginate เพื่อแบ่งหน้า
-        $users = User::paginate(10);
-        // โหลด relationship roles และ department
-        $users->load(['roles', 'department']);
-
-        return \view('admin.users.index', compact('users'));
+        $users = User::with('department')
+                    ->orderBy('created_at', 'desc')
+                    ->paginate(10);
+        
+        $departments = Department::all();
+        
+        return view('admin.users.index', compact('users', 'departments'));
     }
 
     /**
-     * แสดงฟอร์มสร้างผู้ใช้ใหม่
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\View\View
      */
     public function create()
     {
-        // ดึง Role ทั้งหมดจากฐานข้อมูล (ใช้ Spatie Role)
-        $roles = Role::all();
-        // ดึงข้อมูลแผนกทั้งหมด
         $departments = Department::all();
-
-        return \view('admin.users.create', compact('roles', 'departments'));
+        
+        // Get available roles or create default ones if using Spatie permissions
+        try {
+            $roles = Role::all();
+        } catch (\Exception $e) {
+            // If Role model doesn't exist or there's another issue, create an array with default roles
+            $roles = collect([
+                (object)['id' => 'admin', 'name' => 'admin'],
+                (object)['id' => 'user', 'name' => 'user'],
+                (object)['id' => 'manager', 'name' => 'manager'],
+            ]);
+        }
+        
+        return view('admin.users.create', compact('departments', 'roles'));
     }
 
     /**
-     * บันทึกผู้ใช้ใหม่ลงในฐานข้อมูล
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name'          => 'required|string|max:255',
-            'email'         => 'required|email|unique:users,email',
-            'password'      => 'required|min:8',
-            'role'          => 'required|in:admin,manager,leader,user',
-            'department_id' => 'required|exists:departments,id',
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'department_id' => 'nullable|exists:departments,id',
+            'role' => 'required|string|in:admin,user,manager',
         ]);
 
-        try {
-            $user = new User();
-            $user->name = $validated['name'];
-            $user->email = $validated['email'];
-            $user->password = Hash::make($validated['password']);
-            $user->department_id = $validated['department_id'];
-            $user->save();
-
-            // Assign role หลังจากสร้างผู้ใช้
-            $user->assignRole($validated['role']);
-
-            return \redirect()->route('admin.users.index')
-                ->with('success', 'User created successfully.');
-        } catch (\Exception $e) {
-            Log::error('Error storing user: ' . $e->getMessage());
-            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])
-                ->withInput();
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
         }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'department_id' => $request->department_id,
+        ]);
+        
+        // Assign role
+        $user->assignRole($request->role);
+
+        return redirect()->route('admin.users.index')
+                        ->with('success', 'เพิ่มผู้ใช้งานสำเร็จแล้ว');
     }
 
     /**
-     * แสดงฟอร์มแก้ไขข้อมูลผู้ใช้
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
+    public function show($id)
+    {
+        $user = User::with('department')->findOrFail($id);
+        return view('admin.users.show', compact('user'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
      */
     public function edit($id)
     {
         $user = User::findOrFail($id);
         $departments = Department::all();
-        return \view('admin.users.edit', compact('user', 'departments'));
+        return view('admin.users.edit', compact('user', 'departments'));
     }
 
     /**
-     * อัปเดตข้อมูลผู้ใช้ในฐานข้อมูล
+     * Update the specified user in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        $user = User::findOrFail($id);
-
         $validated = $request->validate([
-            'name'          => 'required|string|max:255',
-            'email'         => 'required|email|unique:users,email,' . $user->id,
-            'role'          => 'required|in:admin,manager,leader,user',
-            'department_id' => 'nullable|exists:departments,id',
-            'password'      => 'nullable|min:8'
+            'name' => 'required|string|max:255',
+            'department_id' => 'required|exists:departments,id', // แก้ไขจาก department_id เป็น id
         ]);
 
         try {
-            $data = [
-                'name'          => $validated['name'],
-                'email'         => $validated['email'],
-                'department_id' => $validated['department_id'] ?? $user->department_id,
-            ];
-
-            // ถ้ามีการกรอก password ให้ทำการ Hash ก่อนเก็บ
-            if (!empty($validated['password'])) {
-                $data['password'] = Hash::make($validated['password']);
-            }
-
-            $user->update($data);
-            // เปลี่ยน Role ของผู้ใช้ด้วยการ sync
-            $user->syncRoles([$validated['role']]);
-
-            return \redirect()->route('admin.users.index')
-                ->with('success', 'User updated successfully.');
+            DB::beginTransaction();
+            
+            $user = User::findOrFail($id);
+            $user->name = $request->name;
+            $user->department_id = $request->department_id;
+            $user->save();
+            
+            DB::commit();
+            
+            return redirect()->route('admin.users.index')
+                ->with('success', 'อัปเดตผู้ใช้งานสำเร็จแล้ว');
+                
         } catch (\Exception $e) {
-            Log::error('Error updating user: ' . $e->getMessage());
-            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])
-                ->withInput();
+            DB::rollBack();
+            Log::error('Error in UserController@update: ' . $e->getMessage());
+            return back()->with('error', 'เกิดข้อผิดพลาดในการอัปเดตข้อมูล: ' . $e->getMessage())
+                        ->withInput();
         }
     }
 
     /**
-     * ลบข้อมูลผู้ใช้
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-
-        // ไม่อนุญาตให้ลบ Admin
-        if ($user->hasRole('admin')) {
-            return \redirect()->route('admin.users.index')->with('error', 'ไม่สามารถลบ Admin ได้');
+        
+        // Prevent deleting own account
+        if (auth()->id() === $user->id) {
+            return back()->with('error', 'ไม่สามารถลบบัญชีของตัวเองได้');
         }
+        
+        $user->delete();
 
-        try {
-            $user->delete();
-            return \redirect()->route('admin.users.index')
-                ->with('success', 'ลบผู้ใช้เรียบร้อยแล้ว');
-        } catch (\Exception $e) {
-            Log::error('Error deleting user: ' . $e->getMessage());
-            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
-        }
+        return redirect()->route('admin.users.index')
+                        ->with('success', 'ลบผู้ใช้งานสำเร็จแล้ว');
     }
 }
