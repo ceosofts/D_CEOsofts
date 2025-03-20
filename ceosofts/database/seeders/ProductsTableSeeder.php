@@ -16,22 +16,20 @@ class ProductsTableSeeder extends Seeder
     {
         $products = [
             [
+                'code'           => 'P0001',
                 'name'           => 'Product A',
                 'description'    => 'This is product A.',
                 'price'          => 100.00,
                 'stock_quantity' => 50,
-                'is_active'      => false,
-                'created_at'     => Carbon::now(),
-                'updated_at'     => Carbon::now(),
+                'is_active'      => false
             ],
             [
+                'code'           => 'P0002',
                 'name'           => 'Product B',
                 'description'    => 'This is product B.',
                 'price'          => 200.00,
                 'stock_quantity' => 30,
-                'is_active'      => true,
-                'created_at'     => Carbon::now(),
-                'updated_at'     => Carbon::now(),
+                'is_active'      => true
             ]
         ];
 

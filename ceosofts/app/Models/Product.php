@@ -63,12 +63,16 @@ class Product extends Model
      */
     public static function generateNewProductCode(): string
     {
-        $latestProduct = self::where('code', 'like', 'P%')
-            ->orderBy('id', 'desc')
-            ->first();
+        $lastProduct = self::where('code', 'like', 'P%')
+                          ->orderByDesc('id')
+                          ->first();
 
-        $newCodeNumber = $latestProduct ? intval(substr($latestProduct->code, 1)) + 1 : 1;
-        return 'P' . str_pad($newCodeNumber, 4, '0', STR_PAD_LEFT);
+        if (!$lastProduct) {
+            return 'P0001';
+        }
+
+        $lastNumber = intval(substr($lastProduct->code, 1));
+        return 'P' . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
     }
 
     /**

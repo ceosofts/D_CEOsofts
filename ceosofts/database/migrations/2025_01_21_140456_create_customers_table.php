@@ -13,15 +13,14 @@ return new class extends Migration // Return a new anonymous class that extends 
     {
         Schema::create('customers', function (Blueprint $table) { // Create the 'customers' table
             $table->id(); // Add an auto-incrementing ID column
-
-
-            $table->string('name'); // ชื่อลูกค้า >>>เพิ่มจากของเดิม
-            $table->string('email')->unique(); // อีเมล ต้องไม่ซ้ำ >>>เพิ่มจากของเดิม
-            $table->string('phone')->nullable(); // เบอร์โทรศัพท์ (ไม่จำเป็นต้องมี) >>>เพิ่มจากของเดิม
-            $table->string('address')->nullable(); // ที่อยู่ (ไม่จำเป็นต้องมี) >>>เพิ่มจากของเดิม
-            $table->string('taxid')->nullable(); //  taxid (ไม่จำเป็นต้องมี) >>>เพิ่มจากของเดิม
-
-
+            $table->string('code')->unique();
+            $table->string('companyname');
+            $table->string('contact_name')->nullable();
+            $table->string('address')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('email')->nullable();
+            $table->string('branch')->nullable();
+            $table->string('taxid')->nullable();  // Add this line
             $table->timestamps(); // Add created_at and updated_at timestamp columns
         });
     }

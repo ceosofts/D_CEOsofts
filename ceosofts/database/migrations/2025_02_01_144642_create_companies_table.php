@@ -13,30 +13,30 @@ return new class extends Migration
     {
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
-            $table->string('company_name')->unique();
-            $table->text('address')->nullable();
-            $table->string('phone', 20)->nullable();
-            $table->string('mobile', 20)->nullable();
-            $table->string('fax', 20)->nullable();
-
-
+            $table->string('company_name');  // เปลี่ยนจาก name เป็น company_name
+            $table->string('address')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('mobile')->nullable();
+            $table->string('fax')->nullable();
             $table->string('email')->nullable();
             $table->string('website')->nullable();
-
             $table->string('logo')->nullable();
-
+            $table->string('tax_id')->nullable();
+            $table->string('contact_person')->nullable();
+            
+            // Social media fields
             $table->string('twitter')->nullable();
             $table->string('instagram')->nullable();
             $table->string('linkedin')->nullable();
             $table->string('youtube')->nullable();
-            
             $table->string('tiktok')->nullable();
-           
             $table->string('facebook')->nullable();
             $table->string('line')->nullable();
-
-            $table->string('tax_id')->nullable();
-            $table->string('contact_person')->nullable();
+            
+            // Branch information
+            $table->string('branch')->nullable();
+            $table->string('branch_description')->nullable();
+            
             $table->timestamps();
         });
     }
