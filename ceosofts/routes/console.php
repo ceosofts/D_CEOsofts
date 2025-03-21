@@ -612,6 +612,16 @@ Artisan::command('backup:clean {--days=30 : Number of days to keep backups}', fu
 Artisan::command('system:health', function () {
     $this->info('Running system health check...');
     
+    // Format bytes helper function
+    $formatBytes = function ($bytes, $precision = 2) {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= (1 << (10 * $pow));
+        return round($bytes, $precision) . ' ' . $units[$pow];
+    };
+    
     // Check PHP version and extensions
     $this->comment('Checking PHP configuration...');
     $phpVersion = phpversion();
@@ -631,9 +641,9 @@ Artisan::command('system:health', function () {
     $usedSpace = $totalSpace - $freeSpace;
     $usedPercent = round(($usedSpace / $totalSpace) * 100, 2);
     
-    $this->line(" - Total disk space: " . $this->formatBytes($totalSpace));
-    $this->line(" - Free disk space: " . $this->formatBytes($freeSpace));
-    $this->line(" - Used disk space: " . $this->formatBytes($usedSpace) . " ({$usedPercent}%)");
+    $this->line(" - Total disk space: " . $formatBytes($totalSpace));
+    $this->line(" - Free disk space: " . $formatBytes($freeSpace));
+    $this->line(" - Used disk space: " . $formatBytes($usedSpace) . " ({$usedPercent}%)");
     
     if ($usedPercent > 90) {
         $this->warn(" ⚠️ Disk space usage is high!");

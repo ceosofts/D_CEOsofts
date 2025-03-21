@@ -7,104 +7,287 @@ use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\CompanyRequest;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Database\QueryException;
 
 class CompanyController extends Controller
 {
     /**
-     * แสดงรายการบริษัททั้งหมด
+     * Display a listing of companies.
+     * 
+     * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
-        $companies = Company::paginate(10); // ใช้ paginate เพื่อแบ่งหน้าการแสดงผล
-        return \view('admin.companies.index', compact('companies'));
+        $this->authorize('view-any', Company::class);
+
+        $perPage = $request->get('per_page', 10);
+        $search = $request->get('search');
+        $sortField = $request->get('sort', 'company_name');
+        $sortDirection = $request->get('direction', 'asc');
+
+        $query = Company::query();
+        
+        // Apply search if provided
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('company_name', 'LIKE', "%{$search}%")
+                  ->orWhere('tax_id', 'LIKE', "%{$search}%")
+                  ->orWhere('email', 'LIKE', "%{$search}%");
+            });
+        }
+        
+        // Apply sorting
+        $query->orderBy($sortField, $sortDirection);
+        
+        // Get paginated results, caching frequently accessed pages
+        $cacheKey = "companies_page_{$request->page}_{$perPage}_{$search}_{$sortField}_{$sortDirection}";
+        $companies = Cache::remember($cacheKey, now()->addMinutes(10), function() use ($query, $perPage) {
+            return $query->paginate($perPage);
+        });
+        
+        return view('admin.companies.index', compact('companies', 'search', 'sortField', 'sortDirection'));
     }
 
     /**
-     * แสดงฟอร์มสร้างบริษัทใหม่
+     * Show the form for creating a new company.
+     * 
+     * @return \Illuminate\View\View
      */
     public function create()
     {
-        return \view('admin.companies.create');
+        $this->authorize('create', Company::class);
+        
+        return view('admin.companies.create');
     }
 
     /**
-     * บันทึกข้อมูลบริษัทใหม่
+     * Store a newly created company in storage.
+     * 
+     * @param \App\Http\Requests\CompanyRequest $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function store(Request $request)
+    public function store(CompanyRequest $request)
     {
-        $request->validate([
-            'company_name' => 'required|unique:companies|max:255',
-            'branch' => 'required|integer',
-            'branch_description' => 'nullable|string|max:255',
-            'tax_id' => 'nullable|size:13',
-            'email' => 'nullable|email',
-        ]);
-
+        $this->authorize('create', Company::class);
+        
+        DB::beginTransaction();
+        
         try {
             $company = new Company();
-            $company->fill($request->all());
+            $company->fill($request->validated());
             $company->save();
-
-            return \redirect()->route('admin.companies.index')->with('success', 'เพิ่มบริษัทสำเร็จ!');
+            
+            // Clear cache
+            $this->clearCompanyCache();
+            
+            DB::commit();
+            
+            Log::info('Company created', ['id' => $company->id, 'name' => $company->company_name]);
+            
+            return redirect()
+                ->route('admin.companies.index')
+                ->with('success', 'บริษัท "' . $company->company_name . '" ถูกเพิ่มเรียบร้อยแล้ว');
+                
+        } catch (QueryException $e) {
+            DB::rollBack();
+            Log::error('Failed to create company', [
+                'error' => $e->getMessage(),
+                'data' => $request->validated()
+            ]);
+            
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $this->getDatabaseErrorMessage($e)]);
         } catch (\Exception $e) {
-            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()])->withInput();
+            DB::rollBack();
+            Log::error('Failed to create company', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง']);
         }
     }
 
     /**
-     * แสดงข้อมูลบริษัทตาม ID
+     * Display the specified company.
+     * 
+     * @param \App\Models\Company $company
+     * @return \Illuminate\View\View
      */
     public function show(Company $company)
     {
-        return \view('admin.companies.show', compact('company'));
+        $this->authorize('view', $company);
+        
+        // Load related data if needed
+        // $company->load(['relatedModel']);
+        
+        return view('admin.companies.show', compact('company'));
     }
 
     /**
-     * แสดงฟอร์มแก้ไขข้อมูลบริษัท
+     * Show the form for editing the specified company.
+     * 
+     * @param \App\Models\Company $company
+     * @return \Illuminate\View\View
      */
     public function edit(Company $company)
     {
-        return \view('admin.companies.edit', compact('company'));
+        $this->authorize('update', $company);
+        
+        return view('admin.companies.edit', compact('company'));
     }
 
     /**
-     * อัปเดตข้อมูลบริษัท
+     * Update the specified company in storage.
+     * 
+     * @param \App\Http\Requests\CompanyRequest $request
+     * @param \App\Models\Company $company
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, Company $company)
+    public function update(CompanyRequest $request, Company $company)
     {
-        $request->validate([
-            'company_name' => 'required|max:255|unique:companies,company_name,' . $company->id,
-            'email' => 'nullable|email',
-            'tax_id' => 'nullable|size:13',
-        ]);
-
-        $data = $request->except(['_token', '_method']);
-
-        Log::info('Update Request Data:', $data);
-
-        $company->forceFill($data);
-        $company->updated_at = \now();
-
-        Log::info('Before Save (Dirty Data):', $company->getDirty());
-
-        $company->save();
-
-        DB::enableQueryLog();
-        Log::info('Executed Queries:', DB::getQueryLog());
-
-        return \redirect()->route('admin.companies.index')->with('success', 'อัปเดตข้อมูลบริษัทสำเร็จ!');
+        $this->authorize('update', $company);
+        
+        DB::beginTransaction();
+        
+        try {
+            $previousName = $company->company_name;
+            
+            $company->fill($request->validated());
+            
+            if ($company->isDirty()) {
+                $company->save();
+                
+                Log::info('Company updated', [
+                    'id' => $company->id,
+                    'name' => $company->company_name,
+                    'changes' => $company->getChanges()
+                ]);
+                
+                // Clear cache
+                $this->clearCompanyCache();
+                
+                $message = 'ข้อมูลบริษัท "' . $company->company_name . '" ถูกอัปเดตเรียบร้อยแล้ว';
+            } else {
+                $message = 'ไม่มีการเปลี่ยนแปลงข้อมูลบริษัท';
+            }
+            
+            DB::commit();
+            
+            return redirect()
+                ->route('admin.companies.index')
+                ->with('success', $message);
+                
+        } catch (QueryException $e) {
+            DB::rollBack();
+            Log::error('Failed to update company', [
+                'id' => $company->id,
+                'error' => $e->getMessage(),
+                'data' => $request->validated()
+            ]);
+            
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' . $this->getDatabaseErrorMessage($e)]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to update company', [
+                'id' => $company->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง']);
+        }
     }
 
     /**
-     * ลบข้อมูลบริษัท
+     * Remove the specified company from storage.
+     * 
+     * @param \App\Models\Company $company
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Company $company)
     {
+        $this->authorize('delete', $company);
+        
+        DB::beginTransaction();
+        
         try {
+            $companyName = $company->company_name;
+            
+            // Check for dependencies before deletion
+            // if ($company->hasRelationships()) {
+            //    return back()->withErrors(['error' => 'ไม่สามารถลบบริษัทนี้ได้ เนื่องจากมีข้อมูลที่เกี่ยวข้อง']);
+            // }
+            
             $company->delete();
-            return \redirect()->route('admin.companies.index')->with('success', 'ลบบริษัทสำเร็จ!');
+            
+            // Clear cache
+            $this->clearCompanyCache();
+            
+            DB::commit();
+            
+            Log::info('Company deleted', ['id' => $company->id, 'name' => $companyName]);
+            
+            return redirect()
+                ->route('admin.companies.index')
+                ->with('success', 'บริษัท "' . $companyName . '" ถูกลบเรียบร้อยแล้ว');
+                
         } catch (\Exception $e) {
-            return \back()->withErrors(['error' => 'เกิดข้อผิดพลาด: ' . $e->getMessage()]);
+            DB::rollBack();
+            Log::error('Failed to delete company', [
+                'id' => $company->id, 
+                'error' => $e->getMessage()
+            ]);
+            
+            return back()->withErrors([
+                'error' => 'ไม่สามารถลบบริษัทได้: ' . $e->getMessage()
+            ]);
+        }
+    }
+    
+    /**
+     * Clear company-related cache.
+     * 
+     * @return void
+     */
+    protected function clearCompanyCache(): void
+    {
+        // Clear cache keys that might contain company data
+        Cache::flush('companies_page_*');
+        Cache::forget('all_companies');
+    }
+    
+    /**
+     * Get a user-friendly database error message.
+     * 
+     * @param \Illuminate\Database\QueryException $exception
+     * @return string
+     */
+    protected function getDatabaseErrorMessage(QueryException $exception): string
+    {
+        $errorCode = $exception->getCode();
+        
+        switch ($errorCode) {
+            case '23000': // Integrity constraint violation
+                if (strpos($exception->getMessage(), 'Duplicate entry') !== false) {
+                    return 'ข้อมูลนี้มีอยู่ในระบบแล้ว กรุณาตรวจสอบข้อมูลซ้ำ';
+                }
+                return 'ข้อมูลขัดแย้งกับข้อมูลอื่นในระบบ';
+                
+            case '22001': // String data right truncation
+                return 'ข้อมูลที่กรอกมีความยาวเกินกว่าที่กำหนด';
+                
+            default:
+                return 'เกิดข้อผิดพลาดในฐานข้อมูล (รหัส: ' . $errorCode . ')';
         }
     }
 }
