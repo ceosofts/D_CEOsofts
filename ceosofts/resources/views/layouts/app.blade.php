@@ -10,19 +10,11 @@
     <title>@yield('title') - {{ config('app.name', 'CEOsofts') }}</title>
 
     <!-- Styles -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    @vite(['resources/sass/app.scss', 'resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
     <!-- Additional Styles -->
     @stack('styles')
-    @push('styles')
-    <style>
-        .input-group .form-control {
-            height: 38px !important;
-        }
-    </style>
-    @endpush
 </head>
 <body>
     <div id="app">
@@ -238,7 +230,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- Additional Scripts -->
     @stack('scripts')

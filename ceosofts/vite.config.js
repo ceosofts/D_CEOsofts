@@ -12,4 +12,18 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    css: {
+        preprocessorOptions: {
+            scss: {
+                quietDeps: true, // Silence deprecation warnings from dependencies
+            }
+        },
+        // Explicitly set the path to PostCSS config
+        postcss: './postcss.config.cjs'
+    },
+    resolve: {
+        alias: {
+            '$': 'jQuery',
+        },
+    },
 });

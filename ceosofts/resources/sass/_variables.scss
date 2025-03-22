@@ -2,7 +2,17 @@
 @use 'sass:math';
 
 // Colors
-$primary-color: #3490dc;
+$primary-color: #333;
+$blue: #3490dc;
+$indigo: #6574cd;
+$purple: #9561e2;
+$pink: #f66d9b;
+$red: #e3342f;
+$orange: #f6993f;
+$yellow: #ffed4a;
+$green: #38c172;
+$teal: #4dc0b5;
+$cyan: #6cb2eb;
 $primary-dark: color.adjust($primary-color, $lightness: -10%); // ใช้ adjust() สำหรับปรับความสว่าง
 $primary-light: color.adjust($primary-color, $lightness: 20%);
 

@@ -1,5 +1,7 @@
 @use "variables" as *; // นำเข้าไฟล์ variables
-@use "bootstrap/scss/bootstrap"; // นำเข้า SCSS ของ Bootstrap
+@use "bootstrap/scss/bootstrap" with (
+  $enable-deprecation-messages: false
+);
 
 // Fonts
 @import url('https://fonts.bunny.net/css?family=Nunito');
@@ -10,3 +12,17 @@ body {
     background-color: $body-bg; // ใช้ตัวแปรสีพื้นหลัง
     color: $primary-color; // ใช้ตัวแปรสีข้อความหลัก
 }
+
+// Custom styles
+.input-group > input,
+.input-group > .form-control {
+    height: 40px !important;
+}
+
+.pagination {
+    font-size: 0.8rem;
+    padding: 5px;
+}
+
+// Import other custom styles from app.css
+// Add any other custom styles here
