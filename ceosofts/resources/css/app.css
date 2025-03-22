@@ -1,8 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-
+/* Bootstrap styles are loaded via CDN in layouts/app.blade.php */
 
 .input-group > input,
 .input-group > .form-control {
