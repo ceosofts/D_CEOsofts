@@ -17,7 +17,8 @@ use App\Http\Controllers\{
     QuotationController,
     InvoiceController,
     ReportController,
-    ProfileController
+    ProfileController,
+    TestLoginController // Already imported here
 };
 use App\Http\Controllers\Admin\{
     UserController,
@@ -43,7 +44,7 @@ use App\Services\ThaiPdfService;
 // Define a basic route for the homepage
 Route::get('/', function () {
     return view('welcome');
-})->name('home');
+})->name('welcome'); // Changed from 'home' to 'welcome'
 
 // Authentication Routes with rate limiting to prevent brute force attacks
 Route::middleware(['throttle:login'])->group(function () {
@@ -60,6 +61,13 @@ Route::get('/pure-bootstrap', function () {
     return view('pure-bootstrap');
 })->name('pure.bootstrap');
 
+// Test routes - add these to public routes, outside of auth middleware
+// เพิ่ม route สำหรับทดสอบการเข้าสู่ระบบ (เฉพาะ development เท่านั้น)
+if (app()->environment('local')) {
+    Route::get('/test-users', [TestLoginController::class, 'showUsers']);
+    Route::post('/test-login-attempt', [TestLoginController::class, 'testLogin']);
+}
+
 /*
 |--------------------------------------------------------------------------
 | Authenticated Routes
@@ -73,9 +81,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->middleware(['department', 'verified'])
         ->name('dashboard');
-
-    // Profile Page
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
 
     // Profile routes
     Route::middleware(['auth'])->group(function () {
@@ -102,9 +107,8 @@ Route::middleware('auth')->group(function () {
             'departments'      => DepartmentController::class,
             'units'            => UnitController::class,
             'positions'        => PositionController::class,
-            // 'prefixes'         => PrefixController::class, // ปิดการใช้งาน Route Resource เพื่อป้องกันความขัดแย้ง
             'item_statuses'    => ItemStatusController::class,
-            'payment_statuses' => PaymentStatusController::class, // This already has admin prefix and name
+            'payment_statuses' => PaymentStatusController::class,
             'tax'              => TaxSettingController::class,
             'job-statuses'     => JobStatusController::class,
         ]);
@@ -117,16 +121,7 @@ Route::middleware('auth')->group(function () {
         Route::put('prefixes/{id}', [PrefixController::class, 'update'])->name('prefixes.update');
         Route::delete('prefixes/{id}', [PrefixController::class, 'destroy'])->name('prefixes.destroy');
         Route::get('prefixes/{id}', [PrefixController::class, 'show'])->name('prefixes.show');
-
-        // แก้ไขการกำหนด resource routes ให้ถูกต้อง
-        // Route::resource('payment_statuses', \App\Http\Controllers\Admin\PaymentStatusController::class);
     });
-
-    // Routes for Units Management
-    // Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
-    //     Route::resource('units', \App\Http\Controllers\Admin\UnitController::class);
-    //     Route::resource('payment_statuses', \App\Http\Controllers\Admin\PaymentStatusController::class);
-    // });
 
     /*
     |--------------------------------------------------------------------------
@@ -169,12 +164,14 @@ Route::middleware('auth')->group(function () {
             ->name('quotations.create-invoice')
             ->middleware('can:create invoice');
 
-        // Invoice Management
+        // Remove the duplicate route registration entirely - don't define the resource twice
+        // Invoice Management - With specific routes
+        // The specific routes are defined first, then the resource
+        Route::get('invoice/{invoice}/pdf', [InvoiceController::class, 'generatePDF'])->name('invoice.pdf');
+        Route::post('invoice/{invoice}/mark-paid', [InvoiceController::class, 'markAsPaid'])->name('invoice.mark-paid');
+
+        // Now define the resource routes AFTER the specific routes
         Route::resource('invoices', InvoiceController::class);
-        Route::prefix('invoices')->name('invoices.')->group(function () {
-            Route::get('/{invoice}/pdf', [InvoiceController::class, 'generatePDF'])->name('pdf');
-            Route::post('/{invoice}/mark-paid', [InvoiceController::class, 'markAsPaid'])->name('mark-paid');
-        });
 
         // Wage & Payroll Management
         Route::prefix('wages')->name('wages.')->group(function () {
@@ -264,6 +261,10 @@ if (app()->environment('local')) {
         $pdfService = new ThaiPdfService();
         return $pdfService->generatePdf($html);
     });
+
+    // เพิ่ม route สำหรับทดสอบการเข้าสู่ระบบ (เฉพาะ development เท่านั้น)
+    Route::get('/test-users', [TestLoginController::class, 'showUsers']);
+    Route::post('/test-login-attempt', [TestLoginController::class, 'testLogin']);
 }
 
 // Test route using controller

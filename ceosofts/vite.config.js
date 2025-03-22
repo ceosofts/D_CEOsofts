@@ -11,9 +11,15 @@ export default defineConfig({
             refresh: true,
         }),
     ],
-    server: {
-        hmr: {
-            host: 'localhost',
+    resolve: {
+        alias: {
+            '$': 'jquery',
         },
+    },
+    css: {
+        devSourcemap: true,
+    },
+    build: {
+        sourcemap: true,
     },
 });

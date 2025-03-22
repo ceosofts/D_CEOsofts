@@ -1,4 +1,10 @@
 import './bootstrap';
+import '../css/app.css';
+
+// Import Bootstrap JS
+import * as bootstrap from 'bootstrap';
+window.bootstrap = bootstrap;
+
 import Alpine from 'alpinejs';
 import $ from 'jquery';
 
@@ -36,3 +42,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+// You can add your custom JavaScript code here

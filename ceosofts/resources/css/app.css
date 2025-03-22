@@ -1,0 +1,47 @@
+/* Base CSS styles */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Custom styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.container-main {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Form styles */
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Table styles */
+.table.sortable th[data-sort] {
+    cursor: pointer;
+}
+
+.table.sortable th[data-sort]:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.table.sortable th[data-sort="asc"]::after {
+    content: " ▲";
+    font-size: 0.75em;
+}
+
+.table.sortable th[data-sort="desc"]::after {
+    content: " ▼";
+    font-size: 0.75em;
+}
+
+/* Toast notifications */
+.toast-container {
+    z-index: 1050;
+}

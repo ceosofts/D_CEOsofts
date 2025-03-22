@@ -77,7 +77,24 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
     }
-    
+
+    /**
+     * Attempt to log the user into the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    protected function attemptLogin(Request $request)
+    {
+        $login = $request->input('login');
+        $password = $request->input('password');
+
+        return Auth::attempt([
+            filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username' => $login,
+            'password' => $password
+        ], $request->filled('remember'));
+    }
+
     /**
      * Handle a login request to the application.
      *
@@ -137,5 +154,20 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
         $this->middleware('auth')->only('logout');
+    }
+
+    /**
+     * Send the failed login response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        throw ValidationException::withMessages([
+            'login' => [trans('auth.failed')],
+        ]);
     }
 }

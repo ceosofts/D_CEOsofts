@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Attendance;
+use App\Models\Employee;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 
 class AttendanceSeeder extends Seeder
 {
@@ -13,57 +15,54 @@ class AttendanceSeeder extends Seeder
      */
     public function run(): void
     {
-        if (!Schema::hasTable('attendances')) {
-            $this->command->error("Table 'attendances' does not exist, skipping seeder.");
+        // Clear any existing attendance records to avoid constraint violations
+        DB::table('attendances')->delete();
+        
+        $employees = Employee::all();
+        if ($employees->isEmpty()) {
+            $this->command->info('No employees found. Skipping attendance seeding.');
             return;
         }
 
-        if (!Schema::hasTable('employees') || DB::table('employees')->count() == 0) {
-            $this->command->error("No employees found. Please seed employees first.");
-            return;
-        }
-
-        try {
-            // ข้อมูลการเข้างานตัวอย่างสำหรับพนักงาน ID 1
-            // สร้างข้อมูลการเข้างาน 10 วันย้อนหลัง
-            $attendanceData = [];
-            $employeeId = 1; // เลือกพนักงานคนแรก
+        $employee = $employees->first(); // Use the first employee for sample data
+        
+        // Create attendance records for the last 10 days
+        $startDate = Carbon::now()->subDays(10);
+        
+        for ($i = 0; $i < 10; $i++) {
+            $date = $startDate->copy()->addDays($i);
             
-            for ($i = 0; $i < 10; $i++) {
-                $date = now()->subDays($i + 1)->format('Y-m-d');
-                $checkInHour = rand(8, 9);
-                $checkInMinute = rand(0, 59);
-                $checkIn = now()->subDays($i + 1)->setTime($checkInHour, $checkInMinute, 0);
-                
-                // เวลาเลิกงานปกติคือ 17:00-19:00
-                $checkOutHour = rand(17, 18);
-                $checkOutMinute = rand(0, 59);
-                $checkOut = now()->subDays($i + 1)->setTime($checkOutHour, $checkOutMinute, 0);
-                
-                // คำนวณชั่วโมงการทำงานและ overtime
-                $workHours = $checkOut->diffInMinutes($checkIn) / 60;
-                $workHours = round($workHours, 2);
-                $overtimeHours = max(0, $workHours - 8);
-                
-                $attendanceData[] = [
-                    'employee_id' => $employeeId,
-                    'date' => $date,
-                    'check_in' => $checkIn,
-                    'check_out' => $checkOut,
-                    'status' => 'normal',
-                    'work_hours' => $workHours,
-                    'overtime_hours' => $overtimeHours,
-                    'work_hours_completed' => true,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ];
+            // Skip weekends
+            if ($date->isWeekend()) {
+                continue;
             }
             
-            DB::table('attendances')->insert($attendanceData);
+            // Random check in time between 8:00 AM and 9:30 AM
+            $checkInHour = rand(8, 9);
+            $checkInMinute = $checkInHour == 9 ? rand(0, 30) : rand(0, 59);
+            $checkIn = $date->copy()->setTime($checkInHour, $checkInMinute);
             
-            $this->command->info("Successfully seeded attendance records");
-        } catch (\Exception $e) {
-            $this->command->error("Error running " . get_class($this) . ": " . $e->getMessage());
+            // Random check out time between 5:00 PM and 6:30 PM
+            $checkOutHour = rand(17, 18);
+            $checkOutMinute = $checkOutHour == 18 ? rand(0, 30) : rand(0, 59);
+            $checkOut = $date->copy()->setTime($checkOutHour, $checkOutMinute);
+            
+            // Calculate work hours
+            $workHours = $checkIn->diffInHours($checkOut);
+            
+            // Create the attendance record
+            Attendance::create([
+                'employee_id' => $employee->id,
+                'date' => $date->toDateString(),
+                'check_in' => $checkIn->toDateTimeString(),
+                'check_out' => $checkOut->toDateTimeString(),
+                'status' => 'normal',
+                'work_hours' => $workHours,
+                'overtime_hours' => rand(0, 2),
+                'work_hours_completed' => true,
+            ]);
         }
+
+        $this->command->info('Successfully seeded attendance records');
     }
 }

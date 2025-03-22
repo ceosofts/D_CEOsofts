@@ -22,7 +22,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::post('register', [AuthController::class, 'register']);
 
 // API Version 1 Routes
-Route::prefix('v1')->group(function () {
+Route::prefix('v1')->name('api.v1.')->group(function () {
     // Public routes
     Route::get('invoices/public', [InvoiceController::class, 'publicInvoices']);
     

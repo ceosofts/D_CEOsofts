@@ -51,6 +51,61 @@ php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
 php artisan migrate
 ```
 
+# CEO Softs Application
+
+## Project Setup
+
+### Development Environment Setup
+
+1. Clone the repository
+2. Copy `.env.example` to `.env` and configure your environment variables
+3. Run `composer install` to install dependencies
+4. Run `php artisan app:setup` to initialize the database and required tables
+5. Run `php artisan serve` to start the development server
+
+### Database
+
+This application uses SQLite by default for development. To switch to MySQL or another database:
+
+1. Update `.env` file with database credentials
+2. Run `php artisan migrate:fresh --seed` to recreate tables and seed data
+
+### Utility Commands
+
+The application provides several custom commands to help with development:
+
+-   `php artisan app:setup` - Set up application with SQLite database and required tables
+-   `php artisan app:fix-permissions` - Fix storage permissions issues
+-   `php artisan route:cleanup` - Clean up route cache files
+-   `php artisan route:inspect {name?}` - Inspect routes for duplicates or search by name
+-   `php artisan route:disable-cache` - Disable route caching for development
+
+### Available Users
+
+After seeding the database, the following users are available:
+
+| Username            | Password | Role    |
+| ------------------- | -------- | ------- |
+| admin@example.com   | password | Admin   |
+| user@example.com    | password | User    |
+| manager@example.com | password | Manager |
+
+## Features
+
+-   Customer Management
+-   Product Management
+-   Order Management
+-   HR Management (Employees, Attendance)
+-   Invoicing and Quotations
+-   Payroll System
+-   Reporting
+
+## Development Notes
+
+-   Route caching is disabled in development. For production, address route name conflicts before enabling route caching.
+-   The application uses a helper class `ColorHelper` for color manipulation in Blade templates.
+-   Thai language PDF generation is available for reporting features.
+
 ## Laravel Sponsors
 
 We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).

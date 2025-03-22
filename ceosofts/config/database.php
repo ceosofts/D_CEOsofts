@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'sqlite'),
 
     /*
     |--------------------------------------------------------------------------
@@ -55,23 +55,11 @@ return [
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
-            'prefix_indexes' => true,
-            'strict' => false, // แก้ไขเป็น false เพื่อป้องกันปัญหาด้าน SQL Mode
+            'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-                PDO::ATTR_PERSISTENT => env('DB_PERSISTENT', false), // เพิ่ม connection persistent
-                PDO::ATTR_EMULATE_PREPARES => env('DB_EMULATE_PREPARES', true), // เพิ่มประสิทธิภาพ prepared statements
-                PDO::ATTR_TIMEOUT => env('DB_TIMEOUT', 60), // เพิ่มเวลา timeout
             ]) : [],
-            'modes' => [
-                //'ONLY_FULL_GROUP_BY', // ปิดไว้เพราะอาจทำให้เกิดปัญหากับ query ที่มีอยู่
-                'STRICT_TRANS_TABLES',
-                'NO_ZERO_IN_DATE',
-                'NO_ZERO_DATE',
-                'ERROR_FOR_DIVISION_BY_ZERO',
-                'NO_ENGINE_SUBSTITUTION',
-            ],
         ],
 
         'pgsql' => [

@@ -21,64 +21,60 @@ class UserSeeder extends Seeder
             $this->command->error("Table 'users' does not exist, skipping seeder.");
             return;
         }
-        
-        if (!Schema::hasTable('roles')) {
-            $this->command->error("Table 'roles' does not exist, skipping seeder.");
-            return;
-        }
 
         try {
-            // ตรวจสอบคอลัมน์ที่จำเป็น
-            $columns = Schema::getColumnListing('users');
-            $requiredColumns = ['name', 'email', 'password', 'role'];
-            $missingColumns = array_diff($requiredColumns, $columns);
+            // ลบ record เก่า - เพื่อป้องกันปัญหาการมี record ซ้ำ
+            // DB::table('users')->truncate(); // ถ้ามี foreign keys ให้ comment บรรทัดนี้ไว้
             
-            if (!empty($missingColumns)) {
-                $this->command->error("Missing columns in users table: " . implode(', ', $missingColumns));
-                return;
-            }
-            
-            // ผู้ใช้ตัวอย่าง
+            // ผู้ใช้ตัวอย่าง - กำหนดรหัสผ่านชัดเจนเป็น 'password' สำหรับการทดสอบ
             $users = [
                 [
                     'name' => 'Admin User',
                     'email' => 'admin@example.com',
-                    'password' => Hash::make('password123'),
+                    'password' => Hash::make('password'), // ตรวจสอบว่ารหัสผ่านเป็น 'password'
                     'role' => 'admin',
-                    'email_verified_at' => now(),
                 ],
                 [
                     'name' => 'Manager User',
                     'email' => 'manager@example.com',
-                    'password' => Hash::make('password123'),
+                    'password' => 'password', // จะถูก hash ในภายหลัง
                     'role' => 'manager',
-                    'email_verified_at' => now(),
                 ],
                 [
                     'name' => 'Regular User',
                     'email' => 'user@example.com',
-                    'password' => Hash::make('password123'),
+                    'password' => 'password', // จะถูก hash ในภายหลัง
                     'role' => 'user',
-                    'email_verified_at' => now(),
                 ],
             ];
 
             $count = 0;
             foreach ($users as $userData) {
-                $user = User::updateOrCreate(
-                    ['email' => $userData['email']],
-                    [
-                        'name' => $userData['name'],
-                        'password' => $userData['password'],
-                        'role' => $userData['role'],
-                        'email_verified_at' => $userData['email_verified_at'],
-                    ]
-                );
+                // Hash รหัสผ่านให้ถูกต้อง
+                $hashedPassword = Hash::make($userData['password']);
+                
+                // ลบ record เก่าเฉพาะ email นั้น (เพื่อป้องกันการซ้ำซ้อน)
+                User::where('email', $userData['email'])->delete();
+                
+                // สร้าง user ใหม่
+                $user = User::create([
+                    'name' => $userData['name'],
+                    'email' => $userData['email'],
+                    'password' => $hashedPassword,
+                    'role' => $userData['role'],
+                    'email_verified_at' => now(),
+                ]);
                 
                 // กำหนดบทบาท (role)
                 if (isset($userData['role']) && !empty($userData['role'])) {
+                    // ตรวจสอบว่ามี role นี้แล้วหรือไม่
                     $role = Role::where('name', $userData['role'])->first();
                     if ($role) {
+                        $user->assignRole($role);
+                    } else {
+                        $this->command->info("Role '{$userData['role']}' not found, creating it.");
+                        // สร้าง role ใหม่ถ้ายังไม่มี
+                        $role = Role::create(['name' => $userData['role']]);
                         $user->assignRole($role);
                     }
                 }
@@ -86,7 +82,7 @@ class UserSeeder extends Seeder
                 $count++;
             }
 
-            $this->command->info("Successfully seeded {$count} users");
+            $this->command->info("Successfully seeded {$count} users with password 'password'");
         } catch (\Exception $e) {
             $this->command->error("Error running " . get_class($this) . ": " . $e->getMessage());
         }

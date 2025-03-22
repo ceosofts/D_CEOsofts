@@ -128,10 +128,10 @@ return [
         ],
 
         'queries' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/database-queries.log'),
-            'level' => 'debug',
-            'days' => 14,
+            'driver' => 'single',
+            'path' => storage_path('logs/queries.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
         ],
 
     ],
